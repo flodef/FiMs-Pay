@@ -10,7 +10,7 @@ import { PaymentProvider } from '../client/components/contexts/PaymentProvider';
 import { ThemeProvider } from '../client/components/contexts/ThemeProvider';
 import { TransactionsProvider } from '../client/components/contexts/TransactionsProvider';
 import { USDCIcon } from '../client/components/images/USDCIcon';
-import '../client/styles/index.pcss';
+import '../client/styles/index.css';
 import { DEVNET_DUMMY_MINT, DEVNET_ENDPOINT } from '../client/utils/constants';
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {

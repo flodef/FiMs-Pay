@@ -1,6 +1,6 @@
 import { FC, HTMLAttributes, ReactNode } from 'react';
 import { BackIcon } from '../images/BackIcon';
-import * as css from './BackButton.module.pcss';
+import * as css from './BackButton.module.css';
 
 export interface BackButtonProps {
     children: ReactNode;

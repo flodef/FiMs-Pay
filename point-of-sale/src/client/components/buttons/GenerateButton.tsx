@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { usePayment } from '../../hooks/usePayment';
-import * as css from './GenerateButton.module.pcss';
+import * as css from './GenerateButton.module.css';
 
 export const GenerateButton: FC = () => {
     const { amount, generate } = usePayment();

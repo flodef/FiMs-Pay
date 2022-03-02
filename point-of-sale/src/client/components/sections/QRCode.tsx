@@ -3,7 +3,7 @@ import QRCodeStyling from '@solana/qr-code-styling';
 import { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { usePayment } from '../../hooks/usePayment';
 import { useTheme } from '../../hooks/useTheme';
-import * as css from './QRCode.module.pcss';
+import * as css from './QRCode.module.css';
 
 export const QRCode: FC = () => {
     const [size, setSize] = useState(() =>

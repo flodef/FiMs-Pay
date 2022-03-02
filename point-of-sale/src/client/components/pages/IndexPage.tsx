@@ -6,7 +6,7 @@ import { TransactionsLink } from '../buttons/TransactionsLink';
 import { NumPad } from '../sections/NumPad';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Summary } from '../sections/Summary';
-import * as css from './IndexPage.module.pcss';
+import * as css from './IndexPage.module.css';
 
 export const IndexPage: FC = () => {
     const phone = useMediaQuery({ query: '(max-width: 767px)' });
