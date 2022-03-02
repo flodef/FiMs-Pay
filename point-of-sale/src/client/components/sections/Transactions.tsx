@@ -6,7 +6,7 @@ import { useConfig } from '../../hooks/useConfig';
 import { Transaction, useTransactions } from '../../hooks/useTransactions';
 import { NON_BREAKING_SPACE } from '../../utils/constants';
 import { Amount } from './Amount';
-import * as css from './Transactions.module.css';
+import css from './Transactions.module.css';
 
 export const Transactions: FC = () => {
     const { transactions } = useTransactions();

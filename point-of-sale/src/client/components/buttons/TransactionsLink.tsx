@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import Link from 'next/link';
 import { ActivityIcon } from '../images/ActivityIcon';
-import * as css from './TransactionsLink.module.css';
+import css from './TransactionsLink.module.css';
 
 export const TransactionsLink: FC = () => {
     const phone = useMediaQuery({ query: '(max-width: 767px)' });

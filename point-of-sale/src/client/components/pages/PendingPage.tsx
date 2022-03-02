@@ -7,7 +7,7 @@ import { BackButton } from '../buttons/BackButton';
 import { Amount } from '../sections/Amount';
 import { PoweredBy } from '../sections/PoweredBy';
 import { QRCode } from '../sections/QRCode';
-import * as css from './PendingPage.module.css';
+import css from './PendingPage.module.css';
 
 export const PendingPage: FC = () => {
     const { symbol, connectWallet } = useConfig();

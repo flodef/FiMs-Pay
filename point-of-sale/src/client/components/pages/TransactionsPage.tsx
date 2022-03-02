@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { BackButton } from '../buttons/BackButton';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Transactions } from '../sections/Transactions';
-import * as css from './TransactionsPage.module.css';
+import css from './TransactionsPage.module.css';
 
 export const TransactionsPage: FC = () => {
     const router = useRouter();

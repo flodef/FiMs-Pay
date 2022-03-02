@@ -3,7 +3,7 @@ import { FC, useMemo } from 'react';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import * as css from './Progress.module.css';
+import css from './Progress.module.css';
 
 export const Progress: FC = () => {
     const { status, progress } = usePayment();
