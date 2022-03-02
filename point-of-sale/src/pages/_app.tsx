@@ -18,7 +18,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
     const connectWallet = true;
     const wallets = useMemo(() => (connectWallet ? [new PhantomWalletAdapter()] : []), [connectWallet]);
 
-    const recipient = useMemo(() => new PublicKey(''), []);
+    const recipient = useMemo(() => new PublicKey('2YVnh1hTwxS4V6ZZ8ybuY5rZsKDbhWAfD6L6JfdGsZ9y'), []);
     const link = useMemo(() => new URL('https://localhost:3001/api'), []);
 
     return (
