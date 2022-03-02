@@ -11,7 +11,6 @@ import { PaymentProvider } from '../contexts/PaymentProvider';
 import { ThemeProvider } from '../contexts/ThemeProvider';
 import { TransactionsProvider } from '../contexts/TransactionsProvider';
 import { USDCIcon } from '../images/USDCIcon';
-import '../../styles/index.css';
 import { DEVNET_DUMMY_MINT, DEVNET_ENDPOINT } from '../../utils/constants';
 
 export const App: FC<AppProps> = ({ Component, pageProps }) => {
