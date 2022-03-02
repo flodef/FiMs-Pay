@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { NextPage } from 'next';
 import { usePayment } from '../../hooks/usePayment';
 import { BackButton } from '../buttons/BackButton';
 import { TransactionsLink } from '../buttons/TransactionsLink';
@@ -6,7 +6,7 @@ import { PoweredBy } from '../sections/PoweredBy';
 import { Progress } from '../sections/Progress';
 import css from './ConfirmedPage.module.css';
 
-export const ConfirmedPage: FC = () => {
+export const ConfirmedPage: NextPage = () => {
     const { reset } = usePayment();
 
     return (

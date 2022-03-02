@@ -1,6 +1,7 @@
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { FC, useEffect } from 'react';
+import { NextPage } from 'next';
+import { useEffect } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { usePayment } from '../../hooks/usePayment';
 import { BackButton } from '../buttons/BackButton';
@@ -9,7 +10,7 @@ import { PoweredBy } from '../sections/PoweredBy';
 import { QRCode } from '../sections/QRCode';
 import css from './PendingPage.module.css';
 
-export const PendingPage: FC = () => {
+export const PendingPage: NextPage = () => {
     const { symbol, connectWallet } = useConfig();
     const { amount, reset } = usePayment();
     const { publicKey } = useWallet();

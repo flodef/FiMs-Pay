@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { NextPage } from 'next';
 import { useMediaQuery } from 'react-responsive';
 import { FullscreenButton } from '../buttons/FullscreenButton';
 import { GenerateButton } from '../buttons/GenerateButton';
@@ -8,7 +8,7 @@ import { PoweredBy } from '../sections/PoweredBy';
 import { Summary } from '../sections/Summary';
 import css from './IndexPage.module.css';
 
-export const IndexPage: FC = () => {
+export const IndexPage: NextPage = () => {
     const phone = useMediaQuery({ query: '(max-width: 767px)' });
 
     return phone ? (

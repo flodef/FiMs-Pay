@@ -1,11 +1,11 @@
+import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { FC } from 'react';
 import { BackButton } from '../buttons/BackButton';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Transactions } from '../sections/Transactions';
 import css from './TransactionsPage.module.css';
 
-export const TransactionsPage: FC = () => {
+export const TransactionsPage: NextPage = () => {
     const router = useRouter();
 
     return (
