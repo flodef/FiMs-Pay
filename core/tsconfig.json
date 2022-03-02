@@ -4,6 +4,7 @@
     "compilerOptions": {
         "target": "es2019",
         "module": "esnext",
+        "moduleResolution": "node",
         "outDir": "lib/esm",
         "declarationDir": "lib/types",
         "noEmit": false,
@@ -11,7 +12,6 @@
         "sourceMap": true,
         "noEmitOnError": true,
         "stripInternal": true,
-        "moduleResolution": "node",
         "jsx": "react",
         "strict": true,
         "esModuleInterop": true,
