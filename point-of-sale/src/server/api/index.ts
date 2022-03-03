@@ -2,8 +2,9 @@ import { createTransfer } from '@solana/pay';
 import { PublicKey } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import { NextApiHandler } from 'next';
-import { connection } from '../../server/core';
+import { connection, FEE_PAYER, SECRET_KEYPAIR } from '../../server/core';
 import { cors, rateLimit } from '../../server/middleware';
+import { RECIPIENT, SPL_TOKEN } from '../../shared/constants';
 
 export const handler: NextApiHandler<{ transaction: string }> = async function (request, response) {
     await cors(request, response);
@@ -14,28 +15,15 @@ export const handler: NextApiHandler<{ transaction: string }> = async function (
     persisted along with an unpredictable opaque ID representing the payment, and the ID be passed to the app client,
     which will include the ID in the transaction request URL. This prevents tampering with the transaction request.
     */
-    const recipientField = request.query.recipient;
-    if (!recipientField) throw new Error('missing recipient');
-    if (typeof recipientField !== 'string') throw new Error('invalid recipient');
-    const recipient = new PublicKey(recipientField);
-
     const amountField = request.query.amount;
     if (!amountField) throw new Error('missing amount');
     if (typeof amountField !== 'string') throw new Error('invalid amount');
     const amount = new BigNumber(amountField);
 
-    const splTokenField = request.query.splToken;
-    if (splTokenField && typeof splTokenField !== 'string') throw new Error('invalid splToken');
-    const splToken = splTokenField ? new PublicKey(splTokenField) : undefined;
-
     const referenceField = request.query.reference;
     if (!referenceField) throw new Error('missing reference');
     if (typeof referenceField !== 'string') throw new Error('invalid reference');
     const reference = new PublicKey(referenceField);
-
-    const memoParam = request.query.memo;
-    if (memoParam && typeof memoParam !== 'string') throw new Error('invalid memo');
-    const memo = memoParam || undefined;
 
     // Account provided in the transaction request body by the wallet.
     const accountField = request.body?.account;
@@ -45,12 +33,15 @@ export const handler: NextApiHandler<{ transaction: string }> = async function (
 
     // Compose a simple transfer transaction to return. In practice, this can be any transaction, and may be signed.
     const transaction = await createTransfer(connection, account, {
-        recipient,
+        recipient: RECIPIENT,
         amount,
-        splToken,
+        splToken: SPL_TOKEN,
         reference,
-        memo,
     });
+
+    // Set the fee payer and sign the transaction as the fee payer
+    // transaction.feePayer = FEE_PAYER;
+    // transaction.partialSign(SECRET_KEYPAIR);
 
     // Serialize and return the unsigned transaction.
     const serialized = transaction.serialize({

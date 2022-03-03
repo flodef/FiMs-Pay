@@ -29,7 +29,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     const [amount, setAmount] = useState<BigNumber>();
     const [message, setMessage] = useState<string>();
-    const [memo, setMemo] = useState<string>();
     const [reference, setReference] = useState<PublicKey>();
     const [signature, setSignature] = useState<TransactionSignature>();
     const [status, setStatus] = useState(PaymentStatus.New);
@@ -40,31 +39,20 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const url = useMemo(() => {
         const url = new URL(String(link));
 
-        url.searchParams.append('recipient', recipient.toBase58());
-
         if (amount) {
             url.searchParams.append('amount', amount.toFixed(amount.decimalPlaces()));
-        }
-
-        if (splToken) {
-            url.searchParams.append('spl-token', splToken.toBase58());
         }
 
         if (reference) {
             url.searchParams.append('reference', reference.toBase58());
         }
 
-        if (memo) {
-            url.searchParams.append('memo', memo);
-        }
-
         return encodeURL({ link: url, label, message });
-    }, [link, recipient, amount, splToken, reference, label, message, memo]);
+    }, [link, amount, reference, label, message]);
 
     const reset = useCallback(() => {
         setAmount(undefined);
         setMessage(undefined);
-        setMemo(undefined);
         setReference(undefined);
         setSignature(undefined);
         setStatus(PaymentStatus.New);
@@ -217,8 +205,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 setAmount,
                 message,
                 setMessage,
-                memo,
-                setMemo,
                 reference,
                 signature,
                 status,
