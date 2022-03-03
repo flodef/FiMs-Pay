@@ -1,6 +1,6 @@
+import Link from 'next/link';
 import { FC } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import Link from 'next/link';
 import { ActivityIcon } from '../images/ActivityIcon';
 import css from './TransactionsLink.module.css';
 

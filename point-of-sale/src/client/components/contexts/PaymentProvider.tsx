@@ -1,16 +1,14 @@
 import {
-    createTransfer,
     encodeURL,
     fetchTransaction,
     findReference,
     FindReferenceError,
     parseURL,
-    TransferRequestURL,
     validateTransfer,
     ValidateTransferError,
 } from '@solana/pay';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { ConfirmedSignatureInfo, Keypair, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
+import { ConfirmedSignatureInfo, Keypair, PublicKey, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import { useRouter } from 'next/router';
 import { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
