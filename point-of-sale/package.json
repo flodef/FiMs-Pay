@@ -12,7 +12,7 @@
         "lint": "next lint",
         "fmt": "prettier --write '{*,**/*}.{js,ts,jsx,tsx,json}'",
         "nuke": "shx rm -rf node_modules yarn.lock",
-        "proxy": "local-ssl-proxy --source 3001 --target 3000"
+        "ssl": "local-ssl-proxy --source 3001 --target 3000"
     },
     "dependencies": {
         "@solana/pay": "file:../core",
