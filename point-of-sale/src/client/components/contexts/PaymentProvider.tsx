@@ -23,7 +23,7 @@ export interface PaymentProviderProps {
 
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
-    const { link, recipient, splToken, label, message, requiredConfirmations, connectWallet } = useConfig();
+    const { baseLink, recipient, splToken, label, message, requiredConfirmations, connectWallet } = useConfig();
     const { publicKey, sendTransaction } = useWallet();
 
     const [amount, setAmount] = useState<BigNumber>();
@@ -36,36 +36,36 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
 
     const url = useMemo(() => {
-        if (link) {
-            const url = new URL(String(link));
+        if (baseLink) {
+            const link = new URL(String(baseLink));
 
-            url.searchParams.append('recipient', recipient.toBase58());
+            link.searchParams.append('recipient', recipient.toBase58());
 
             if (amount) {
-                url.searchParams.append('amount', amount.toFixed(amount.decimalPlaces()));
+                link.searchParams.append('amount', amount.toFixed(amount.decimalPlaces()));
             }
 
             if (splToken) {
-                url.searchParams.append('spl-token', splToken.toBase58());
+                link.searchParams.append('spl-token', splToken.toBase58());
             }
 
             if (reference) {
-                url.searchParams.append('reference', reference.toBase58());
+                link.searchParams.append('reference', reference.toBase58());
             }
 
             if (memo) {
-                url.searchParams.append('memo', memo);
+                link.searchParams.append('memo', memo);
             }
 
             if (label) {
-                url.searchParams.append('label', label);
+                link.searchParams.append('label', label);
             }
 
             if (message) {
-                url.searchParams.append('message', message);
+                link.searchParams.append('message', message);
             }
 
-            return encodeURL({ link: url });
+            return encodeURL({ link });
         } else {
             return encodeURL({
                 recipient,
@@ -77,7 +77,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 memo,
             });
         }
-    }, [link, recipient, amount, splToken, reference, label, message, memo]);
+    }, [baseLink, recipient, amount, splToken, reference, label, message, memo]);
 
     const reset = useCallback(() => {
         setAmount(undefined);
@@ -214,15 +214,15 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         const interval = setInterval(async () => {
             try {
                 const response = await connection.getSignatureStatus(signature);
-                const status = response.value;
-                if (!status) return;
-                if (status.err) throw status.err;
+                const signatureStatus = response.value;
+                if (!signatureStatus) return;
+                if (signatureStatus.err) throw signatureStatus.err;
 
                 if (!changed) {
-                    const confirmations = (status.confirmations || 0) as Confirmations;
+                    const confirmations = (signatureStatus.confirmations || 0) as Confirmations;
                     setConfirmations(confirmations);
 
-                    if (confirmations >= requiredConfirmations || status.confirmationStatus === 'finalized') {
+                    if (confirmations >= requiredConfirmations || signatureStatus.confirmationStatus === 'finalized') {
                         clearInterval(interval);
                         setStatus(PaymentStatus.Finalized);
                     }

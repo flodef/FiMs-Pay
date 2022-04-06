@@ -6,23 +6,19 @@ import { Confirmations } from '../types';
 export enum PaymentStatus {
     New = 'New',
     Pending = 'Pending',
+    Waiting = 'Waiting',
     Confirmed = 'Confirmed',
-    Valid = 'Valid',
-    Invalid = 'Invalid',
     Finalized = 'Finalized',
 }
 
 export interface PaymentContextState {
     amount: BigNumber | undefined;
     setAmount(amount: BigNumber | undefined): void;
-    memo: string | undefined;
-    setMemo(memo: string | undefined): void;
-    reference: PublicKey | undefined;
     signature: TransactionSignature | undefined;
     status: PaymentStatus;
     confirmations: Confirmations;
     progress: number;
-    url: URL;
+    url: URL | undefined;
     reset(): void;
     generate(): void;
 }

@@ -32,7 +32,10 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     query,
     pageProps,
 }) => {
-    const baseURL = `https://${host}`;
+    const baseURL = new URL(`https://${host}`);
+    // Toggle comments on these lines to use transaction requests instead of transfer requests.
+    const baseLink = undefined;
+    // const baseLink = useMemo(() => new URL(`${baseURL}/api/`), [baseURL]);
 
     // If you're testing without a mobile wallet, set this to true to allow a browser wallet to be used.
     const connectWallet = true;
@@ -42,9 +45,6 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         [connectWallet, network]
     );
 
-    // Toggle comments on these lines to use transaction requests instead of transfer requests.
-    const link = undefined;
-    // const link = useMemo(() => new URL(`${baseURL}/api/`), [baseURL]);
 
     let recipient: PublicKey | undefined = undefined;
     const { recipient: recipientParam, label, message } = query;
@@ -65,7 +65,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                             <WalletModalProvider>
                                 <ConfigProvider
                                     baseURL={baseURL}
-                                    link={link}
+                                    baseLink={baseLink}
                                     recipient={recipient}
                                     label={label}
                                     message={message}

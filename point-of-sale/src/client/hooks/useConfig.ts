@@ -3,8 +3,8 @@ import { createContext, ReactElement, useContext } from 'react';
 import { Confirmations, Digits } from '../types';
 
 export interface ConfigContextState {
-    baseURL: string;
-    link: URL | undefined;
+    baseURL: URL;
+    baseLink: URL | undefined;
     recipient: PublicKey;
     label: string;
     message?: string;

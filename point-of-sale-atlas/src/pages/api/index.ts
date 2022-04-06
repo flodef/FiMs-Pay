@@ -1,1 +1,1 @@
-export { default } from '../../server/api/index';
+export { default } from '../../server/api/pay/[amount]';

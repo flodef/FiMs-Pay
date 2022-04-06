@@ -42,6 +42,7 @@ const post: NextApiHandler<PostResponse> = async (request, response) => {
     const amountField = request.query.amount;
     if (!amountField) throw new Error('missing amount');
     if (typeof amountField !== 'string') throw new Error('invalid amount');
+    if (!/^\d+(\.\d+)?$/.test(amountField)) throw new Error('invalid amount');
     const amount = new BigNumber(amountField);
 
     const splTokenField = request.query['spl-token'];

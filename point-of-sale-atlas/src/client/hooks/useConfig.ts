@@ -3,11 +3,8 @@ import { createContext, ReactElement, useContext } from 'react';
 import { Confirmations, Digits } from '../types';
 
 export interface ConfigContextState {
-    baseURL: string;
-    link: URL | undefined;
-    recipient: PublicKey;
-    label: string;
-    message?: string;
+    baseURL: URL;
+    baseLink: URL;
     splToken: PublicKey | undefined;
     symbol: string;
     icon: ReactElement;

@@ -34,10 +34,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
     const getTokenAddress =
         // Get the ATA for the recipient and token
         useEffect(() => {
-            if (!splToken) {
-                return;
-            }
-
+            if (!splToken) return;
             let changed = false;
 
             (async () => {

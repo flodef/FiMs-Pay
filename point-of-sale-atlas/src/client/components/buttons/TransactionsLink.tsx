@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import React, { FC } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import { useLinkWithQuery } from '../../hooks/useLinkWithQuery';
+import { useConfig } from '../../hooks/useConfig';
 import { ActivityIcon } from '../images/ActivityIcon';
 import css from './TransactionsLink.module.css';
 
 export const TransactionsLink: FC = () => {
-    const to = useLinkWithQuery('/transactions');
+    const { baseURL } = useConfig();
+    const to = new URL('/transactions', baseURL);
     const phone = useMediaQuery({ query: '(max-width: 767px)' });
 
     return (
