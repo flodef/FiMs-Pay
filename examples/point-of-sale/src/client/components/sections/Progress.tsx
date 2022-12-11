@@ -6,16 +6,20 @@ import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import css from './Progress.module.css';
 
 export const Progress: FC = () => {
+    const complete = 'Complete';
     const { status, progress } = usePayment();
     const [value, text] = useMemo(() => {
         switch (status) {
             case PaymentStatus.Finalized:
-                return [1, 'Complete'];
+                return [1, complete];
             case PaymentStatus.Confirmed:
             case PaymentStatus.Valid:
-                return progress >= 1 ? [1, 'Complete'] : [progress, Math.floor(progress * 100) + '%'];
+                return progress >= 1 ? [1, complete] : [progress, Math.floor(progress * 100) + '%'];
+            case PaymentStatus.Error:
+            case PaymentStatus.Invalid:
+                return [1, status];
             default:
-                return [0, status];
+                return [0, null];
         }
     }, [status, progress]);
 
@@ -23,11 +27,11 @@ export const Progress: FC = () => {
     const styles = useMemo(
         () =>
             buildStyles({
-                pathTransitionDuration: 0.5,
-                pathColor: interpolated(value),
+                pathTransitionDuration: 3,
+                pathColor: status !== PaymentStatus.Invalid ? interpolated(value) : '#FF0000',
                 trailColor: 'rgba(0,0,0,.1)',
             }),
-        [interpolated, value]
+        [interpolated, value, status]
     );
 
     return (
