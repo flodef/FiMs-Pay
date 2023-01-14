@@ -25,12 +25,12 @@ export const MAINNET_EUR_MINT = new PublicKey('Pnsjp9dbenPeFZWqqPHDygzkCZ4Gr37G8
 export const MAINNET_AGEUR_MINT = new PublicKey('CbNYA9n3927uXUukee2Hf4tm3xxkffJPPZvGazc2EAH1');
 
 // Format
-// CURRENCY: [Mint address, icon tsx file, token decimals, max decimals to display, symbol]
+// CURRENCY: [Mint address, icon tsx file, token decimals, min decimal, symbol]
 interface currencyType {
     [key: string]: [PublicKey | undefined, React.FC<React.SVGProps<SVGSVGElement>>, Digits, Digits, string];
 }
 export const CURRENCY_LIST: currencyType = {
-    SOL: [undefined, SOLIcon, 9, 1, 'SOL'],
+    SOL: [undefined, SOLIcon, 9, 1, '◎'],
     EUR: [MAINNET_EUR_MINT, EURIcon, 9, 2, 'EUR'],
     agEUR: [MAINNET_AGEUR_MINT, agEURIcon, 8, 2, 'EUR'],
     USDC: [MAINNET_USDC_MINT, USDCIcon, 6, 2, 'USD'],
