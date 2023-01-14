@@ -33,17 +33,13 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
 
         const urlParams = new URLSearchParams();
 
-        const a = (ref: React.RefObject<HTMLInputElement | HTMLSelectElement>, label: string, pattern?: string) => {
+        const a = (ref: React.RefObject<HTMLInputElement | HTMLSelectElement>, pattern?: string) => {
             const element = ref.current;
             const regexp = new RegExp(pattern ?? '.*');
             if (element) {
                 if (element.value && regexp.test(element.value)) {
-                    const value = (element as HTMLInputElement).type ? (element as HTMLInputElement).value :
-                        (element as HTMLSelectElement).type ? (element as HTMLSelectElement).selectedOptions[0].id :
-                            undefined;
-                    if (!value) throw new Error(element?.type + "type unhandled");
-
-                    urlParams.append(label, value);
+                    const value = element.localName === 'select' ? (element as HTMLSelectElement).selectedOptions[0].id : element.value;
+                    urlParams.append(element.id, value);
                     return true;
                 } else {
                     element.focus();
@@ -55,12 +51,12 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
         };
 
         const go = event.currentTarget.id === "selectMerchant" ?
-            a(indexRef, 'id') :
+            a(indexRef) :
             event.currentTarget.id === "unregisteredMerchant" ?
-                a(labelRef, 'label', labelPattern) &&
-                a(recipientRef, 'recipient', recipientPattern) &&
-                a(currencyRef, 'currency') &&
-                a(maxValueRef, 'maxValue', maxValuePattern) :
+                a(labelRef, labelPattern) &&
+                a(recipientRef, recipientPattern) &&
+                a(currencyRef) &&
+                a(maxValueRef, maxValuePattern) :
                 undefined;
         if (go) {
             const url = createURLWithParams("new", urlParams);
@@ -85,10 +81,10 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
                                 <FormattedMessage id="selectMerchant" />
                             </p>
                             <fieldset className={css.Fieldset}>
-                                <label className={css.Label} htmlFor="company">
-                                    <FormattedMessage id="company" />
+                                <label className={css.Label} htmlFor="id">
+                                    <FormattedMessage id="merchant" />
                                 </label>
-                                <select className={css.Input} id="company" ref={indexRef}>
+                                <select className={css.Input} id="id" ref={indexRef}>
                                     {merchantInfoList.map(m => <option id={m.index.toString()} key={m.index}>{m.company}</option>)}
                                 </select>
                             </fieldset>
@@ -110,16 +106,16 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
                                 <FormattedMessage id="enterMerchantInfo" />
                             </p>
                             <fieldset className={css.Fieldset}>
-                                <label className={css.Label} htmlFor="company">
-                                    <FormattedMessage id="company" />
+                                <label className={css.Label} htmlFor="label">
+                                    <FormattedMessage id="merchant" />
                                 </label>
-                                <input className={css.Input} id="company" ref={labelRef} placeholder={useTranslate("myShopName")} />
+                                <input className={css.Input} id="label" ref={labelRef} placeholder={useTranslate("myShopName")} />
                             </fieldset>
                             <fieldset className={css.Fieldset}>
-                                <label className={css.Label} htmlFor="address">
+                                <label className={css.Label} htmlFor="recipient">
                                     <FormattedMessage id="address" />
                                 </label>
-                                <input className={css.Input} id="address" ref={recipientRef} placeholder={useTranslate("myShopWalletAddress")} />
+                                <input className={css.Input} id="recipient" ref={recipientRef} placeholder={useTranslate("myShopWalletAddress")} />
                             </fieldset>
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="currency">
