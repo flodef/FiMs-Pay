@@ -119,7 +119,7 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
                                     <FormattedMessage id="currency" />
                                 </label>
                                 <select className={css.Input} id="currency" ref={currencyRef}>
-                                    {Object.keys(CURRENCY_LIST).map(currency => <option key={currency}>{currency}</option>)}
+                                    {Object.keys(CURRENCY_LIST).map(currency => <option id={currency} key={currency}>{currency}</option>)}
                                 </select>
                             </fieldset>
                             <fieldset className={css.Fieldset}>
