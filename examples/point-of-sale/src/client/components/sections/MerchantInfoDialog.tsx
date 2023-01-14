@@ -27,42 +27,45 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
     const currencyRef = React.createRef<HTMLSelectElement>();
     const maxValueRef = React.createRef<HTMLInputElement>();
     const handleClick = useCallback((event: MouseEvent) => {
-        const a = (ref: React.RefObject<HTMLInputElement | HTMLSelectElement>, pattern?: string) => {
-            const element = ref.current;
-            const regexp = new RegExp(pattern ?? '.*');
-            if (element && (!element.value || !regexp.test(element.value))) {
-                element.focus();
-                return false;
-            } else {
-                return element;
-            }
-        };
-
         const labelPattern = ".{5,50}";
         const recipientPattern = "^[1-9A-HJ-NP-Za-km-z]{32,44}$";
         const maxValuePattern = "^[1-9]\\d{0,4}(\\.\\d{1,2})?\\s*$";
 
         const urlParams = new URLSearchParams();
-        if (event.currentTarget.id === "selectMerchant") {
-            if (a(indexRef)) {
-                urlParams.append('id', (indexRef.current as HTMLSelectElement).selectedOptions[0].id);
-            }
-        } else if (event.currentTarget.id === "unregisteredMerchant") {
-            if (a(labelRef, labelPattern) && a(recipientRef, recipientPattern) && a(currencyRef) && a(maxValueRef, maxValuePattern)) {
-                urlParams.append('label', (labelRef.current as HTMLInputElement).value);
-                urlParams.append('recipient', (recipientRef.current as HTMLInputElement).value);
-                urlParams.append('currency', (currencyRef.current as HTMLSelectElement).selectedOptions[0].id);
-                urlParams.append('maxValue', (maxValueRef.current as HTMLInputElement).value);
-            }
-        } else {
-            console.error("Unhandled button click");
-        }
 
-        if (urlParams.toString()) {
+        const a = (ref: React.RefObject<HTMLInputElement | HTMLSelectElement>, pattern?: string) => {
+            const element = ref.current;
+            const regexp = new RegExp(pattern ?? '.*');
+            if (element) {
+                if (element.value && regexp.test(element.value)) {
+                    const value = element.localName === 'select' ? (element as HTMLSelectElement).selectedOptions[0].id : element.value;
+                    urlParams.append(element.id, value);
+                    return true;
+                } else {
+                    element.focus();
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        };
+
+        const go = event.currentTarget.id === "selectMerchant" ?
+            a(indexRef) :
+            event.currentTarget.id === "unregisteredMerchant" ?
+                a(labelRef, labelPattern) &&
+                a(recipientRef, recipientPattern) &&
+                a(currencyRef) &&
+                a(maxValueRef, maxValuePattern) :
+                undefined;
+        if (go) {
             const url = createURLWithParams("new", urlParams);
             navigate(url.toString());
+        } else if (go === undefined) {
+            throw new Error("Unhandled button click");
         }
-    }, []);
+
+    }, [currencyRef, indexRef, labelRef, maxValueRef, recipientRef, navigate]);
 
     return (
         <NavigationMenu.Root className={css.NavigationMenuRoot}>
@@ -78,10 +81,10 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
                                 <FormattedMessage id="selectMerchant" />
                             </p>
                             <fieldset className={css.Fieldset}>
-                                <label className={css.Label} htmlFor="company">
-                                    <FormattedMessage id="company" />
+                                <label className={css.Label} htmlFor="id">
+                                    <FormattedMessage id="merchant" />
                                 </label>
-                                <select className={css.Input} id="company" ref={indexRef}>
+                                <select className={css.Input} id="id" ref={indexRef}>
                                     {merchantInfoList.map(m => <option id={m.index.toString()} key={m.index}>{m.company}</option>)}
                                 </select>
                             </fieldset>
@@ -103,23 +106,23 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
                                 <FormattedMessage id="enterMerchantInfo" />
                             </p>
                             <fieldset className={css.Fieldset}>
-                                <label className={css.Label} htmlFor="company">
-                                    <FormattedMessage id="company" />
+                                <label className={css.Label} htmlFor="label">
+                                    <FormattedMessage id="merchant" />
                                 </label>
-                                <input className={css.Input} id="company" ref={labelRef} placeholder={useTranslate("myShopName")} />
+                                <input className={css.Input} id="label" ref={labelRef} placeholder={useTranslate("myShopName")} />
                             </fieldset>
                             <fieldset className={css.Fieldset}>
-                                <label className={css.Label} htmlFor="address">
+                                <label className={css.Label} htmlFor="recipient">
                                     <FormattedMessage id="address" />
                                 </label>
-                                <input className={css.Input} id="address" ref={recipientRef} placeholder={useTranslate("myShopWalletAddress")} />
+                                <input className={css.Input} id="recipient" ref={recipientRef} placeholder={useTranslate("myShopWalletAddress")} />
                             </fieldset>
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="currency">
                                     <FormattedMessage id="currency" />
                                 </label>
                                 <select className={css.Input} id="currency" ref={currencyRef}>
-                                    {Object.keys(CURRENCY_LIST).map(currency => <option key={currency}>{currency}</option>)}
+                                    {Object.keys(CURRENCY_LIST).map(currency => <option id={currency} key={currency}>{currency}</option>)}
                                 </select>
                             </fieldset>
                             <fieldset className={css.Fieldset}>
