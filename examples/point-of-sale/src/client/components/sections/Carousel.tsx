@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback } from 'react';
+import React, { FC, useCallback } from 'react';
 import 'react-responsive-carousel/lib/styles/carousel.min.css'; // requires a loader
 import { Carousel } from 'react-responsive-carousel';
 import { Merchant, MerchantInfo } from './Merchant';
@@ -14,12 +14,12 @@ export interface MerchantsProps {
 
 export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => {
     const navigate = useNavigateWithQuery();
-    const onClickItem = useCallback((index: number, item: ReactNode) => {
+    const onClickItem = useCallback((index: number) => {
         const { index: id, address: recipient, company: label, currency, maxValue } = merchants[index];
         const urlParams = new URLSearchParams();
         urlParams.append('id', id.toString());
-        urlParams.append('recipient', recipient.toString());
         urlParams.append('label', label.toString());
+        urlParams.append('recipient', recipient.toString());
         urlParams.append('currency', currency.toString());
         urlParams.append('maxValue', maxValue.toString());
         const url = createURLWithParams("new", urlParams);
