@@ -27,42 +27,49 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
     const currencyRef = React.createRef<HTMLSelectElement>();
     const maxValueRef = React.createRef<HTMLInputElement>();
     const handleClick = useCallback((event: MouseEvent) => {
-        const a = (ref: React.RefObject<HTMLInputElement | HTMLSelectElement>, pattern?: string) => {
-            const element = ref.current;
-            const regexp = new RegExp(pattern ?? '.*');
-            if (element && (!element.value || !regexp.test(element.value))) {
-                element.focus();
-                return false;
-            } else {
-                return element;
-            }
-        };
-
         const labelPattern = ".{5,50}";
         const recipientPattern = "^[1-9A-HJ-NP-Za-km-z]{32,44}$";
         const maxValuePattern = "^[1-9]\\d{0,4}(\\.\\d{1,2})?\\s*$";
 
         const urlParams = new URLSearchParams();
-        if (event.currentTarget.id === "selectMerchant") {
-            if (a(indexRef)) {
-                urlParams.append('id', (indexRef.current as HTMLSelectElement).selectedOptions[0].id);
-            }
-        } else if (event.currentTarget.id === "unregisteredMerchant") {
-            if (a(labelRef, labelPattern) && a(recipientRef, recipientPattern) && a(currencyRef) && a(maxValueRef, maxValuePattern)) {
-                urlParams.append('label', (labelRef.current as HTMLInputElement).value);
-                urlParams.append('recipient', (recipientRef.current as HTMLInputElement).value);
-                urlParams.append('currency', (currencyRef.current as HTMLSelectElement).selectedOptions[0].id);
-                urlParams.append('maxValue', (maxValueRef.current as HTMLInputElement).value);
-            }
-        } else {
-            console.error("Unhandled button click");
-        }
 
-        if (urlParams.toString()) {
+        const a = (ref: React.RefObject<HTMLInputElement | HTMLSelectElement>, label: string, pattern?: string) => {
+            const element = ref.current;
+            const regexp = new RegExp(pattern ?? '.*');
+            if (element) {
+                if (element.value && regexp.test(element.value)) {
+                    const value = (element as HTMLInputElement).type ? (element as HTMLInputElement).value :
+                        (element as HTMLSelectElement).type ? (element as HTMLSelectElement).selectedOptions[0].id :
+                            undefined;
+                    if (!value) throw new Error(element?.type + "type unhandled");
+
+                    urlParams.append(label, value);
+                    return true;
+                } else {
+                    element.focus();
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        };
+
+        const go = event.currentTarget.id === "selectMerchant" ?
+            a(indexRef, 'id') :
+            event.currentTarget.id === "unregisteredMerchant" ?
+                a(labelRef, 'label', labelPattern) &&
+                a(recipientRef, 'recipient', recipientPattern) &&
+                a(currencyRef, 'currency') &&
+                a(maxValueRef, 'maxValue', maxValuePattern) :
+                undefined;
+        if (go) {
             const url = createURLWithParams("new", urlParams);
             navigate(url.toString());
+        } else if (go === undefined) {
+            throw new Error("Unhandled button click");
         }
-    }, []);
+
+    }, [currencyRef, indexRef, labelRef, maxValueRef, recipientRef, navigate]);
 
     return (
         <NavigationMenu.Root className={css.NavigationMenuRoot}>

@@ -4,7 +4,7 @@
     "endOfLine": "lf",
     "htmlWhitespaceSensitivity": "css",
     "insertPragma": false,
-    "singleAttributePerLine": false,
+    "singleAttributePerLine": true,
     "bracketSameLine": false,
     "jsxBracketSameLine": false,
     "jsxSingleQuote": false,
