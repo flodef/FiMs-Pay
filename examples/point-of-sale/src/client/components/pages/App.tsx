@@ -86,6 +86,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         }
     }, []);
 
+    const merchantInfoList = useRef<MerchantInfo[]>([]);
     const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[]; }>();
     const { id: idParam, message, recipient: recipientParam, label: labelParam, currency: currencyParam, maxValue: maxValueParam, location: locationParam } = query;
     useEffect(() => {
@@ -95,37 +96,36 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
             const dataURL = GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY ?
                 "https://sheets.googleapis.com/v4/spreadsheets/" + GOOGLE_SPREADSHEET_ID + "/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=" + GOOGLE_API_KEY : `${baseURL}/api/fetchMerchants`;
 
-            if (idParam) {
-                fetch(dataURL)
-                    .then(convertMerchantData)
-                    .then(data => {
-                        const merchant = data.find(merchant => merchant.index === Number(idParam));
-                        if (merchant) {
-                            const { address: recipient, company: label, currency, maxValue, location } = merchant;
-                            setInfo(recipient, label, currency, maxValue, location);
+            const a = (data: MerchantInfo[]) => {
+                merchantInfoList.current = data;
+                if (idParam) {
+                    const merchant = data.find(merchant => merchant.index === Number(idParam));
+                    if (merchant) {
+                        const { address: recipient, company: label, currency, maxValue, location } = merchant;
+                        setInfo(recipient, label, currency, maxValue, location);
+                    }
+                } else if (data && data.length > 0) {
+                    const result = data.reduce<{ [key: string]: MerchantInfo[]; }>((resultArray, item) => {
+                        const location = item.location;
+                        if (!resultArray[location]) {
+                            resultArray[location] = [];
                         }
-                    });
-            } else if (SHOW_MERCHANT_LIST) {
-                fetch(dataURL)
-                    .then(convertMerchantData)
-                    .then(data => {
-                        if (data && data.length > 0) {
-                            const result = data.reduce<{ [key: string]: MerchantInfo[]; }>((resultArray, item) => {
-                                const location = item.location;
-                                if (!resultArray[location]) {
-                                    resultArray[location] = [];
-                                }
-                                resultArray[location].push(item);
+                        resultArray[location].push(item);
 
-                                return resultArray;
-                            }, {});
-                            setMerchants(result);
-                        } else {
-                            setMerchants({});
-                        }
-                    });
+                        return resultArray;
+                    }, {});
+                    setMerchants(result);
+                } else {
+                    setMerchants({});
+                }
+            };
+
+            if (merchantInfoList.current.length > 0) {
+                a(merchantInfoList.current);
+            } else {
+                fetch(dataURL).then(convertMerchantData).then(a);
             }
-        }
+        };
     }, [baseURL, idParam, query, labelParam, currencyParam, maxValueParam, recipientParam, locationParam, setInfo]);
 
     const router = useRouter();
@@ -251,7 +251,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                     </WalletModalProvider>
                                 </WalletProvider>
                             </ConnectionProvider>
-                        ) : merchants && Object.keys(merchants).length > 0 ? (
+                        ) : SHOW_MERCHANT_LIST && merchants && Object.keys(merchants).length > 0 ? (
                             <div className={css.root}>
                                 <div className={css.top}><FormattedMessage id="merchants" /></div>
                                 <div>
@@ -273,7 +273,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                 <div className={css.logo}>
                                     <SolanaPayLogo width={240} height={88} />
                                 </div>
-                                <MerchantInfoDialog />
+                                <MerchantInfoDialog merchantInfoList={merchantInfoList.current} />
                             </div>
                         )}
                     </FullscreenProvider>

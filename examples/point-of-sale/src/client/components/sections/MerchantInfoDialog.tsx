@@ -1,4 +1,4 @@
-import React, { FC, PointerEventHandler, ReactNode, useCallback } from 'react';
+import React, { FC, MouseEvent, MouseEventHandler, PointerEventHandler, ReactNode, useCallback } from 'react';
 import css from './MerchantInfoDialog.module.css';
 // import { Cross2Icon } from '@radix-ui/react-icons';
 // import * as Dialog from '@radix-ui/react-dialog';
@@ -9,48 +9,85 @@ import { CaretDownIcon } from '@radix-ui/react-icons';
 import { FormattedMessage, useIntl } from "react-intl";
 import { CURRENCY_LIST } from "../../utils/constants";
 import { MAX_VALUE } from "../../utils/env";
-
-// const ListItem = React.forwardRef(({ className, children, title, ...props }, forwardedRef) => (
-//     <li>
-//         <NavigationMenu.Link asChild>
-//             <a className={classNames('ListItemLink', className)} {...props} ref={forwardedRef}>
-//                 <div className={css.ListItemHeading">{title}</div>
-//                 <p className={css.ListItemText">{children}</p>
-//             </a>
-//         </NavigationMenu.Link>
-//     </li>
-// ));
+import { MerchantInfo } from "./Merchant";
+import { createURLWithParams } from "../../utils/createURLWithQuery";
+import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
 
 export interface MerchantInfoDialogProps {
-    children?: ReactNode;
+    merchantInfoList: MerchantInfo[];
 }
 
-export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ children }) => {
+export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoList }) => {
     const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
-    // const onInteractOutside = useCallback((event: CustomEvent) => { event.stopImmediatePropagation(); }, []);
+    const navigate = useNavigateWithQuery();
+
+    const indexRef = React.createRef<HTMLSelectElement>();
+    const labelRef = React.createRef<HTMLInputElement>();
+    const recipientRef = React.createRef<HTMLInputElement>();
+    const currencyRef = React.createRef<HTMLSelectElement>();
+    const maxValueRef = React.createRef<HTMLInputElement>();
+    const handleClick = useCallback((event: MouseEvent) => {
+        const a = (ref: React.RefObject<HTMLInputElement | HTMLSelectElement>, pattern?: string) => {
+            const element = ref.current;
+            const regexp = new RegExp(pattern ?? '.*');
+            if (element && (!element.value || !regexp.test(element.value))) {
+                element.focus();
+                return false;
+            } else {
+                return element;
+            }
+        };
+
+        const labelPattern = ".{5,50}";
+        const recipientPattern = "^[1-9A-HJ-NP-Za-km-z]{32,44}$";
+        const maxValuePattern = "^[1-9]\\d{0,4}(\\.\\d{1,2})?\\s*$";
+
+        const urlParams = new URLSearchParams();
+        if (event.currentTarget.id === "selectMerchant") {
+            if (a(indexRef)) {
+                urlParams.append('id', (indexRef.current as HTMLSelectElement).selectedOptions[0].id);
+            }
+        } else if (event.currentTarget.id === "unregisteredMerchant") {
+            if (a(labelRef, labelPattern) && a(recipientRef, recipientPattern) && a(currencyRef) && a(maxValueRef, maxValuePattern)) {
+                urlParams.append('label', (labelRef.current as HTMLInputElement).value);
+                urlParams.append('recipient', (recipientRef.current as HTMLInputElement).value);
+                urlParams.append('currency', (currencyRef.current as HTMLSelectElement).selectedOptions[0].id);
+                urlParams.append('maxValue', (maxValueRef.current as HTMLInputElement).value);
+            }
+        } else {
+            console.error("Unhandled button click");
+        }
+
+        if (urlParams.toString()) {
+            const url = createURLWithParams("new", urlParams);
+            navigate(url.toString());
+        }
+    }, []);
 
     return (
         <NavigationMenu.Root className={css.NavigationMenuRoot}>
             <NavigationMenu.List className={css.NavigationMenuList}>
                 <NavigationMenu.Item>
-                    <NavigationMenu.Trigger className={css.NavigationMenuTrigger}>
+                    <NavigationMenu.Trigger className={css.NavigationMenuTrigger} disabled={merchantInfoList.length === 0}>
                         <FormattedMessage id="registeredMerchant" />
-                        <CaretDownIcon className={css.CaretDown} aria-hidden />
+                        <CaretDownIcon id="test" className={css.CaretDown} aria-hidden />
                     </NavigationMenu.Trigger>
                     <NavigationMenu.Content className={css.NavigationMenuContent}>
-                        {/* autoSave="true" disableOutsidePointerEvents={true} onInteractOutside={onInteractOutside}> */}
                         <div className={classNames(css.List, css.one)}>
                             <p className={css.Text}>
-                                <FormattedMessage id="merchantInfo" />
+                                <FormattedMessage id="selectMerchant" />
                             </p>
                             <fieldset className={css.Fieldset}>
-                                <label className={css.Label} htmlFor="id">
-                                    <FormattedMessage id="id" />
+                                <label className={css.Label} htmlFor="company">
+                                    <FormattedMessage id="company" />
                                 </label>
-                                <select className={css.Input} id="currency">
-                                    {[2, 3, 4, 5].map(currency => <option key={currency}>{currency}</option>)}
+                                <select className={css.Input} id="company" ref={indexRef}>
+                                    {merchantInfoList.map(m => <option id={m.index.toString()} key={m.index}>{m.company}</option>)}
                                 </select>
                             </fieldset>
+                            <div className={css.Validation}>
+                                <button id="selectMerchant" className={classNames(css.Button, css.green)} onClick={handleClick}><FormattedMessage id="letsgo" /></button>
+                            </div>
                         </div>
                     </NavigationMenu.Content >
                 </NavigationMenu.Item >
@@ -63,25 +100,25 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ children }) =>
                     <NavigationMenu.Content className={css.NavigationMenuContent}>
                         <div className={classNames(css.List, css.two)}>
                             <p className={css.Text}>
-                                <FormattedMessage id="merchantInfo" />
+                                <FormattedMessage id="enterMerchantInfo" />
                             </p>
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="company">
                                     <FormattedMessage id="company" />
                                 </label>
-                                <input className={css.Input} id="company" placeholder={useTranslate("myShopName")} />
+                                <input className={css.Input} id="company" ref={labelRef} placeholder={useTranslate("myShopName")} />
                             </fieldset>
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="address">
                                     <FormattedMessage id="address" />
                                 </label>
-                                <input className={css.Input} id="address" placeholder={useTranslate("myShopWalletAddress")} />
+                                <input className={css.Input} id="address" ref={recipientRef} placeholder={useTranslate("myShopWalletAddress")} />
                             </fieldset>
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="currency">
                                     <FormattedMessage id="currency" />
                                 </label>
-                                <select className={css.Input} id="currency">
+                                <select className={css.Input} id="currency" ref={currencyRef}>
                                     {Object.keys(CURRENCY_LIST).map(currency => <option key={currency}>{currency}</option>)}
                                 </select>
                             </fieldset>
@@ -89,8 +126,11 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ children }) =>
                                 <label className={css.Label} htmlFor="maxValue">
                                     <FormattedMessage id="maxValue" />
                                 </label>
-                                <input className={css.Input} id="maxValue" placeholder={useTranslate("maximumReceivableValue")} defaultValue={MAX_VALUE} />
+                                <input className={css.Input} id="maxValue" ref={maxValueRef} placeholder={useTranslate("maximumReceivableValue")} defaultValue={MAX_VALUE} />
                             </fieldset>
+                            <div className={css.Validation}>
+                                <button id="unregisteredMerchant" className={classNames(css.Button, css.green)} onClick={handleClick}><FormattedMessage id="letsgo" /></button>
+                            </div>
                         </div>
                     </NavigationMenu.Content >
                 </NavigationMenu.Item >
