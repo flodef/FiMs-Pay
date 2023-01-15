@@ -23,6 +23,7 @@
     line-height: 32px;
     padding-top: 12px;
     padding-bottom: 12px;
+    min-width: 350px;
 }
 
 .row {
