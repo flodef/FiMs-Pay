@@ -24,6 +24,7 @@ import { Digits } from "../../types";
 import { isMobile } from "../../utils/isMobile";
 import { convertMerchantData } from "../../utils/convertData";
 import { MerchantInfoDialog } from "../sections/MerchantInfoDialog";
+import { Header } from "../sections/Header";
 
 interface AppProps extends NextAppProps {
     host: string;
@@ -159,27 +160,6 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         }
     }, [baseURL]);
 
-    const titleCount = useRef(0);
-    useEffect(() => {
-        const title = (label ? label + ' @ ' : '') + APP_TITLE;
-        titleCount.current = 0;
-        const a = () => {
-            if (document) {
-                if (document.title !== title) {
-                    document.title = title;
-                } else {
-                    ++titleCount.current;
-                }
-
-                if (titleCount.current >= 5) {
-                    clearInterval(interval);
-                }
-            }
-        };
-        a();
-        const interval = setInterval(a, 500);
-    }, [label]);
-
     const endpoint = IS_DEV ? DEVNET_ENDPOINT : MAINNET_ENDPOINT;
     const currencyDetail = CURRENCY_LIST[currency] ?? CURRENCY_LIST[CURRENCY] ?? CURRENCY_LIST["SOL"];
     const splToken = currencyDetail[0];
@@ -218,10 +198,10 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
 
     return (messages.about ?
         <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
-            <ErrorProvider>
-                <ThemeProvider>
-                    <FullscreenProvider>
-                        {recipient && label ? (
+            <ThemeProvider>
+                {recipient && label ? (
+                    <ErrorProvider>
+                        <FullscreenProvider>
                             <ConnectionProvider endpoint={endpoint}>
                                 <WalletProvider wallets={wallets} autoConnect={connectWallet}>
                                     <WalletModalProvider>
@@ -244,6 +224,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                         >
                                             <TransactionsProvider>
                                                 <PaymentProvider>
+                                                    <Header label={label} />
                                                     <Component {...pageProps} />
                                                 </PaymentProvider>
                                             </TransactionsProvider>
@@ -251,34 +232,36 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                     </WalletModalProvider>
                                 </WalletProvider>
                             </ConnectionProvider>
-                        ) : SHOW_MERCHANT_LIST && merchants && Object.keys(merchants).length > 0 ? (
-                            <div className={css.root}>
-                                <div className={css.top}><FormattedMessage id="merchants" /></div>
-                                <div>
-                                    {Object.entries(merchants).map(([location, merchant]) => (
-                                        <div key={location}>
-                                            <div className={css.location}>{location}</div>
-                                            <MerchantCarousel merchants={merchant} id={id} alt={messages.merchantLogo} />
-                                        </div>
-                                    ))}
+                        </FullscreenProvider>
+                    </ErrorProvider>
+                ) : SHOW_MERCHANT_LIST && merchants && Object.keys(merchants).length > 0 ? (
+                    <div className={css.root}>
+                        <Header />
+                        <div className={css.top}><FormattedMessage id="merchants" /></div>
+                        <div>
+                            {Object.entries(merchants).map(([location, merchant]) => (
+                                <div key={location}>
+                                    <div className={css.location}>{location}</div>
+                                    <MerchantCarousel merchants={merchant} id={id} alt={messages.merchantLogo} />
                                 </div>
-                                <div className={css.bottom}>
-                                    <a className={css.link} href={ABOUT} target="_blank" rel="noreferrer">
-                                        <FormattedMessage id="about" />
-                                    </a>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className={css.root}>
-                                <div className={css.logo}>
-                                    <SolanaPayLogo width={240} height={88} />
-                                </div>
-                                <MerchantInfoDialog merchantInfoList={merchantInfoList.current} />
-                            </div>
-                        )}
-                    </FullscreenProvider>
-                </ThemeProvider>
-            </ErrorProvider>
+                            ))}
+                        </div>
+                        <div className={css.bottom}>
+                            <a className={css.link} href={ABOUT} target="_blank" rel="noreferrer">
+                                <FormattedMessage id="about" />
+                            </a>
+                        </div>
+                    </div>
+                ) : (
+                    <div className={css.root}>
+                        <Header />
+                        <div className={css.logo}>
+                            <SolanaPayLogo width={240} height={88} />
+                        </div>
+                        <MerchantInfoDialog merchantInfoList={merchantInfoList.current} />
+                    </div>
+                )}
+            </ThemeProvider>
         </IntlProvider >
         : null);
 };
