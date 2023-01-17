@@ -18,9 +18,7 @@ export const ConnectionButton: FC = () => {
         }
     }, [disconnect, publicKey, selectWallet]);
 
-    return IS_CUSTOMER_POS ? (
-        <button className={css.button} type="button" onClick={handleClick}>
-            {connected ? <ConnectIcon /> : <DisconnectIcon />}
-        </button>
-    ) : null;
+    return <button className={css.button} type="button" onClick={handleClick}>
+        {connected ? <ConnectIcon /> : <DisconnectIcon />}
+    </button>;
 };
