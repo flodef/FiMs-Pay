@@ -1,5 +1,5 @@
 {
-    "extends": ["next", "next/core-web-vitals", "strict", "strict/browser"],
+    "extends": ["next", "next/core-web-vitals", "strict/browser"],
     "plugins": ["prettier"],
     "rules": {
         "react/no-unescaped-entities": "off"
