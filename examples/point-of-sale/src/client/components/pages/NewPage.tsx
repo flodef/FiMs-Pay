@@ -43,6 +43,7 @@ const NewPage: NextPage = () => {
             <div className={css.main}>
                 <div className={css.top}>
                     <FullscreenButton />
+                    <ConnectionButton />
                 </div>
                 <div className={css.body}>
                     <NumPad />
