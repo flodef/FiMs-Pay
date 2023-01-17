@@ -4,6 +4,10 @@
     margin-bottom: 12px;
 }
 
+.balance {
+    font-style: italic;
+}
+
 .total {
     display: flex;
     justify-content: space-between;
