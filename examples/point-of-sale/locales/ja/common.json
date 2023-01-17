@@ -52,6 +52,7 @@
     "myShopWalletAddress": "私のショップのウォレットアドレス",
     "maximumReceivableValue": "受け取ることができる最大額",
     "letsgo": "行こう!",
+    "walletNotConnected": "ウォレットが接続されていません!",
     "WalletSignTransactionError": "取引を拒否しました!",
     "WalletSendTransactionError": "トランザクションの承認に時間がかかりすぎました!",
     "TokenAccountNotFoundError": "\"{currency}\" をウォレットに追加する必要があります!",

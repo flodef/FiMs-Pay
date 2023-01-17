@@ -52,6 +52,7 @@
     "myShopWalletAddress": "Endereço da carteira da minha loja",
     "maximumReceivableValue": "Valor máximo que pode ser recebido",
     "letsgo": "Vamos !",
+    "walletNotConnected": "Carteira não conectada!",
     "WalletSignTransactionError": "Você recusou a transação!",
     "WalletSendTransactionError": "Você demorou muito para aprovar a transação!",
     "TokenAccountNotFoundError": "Você precisa adicionar \"{currency}\" à sua carteira!",

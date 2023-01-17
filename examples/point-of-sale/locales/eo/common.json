@@ -52,6 +52,7 @@
     "myShopWalletAddress": "La monujo-adreso de mia butiko",
     "maximumReceivableValue": "Maksimuma kvanto kiu povas esti ricevita",
     "letsgo": "Iru!",
+    "walletNotConnected": "Monujo Ne Konektita!",
     "WalletSignTransactionError": "Vi malakceptis la transakcion!",
     "WalletSendTransactionError": "Vi daŭris tro longe por aprobi la transakcion!",
     "TokenAccountNotFoundError": "Vi devas aldoni \"{currency}\" al via monujo!",

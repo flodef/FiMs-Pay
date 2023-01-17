@@ -52,6 +52,7 @@
     "myShopWalletAddress": "Dirección de la billetera de mi tienda",
     "maximumReceivableValue": "Cantidad máxima que se puede recibir",
     "letsgo": "Vamos !",
+    "walletNotConnected": "Billetera no conectado!",
     "WalletSignTransactionError": "¡Rechazaste la transacción!",
     "WalletSendTransactionError": "¡Tardó demasiado en aprobar la transacción!",
     "TokenAccountNotFoundError": "¡Necesitas agregar \"{currency}\" a tu billetera!",

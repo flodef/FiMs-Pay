@@ -52,6 +52,7 @@
     "myShopWalletAddress": "L'adresse du porte-monnaie de ma boutique",
     "maximumReceivableValue": "Montant maximum pouvant être reçu",
     "letsgo": "C'est parti !",
+    "walletNotConnected": "Porte-monnaie non connecté !",
     "WalletSignTransactionError": "Vous avez refusé la transaction !",
     "WalletSendTransactionError": "Vous avez trop tardé à approuver la transaction !",
     "TokenAccountNotFoundError": "Vous devez ajouter la monnaie \"{currency}\" à votre porte-monnaie !",
