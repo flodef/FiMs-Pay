@@ -61,13 +61,16 @@ export const NumPad: FC = () => {
     return (
         <div className={css.root}>
             <div className={IS_CUSTOMER_POS && publicKey ? !hasInsufficientBalance ? css.bold : css.red : css.hidden}>
-                {balance !== undefined ? balance > 0 ?
-                    <div>
-                        <FormattedMessage id="yourBalance" />
-                        <Amount value={balance} />
-                        {balance < parseFloat(value) ? <FormattedMessage id="insufficient" /> : null}
-                    </div>
-                    : <FormattedMessage id="emptyBalance" /> : <FormattedMessage id="balanceLoading" />}
+                {balance !== undefined
+                    ? balance > 0
+                        ? <div>
+                            <FormattedMessage id="yourBalance" />
+                            <Amount value={balance} />
+                            {balance < parseFloat(value)
+                                ? <FormattedMessage id="insufficient" /> : null}
+                        </div>
+                        : <FormattedMessage id="emptyBalance" />
+                    : <FormattedMessage id="balanceLoading" />}
             </div>
             <div className={!IS_CUSTOMER_POS || hasBalance ? css.text : css.hidden}><FormattedMessage id="toPay" /></div>
             <div className={!IS_CUSTOMER_POS || hasBalance ? css.value : css.hidden}>

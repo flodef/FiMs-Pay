@@ -20,21 +20,16 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
 
     const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
         () => {
-            if (!hasInsufficientBalance) {
-                if (publicKey || !IS_CUSTOMER_POS) {
-                    generate();
-                } else if (!connecting) {
-                    selectWallet();
-                }
-            } else {
-                if (needRefresh) {
-                    setNeedRefresh(false);
-                    //TODO : Refresh account
-                } else {
-                    window.open(FAUCET, '_blank');
-                    setNeedRefresh(true);
-                }
-            }
+            const a = !hasInsufficientBalance
+                ? publicKey
+                    ? () => generate()
+                    : !connecting
+                        ? () => selectWallet()
+                        : () => { }
+                : needRefresh
+                    ? () => setNeedRefresh(false)//TODO : Refresh account 
+                    : () => { window.open(FAUCET, '_blank'); setNeedRefresh(true); };
+            a();
         }, [generate, publicKey, selectWallet, hasInsufficientBalance, connecting, needRefresh]);
 
     return (
@@ -44,7 +39,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             onClick={handleClick}
             disabled={(!IS_CUSTOMER_POS && isInvalidAmount) || (IS_CUSTOMER_POS && publicKey !== null && !connecting && !hasInsufficientBalance && (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))}
         >
-            <FormattedMessage id={!hasInsufficientBalance ? publicKey || !IS_CUSTOMER_POS ? id : connecting ? "connecting" : "connect" : needRefresh ? "reload" : "supply"} />
+            <FormattedMessage id={!hasInsufficientBalance ? publicKey ? id : connecting ? "connecting" : "connect" : needRefresh ? "reload" : "supply"} />
         </button>
     );
 };
