@@ -1,6 +1,5 @@
 import { NextPage } from 'next';
 import React from 'react';
-import { useMediaQuery } from 'react-responsive';
 import { IS_CUSTOMER_POS, SHOW_MERCHANT_LIST } from '../../utils/env';
 import { useConfig } from '../../hooks/useConfig';
 import { FullscreenButton } from '../buttons/FullscreenButton';
@@ -13,10 +12,11 @@ import { Summary } from '../sections/Summary';
 import css from './NewPage.module.css';
 import { BackButton } from '../buttons/BackButton';
 import { FormattedMessage } from "react-intl";
+import { useIsMobileSize } from "../../utils/mobile";
 
 const NewPage: NextPage = () => {
     const { reset } = useConfig();
-    const phone = useMediaQuery({ query: '(max-width: 767px)' }) || IS_CUSTOMER_POS;
+    const phone = useIsMobileSize() || IS_CUSTOMER_POS;
     const generateId = IS_CUSTOMER_POS ? 'pay' : 'generateCode';
 
     return phone ? (

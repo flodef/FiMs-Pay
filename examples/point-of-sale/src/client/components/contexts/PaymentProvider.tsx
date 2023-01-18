@@ -22,7 +22,7 @@ import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT } from '../../uti
 import { exitFullscreen, isFullscreen } from "../../utils/fullscreen";
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
 import { WalletName } from "@solana/wallet-adapter-base";
-import { isMobile } from "../../utils/isMobile";
+import { isMobileDevice } from "../../utils/mobile";
 
 export interface PaymentProviderProps {
     children: ReactNode;
@@ -133,7 +133,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         const defaultWallet = DEFAULT_WALLET as WalletName;
         const a = AUTO_CONNECT ? () => { try { connect().catch(() => setTimeout(() => select(defaultWallet), 100)); } catch { } } : () => { };
         if (!wallet) {
-            const walletName = isMobile() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
+            const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
 
             setTimeout(() => {
                 select(walletName);

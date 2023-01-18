@@ -7,6 +7,7 @@ import { usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { isFullscreen, requestFullscreen } from "../../utils/fullscreen";
+import { useIsMobileSize } from "../../utils/mobile";
 import { BackspaceIcon } from '../images/BackspaceIcon';
 import { Amount } from "./Amount";
 import css from './NumPad.module.css';
@@ -34,6 +35,7 @@ export const NumPad: FC = () => {
     const { maxDecimals, maxValue } = useConfig();
     const { balance } = usePayment();
     const { publicKey } = useWallet();
+    const phone = useIsMobileSize();
 
     const regExp = useMemo(() => new RegExp('^\\d*([.,]\\d{0,' + maxDecimals + '})?$'), [maxDecimals]);
 
@@ -60,7 +62,7 @@ export const NumPad: FC = () => {
 
     return (
         <div className={css.root}>
-            <div className={IS_CUSTOMER_POS && publicKey ? !hasInsufficientBalance ? css.bold : css.red : css.hidden}>
+            <div className={phone && publicKey ? !hasInsufficientBalance ? css.bold : css.red : css.hidden}>
                 {balance !== undefined
                     ? balance > 0
                         ? <div>
