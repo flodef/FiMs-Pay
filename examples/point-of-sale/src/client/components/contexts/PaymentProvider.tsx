@@ -104,6 +104,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [link, recipient, amount, splToken, reference, label, message, memo]);
 
+    const hasSufficientBalance = useMemo(() => !IS_CUSTOMER_POS || balance === undefined || (balance > 0 && amount !== undefined && balance >= parseFloat(amount.toString())), [balance, amount]);
+
     const reset = useCallback(() => {
         changeStatus(PaymentStatus.New);
         setConfirmations(0);
@@ -341,6 +343,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 confirmations,
                 progress,
                 url,
+                hasSufficientBalance,
                 reset,
                 generate,
                 selectWallet,

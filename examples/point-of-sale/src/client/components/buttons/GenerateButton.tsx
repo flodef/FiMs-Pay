@@ -10,17 +10,16 @@ export interface GenerateButtonProps {
 }
 
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
-    const { amount, status, generate, balance, selectWallet } = usePayment();
+    const { amount, status, hasSufficientBalance, generate, balance, selectWallet } = usePayment();
     const { publicKey, connecting } = useWallet();
 
     const [needRefresh, setNeedRefresh] = useState(false);
 
-    const hasInsufficientBalance = useMemo(() => IS_CUSTOMER_POS && balance && (balance <= 0 || (amount && balance < parseFloat(amount.toString()))), [balance, amount]);
     const isInvalidAmount = useMemo(() => !amount || amount.isLessThanOrEqualTo(0), [amount]);
 
     const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
         () => {
-            const a = !hasInsufficientBalance
+            const a = hasSufficientBalance
                 ? publicKey
                     ? () => generate()
                     : !connecting
@@ -30,16 +29,16 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     ? () => setNeedRefresh(false)//TODO : Refresh account 
                     : () => { window.open(FAUCET, '_blank'); setNeedRefresh(true); };
             a();
-        }, [generate, publicKey, selectWallet, hasInsufficientBalance, connecting, needRefresh]);
+        }, [generate, publicKey, selectWallet, hasSufficientBalance, connecting, needRefresh]);
 
     return (
         <button
             className={css.root}
             type="button"
             onClick={handleClick}
-            disabled={(!IS_CUSTOMER_POS && isInvalidAmount) || (IS_CUSTOMER_POS && publicKey !== null && !connecting && !hasInsufficientBalance && (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))}
+            disabled={(!IS_CUSTOMER_POS && isInvalidAmount) || (IS_CUSTOMER_POS && publicKey !== null && !connecting && hasSufficientBalance && (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))}
         >
-            <FormattedMessage id={!hasInsufficientBalance ? publicKey ? id : connecting ? "connecting" : "connect" : needRefresh ? "reload" : "supply"} />
+            <FormattedMessage id={hasSufficientBalance ? publicKey ? id : connecting ? "connecting" : "connect" : needRefresh ? "reload" : "supply"} />
         </button>
     );
 };

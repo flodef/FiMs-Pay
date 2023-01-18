@@ -33,7 +33,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
 
 export const NumPad: FC = () => {
     const { maxDecimals, maxValue } = useConfig();
-    const { balance } = usePayment();
+    const { balance, hasSufficientBalance } = usePayment();
     const { publicKey } = useWallet();
     const phone = useIsMobileSize();
 
@@ -57,18 +57,17 @@ export const NumPad: FC = () => {
     const { setAmount } = usePayment();
     useEffect(() => setAmount(value ? new BigNumber(value) : undefined), [setAmount, value]);
 
-    const hasInsufficientBalance = useMemo(() => IS_CUSTOMER_POS && balance !== undefined && (balance <= 0 || balance < parseFloat(value)), [balance, value]);
     const hasBalance = useMemo(() => balance !== undefined && balance >= 0, [balance]);
 
     return (
         <div className={css.root}>
-            <div className={phone && publicKey ? !hasInsufficientBalance ? css.bold : css.red : css.hidden}>
+            <div className={(phone || IS_CUSTOMER_POS) && publicKey ? hasSufficientBalance ? css.bold : css.red : css.hidden}>
                 {balance !== undefined
                     ? balance > 0
                         ? <div>
                             <FormattedMessage id="yourBalance" />:&nbsp;
                             <Amount value={balance} />
-                            {hasInsufficientBalance ? <FormattedMessage id="insufficient" /> : null}
+                            {!hasSufficientBalance ? <FormattedMessage id="insufficient" /> : null}
                         </div>
                         : <FormattedMessage id="emptyBalance" />
                     : <FormattedMessage id="balanceLoading" />}

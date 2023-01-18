@@ -28,6 +28,7 @@ export interface PaymentContextState {
     confirmations: Confirmations;
     progress: number;
     url: URL;
+    hasSufficientBalance:boolean;
     reset(): void;
     generate(): void;
     selectWallet(): void;
