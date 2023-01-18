@@ -12,7 +12,7 @@ export const Summary: FC = () => {
     return (
         <div className={css.root}>
             <div className={css.title}>
-                <FormattedMessage id="balance" />
+                <FormattedMessage id="yourBalance" />
             </div>
             <div className={css.balance}>
                 {publicKey
