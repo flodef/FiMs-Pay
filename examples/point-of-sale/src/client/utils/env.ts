@@ -1,6 +1,7 @@
 export const CURRENCY = process.env.NEXT_PUBLIC_CURRENCY || 'SOL';
 export const MAX_VALUE = Number(process.env.NEXT_PUBLIC_MAX_VALUE) || 99999.99;
 export const IS_CUSTOMER_POS = process.env.NEXT_PUBLIC_IS_CUSTOMER_POS === 'true' || false;
+export const POS_USE_WALLET = process.env.NEXT_PUBLIC_POS_USE_WALLET === 'true' || false;
 export const SHOW_SYMBOL = process.env.NEXT_PUBLIC_SHOW_SYMBOL === 'true' || false;
 export const SHOW_MERCHANT_LIST = process.env.NEXT_PUBLIC_SHOW_MERCHANT_LIST === 'true' || false;
 export const IS_DEV = process.env.NEXT_PUBLIC_IS_DEV === 'true' || false;
@@ -15,4 +16,4 @@ export const MERCHANT_IMAGE_PATH = process.env.NEXT_PUBLIC_MERCHANT_IMAGE_PATH |
 export const FAUCET = (!IS_DEV ? process.env.NEXT_PUBLIC_FAUCET : null) || 'https://spl-token-faucet.com';
 export const ABOUT = process.env.NEXT_PUBLIC_ABOUT || 'https://solanapay.com/';
 export const GOOGLE_SPREADSHEET_ID = process.env.NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID;
-export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;

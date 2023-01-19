@@ -13,7 +13,7 @@ import { PaymentProvider } from '../contexts/PaymentProvider';
 import { ThemeProvider } from '../contexts/ThemeProvider';
 import { TransactionsProvider } from '../contexts/TransactionsProvider';
 import { SolanaPayLogo } from '../images/SolanaPayLogo';
-import { ABOUT, APP_TITLE, CURRENCY, IS_DEV, SHOW_SYMBOL, USE_HTTP, USE_LINK, USE_WEB_WALLET, DEFAULT_LANGUAGE, SHOW_MERCHANT_LIST, MAX_VALUE, GOOGLE_SPREADSHEET_ID, GOOGLE_API_KEY } from '../../utils/env';
+import { ABOUT, APP_TITLE, CURRENCY, IS_DEV, SHOW_SYMBOL, USE_HTTP, USE_LINK, USE_WEB_WALLET, DEFAULT_LANGUAGE, SHOW_MERCHANT_LIST, MAX_VALUE, GOOGLE_SPREADSHEET_ID, GOOGLE_API_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import css from './App.module.css';
 import { ErrorProvider } from '../contexts/ErrorProvider';
 import { MerchantInfo } from '../sections/Merchant';
@@ -23,7 +23,7 @@ import { IntlProvider, FormattedMessage } from 'react-intl';
 import { Digits } from "../../types";
 import { isMobileDevice } from "../../utils/mobile";
 import { convertMerchantData } from "../../utils/convertData";
-import { MerchantInfoDialog } from "../sections/MerchantInfoDialog";
+import { MerchantInfoMenu } from "../sections/MerchantInfoMenu";
 import { Header } from "../sections/Header";
 
 interface AppProps extends NextAppProps {
@@ -67,31 +67,26 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const link = useMemo(() => USE_LINK ? new URL(`${baseURL}/api/`) : undefined, [baseURL]);
 
     const [label, setLabel] = useState('');
-    const [recipient, setRecipient] = useState(new PublicKey(0));
-    const [currency, setCurrency] = useState(CURRENCY);
-    const [maxValue, setMaxValue] = useState(MAX_VALUE);
+    const [recipient, setRecipient] = useState<PublicKey>();
+    const [currency, setCurrency] = useState('');
+    const [maxValue, setMaxValue] = useState(0);
     const [location, setLocation] = useState('');
     const [id, setId] = useState(0);
 
     const setInfo = useCallback((recipient: string, label: string, currency: string, maxValue: number, location: string) => {
-        if (recipient && label) {
-            try {
-                setRecipient(new PublicKey(recipient));
-                setLabel(label);
-                setCurrency((!IS_DEV ? currency : null) ?? CURRENCY);
-                setMaxValue((!IS_DEV ? maxValue : null) ?? MAX_VALUE);
-                setLocation(location);
-            } catch (error) {
-                console.error(error);
-            }
-        }
+        setRecipient(new PublicKey(recipient ?? 0));
+        setLabel(label ?? APP_TITLE);
+        setCurrency((!IS_DEV ? currency : null) ?? CURRENCY);
+        setMaxValue((!IS_DEV ? maxValue : null) ?? MAX_VALUE);
+        setLocation(location);
     }, []);
 
     const merchantInfoList = useRef<MerchantInfo[]>([]);
     const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[]; }>();
     const { id: idParam, message, recipient: recipientParam, label: labelParam, currency: currencyParam, maxValue: maxValueParam, location: locationParam } = query;
     useEffect(() => {
-        if (recipientParam && labelParam) {
+        if ((recipientParam || !(IS_CUSTOMER_POS || !POS_USE_WALLET))
+            && (labelParam || currencyParam || maxValueParam)) {
             setInfo(recipientParam as string, labelParam as string, currencyParam as string, maxValueParam as number, locationParam as string);
         } else {
             const dataURL = GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY ?
@@ -199,7 +194,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     return (messages.about ?
         <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
             <ThemeProvider>
-                {recipient && label ? (
+                {label && recipient && currency && maxValue ? (
                     <ErrorProvider>
                         <FullscreenProvider>
                             <ConnectionProvider endpoint={endpoint}>
@@ -258,7 +253,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                         <div className={css.logo}>
                             <SolanaPayLogo width={240} height={88} />
                         </div>
-                        <MerchantInfoDialog merchantInfoList={merchantInfoList.current} />
+                        <MerchantInfoMenu merchantInfoList={merchantInfoList.current} />
                     </div>
                 )}
             </ThemeProvider>
@@ -274,14 +269,14 @@ App.getInitialProps = async (appContext) => {
     const recipient = query.recipient || undefined;
     const label = query.label || undefined;
     const message = query.message || undefined;
-    const currency = query.currency || CURRENCY;
-    const maxValue = query.maxValue || MAX_VALUE;
+    const currency = query.currency || undefined;
+    const maxValue = query.maxValue || undefined;
     const location = query.location || undefined;
     const host = req?.headers.host || 'localhost:' + (USE_HTTP ? '3000' : '3001');
 
     return {
         ...props,
-        query: { id, recipient, label, message, currency, maxValue },
+        query: { id, recipient, label, message, currency, maxValue, location },
         host,
     };
 };

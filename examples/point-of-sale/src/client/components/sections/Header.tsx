@@ -8,6 +8,6 @@ export interface HeaderProps {
 
 export const Header: FC<HeaderProps> = ({ label }) => {
     return <Head>
-        <title>{(label ? label + ' @ ' : '') + APP_TITLE}</title>
+        <title>{(label && label !== APP_TITLE ? label + ' @ ' : '') + APP_TITLE}</title>
     </Head>;
 };

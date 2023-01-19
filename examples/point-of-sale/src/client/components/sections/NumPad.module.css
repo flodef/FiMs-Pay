@@ -47,11 +47,6 @@
     transition: background-color 100ms ease-in-out;
 }
 
-.hidden {
-    visibility: collapse;
-    height: 0px;
-}
-
 :global(html.light) .button {
     background: var(--theme-light-numpad-button-background);
     color: var(--theme-light-numpad-button-color);

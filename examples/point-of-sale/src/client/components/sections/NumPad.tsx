@@ -61,45 +61,53 @@ export const NumPad: FC = () => {
 
     return (
         <div className={css.root}>
-            <div className={(phone || IS_CUSTOMER_POS) && publicKey ? hasSufficientBalance ? css.bold : css.red : css.hidden}>
-                {balance !== undefined
-                    ? balance > 0
-                        ? <div>
-                            <FormattedMessage id="yourBalance" />:&nbsp;
-                            <Amount value={balance} />
-                            {!hasSufficientBalance ? <FormattedMessage id="insufficient" /> : null}
+            {(phone || IS_CUSTOMER_POS) && publicKey
+                ? <div className={hasSufficientBalance ? css.bold : css.red}>
+                    {balance !== undefined
+                        ? balance > 0
+                            ? <div>
+                                <FormattedMessage id="yourBalance" />:&nbsp;
+                                <Amount value={balance} />
+                                {!hasSufficientBalance ? <FormattedMessage id="insufficient" /> : null}
+                            </div>
+                            : <FormattedMessage id="emptyBalance" />
+                        : <FormattedMessage id="balanceLoading" />}
+                </div>
+                : null
+            }
+            {!IS_CUSTOMER_POS || hasBalance
+                ? <div>
+                    <div className={css.text}><FormattedMessage id="toPay" /></div>
+                    <div className={css.value}>
+                        <Amount value={value} showZero />
+                    </div>
+                    <div className={css.buttons}>
+                        <div className={css.row}>
+                            <NumPadButton input={7} onInput={onInput} />
+                            <NumPadButton input={8} onInput={onInput} />
+                            <NumPadButton input={9} onInput={onInput} />
                         </div>
-                        : <FormattedMessage id="emptyBalance" />
-                    : <FormattedMessage id="balanceLoading" />}
-            </div>
-            <div className={!IS_CUSTOMER_POS || hasBalance ? css.text : css.hidden}><FormattedMessage id="toPay" /></div>
-            <div className={!IS_CUSTOMER_POS || hasBalance ? css.value : css.hidden}>
-                <Amount value={value} showZero />
-            </div>
-            <div className={!IS_CUSTOMER_POS || hasBalance ? css.buttons : css.hidden}>
-                <div className={css.row}>
-                    <NumPadButton input={7} onInput={onInput} />
-                    <NumPadButton input={8} onInput={onInput} />
-                    <NumPadButton input={9} onInput={onInput} />
+                        <div className={css.row}>
+                            <NumPadButton input={4} onInput={onInput} />
+                            <NumPadButton input={5} onInput={onInput} />
+                            <NumPadButton input={6} onInput={onInput} />
+                        </div>
+                        <div className={css.row}>
+                            <NumPadButton input={1} onInput={onInput} />
+                            <NumPadButton input={2} onInput={onInput} />
+                            <NumPadButton input={3} onInput={onInput} />
+                        </div>
+                        <div className={css.row}>
+                            <NumPadButton input="." onInput={onInput} />
+                            <NumPadButton input={0} onInput={onInput} />
+                            <button className={css.button} type="button" onClick={onBackspace}>
+                                <BackspaceIcon />
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div className={css.row}>
-                    <NumPadButton input={4} onInput={onInput} />
-                    <NumPadButton input={5} onInput={onInput} />
-                    <NumPadButton input={6} onInput={onInput} />
-                </div>
-                <div className={css.row}>
-                    <NumPadButton input={1} onInput={onInput} />
-                    <NumPadButton input={2} onInput={onInput} />
-                    <NumPadButton input={3} onInput={onInput} />
-                </div>
-                <div className={css.row}>
-                    <NumPadButton input="." onInput={onInput} />
-                    <NumPadButton input={0} onInput={onInput} />
-                    <button className={css.button} type="button" onClick={onBackspace}>
-                        <BackspaceIcon />
-                    </button>
-                </div>
-            </div>
+                : null
+            }
         </div>
     );
 };

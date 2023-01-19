@@ -1,24 +1,24 @@
-import React, { FC, FormEvent, MouseEvent, MouseEventHandler, PointerEventHandler, ReactNode, useCallback, useRef } from 'react';
-import css from './MerchantInfoDialog.module.css';
-// import { Cross2Icon } from '@radix-ui/react-icons';
-// import * as Dialog from '@radix-ui/react-dialog';
-// import * as Popover from '@radix-ui/react-popover';
+import React, { FC, MouseEvent, useCallback } from 'react';
+import css from './MerchantInfoMenu.module.css';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import classNames from 'classnames';
 import { CaretDownIcon } from '@radix-ui/react-icons';
 import { FormattedMessage, useIntl } from "react-intl";
 import { CURRENCY_LIST } from "../../utils/constants";
-import { MAX_VALUE } from "../../utils/env";
+import { APP_TITLE, IS_CUSTOMER_POS, MAX_VALUE, POS_USE_WALLET } from "../../utils/env";
 import { MerchantInfo } from "./Merchant";
 import { createURLWithParams } from "../../utils/createURLWithQuery";
 import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
 
-export interface MerchantInfoDialogProps {
+export interface MerchantInfoMenuProps {
     merchantInfoList: MerchantInfo[];
 }
 
-export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoList }) => {
+export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }) => {
     const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
+    const myShopWalletAddress = useTranslate("myShopWalletAddress");
+    const myShopName = useTranslate("myShopName");
+    const maximumReceivableValue = useTranslate("maximumReceivableValue");
 
     const indexRef = React.createRef<HTMLSelectElement>();
     const labelRef = React.createRef<HTMLInputElement>();
@@ -37,25 +37,26 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
                 const value = element.localName === 'select' ? (element as HTMLSelectElement).selectedOptions[0].id : element.value;
                 const isValid = pattern ? new RegExp(pattern).test(value) : true;
                 if (isValid) {
-                    urlParams.append(element.id, value);
-                    return true;
+                    if (value) {
+                        urlParams.append(element.id, value);
+                    }
                 } else {
                     element.focus();
-                    return false;
                 }
+                return isValid;
             } else {
-                return false;
+                return true;
             }
         };
 
-        const go = event.currentTarget.id === "selectMerchant" ?
-            a(indexRef) :
-            event.currentTarget.id === "unregisteredMerchant" ?
-                a(labelRef) &&
-                a(recipientRef) &&
-                a(currencyRef) &&
-                a(maxValueRef) :
-                undefined;
+        const go = event.currentTarget.id === "selectMerchant"
+            ? a(indexRef)
+            : event.currentTarget.id === "unregisteredMerchant"
+                ? a(labelRef)
+                && a(recipientRef)
+                && a(currencyRef)
+                && a(maxValueRef)
+                : undefined;
         if (go) {
             const url = createURLWithParams("new", urlParams);
             navigate(url.toString());
@@ -107,14 +108,17 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
                                 <label className={css.Label} htmlFor="label">
                                     <FormattedMessage id="merchant" />
                                 </label>
-                                <input className={css.Input} id="label" ref={labelRef} placeholder={useTranslate("myShopName")} defaultValue={''} pattern=".{5,50}" />
+                                <input className={css.Input} id="label" ref={labelRef} placeholder={myShopName} defaultValue={APP_TITLE} pattern=".{0,50}" />
                             </fieldset>
-                            <fieldset className={css.Fieldset}>
-                                <label className={css.Label} htmlFor="recipient">
-                                    <FormattedMessage id="address" />
-                                </label>
-                                <input className={css.Input} id="recipient" ref={recipientRef} placeholder={useTranslate("myShopWalletAddress")} defaultValue={''} pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$" />
-                            </fieldset>
+                            {IS_CUSTOMER_POS || !POS_USE_WALLET
+                                ? <fieldset className={css.Fieldset}>
+                                    <label className={css.Label} htmlFor="recipient">
+                                        <FormattedMessage id="address" />
+                                    </label>
+                                    <input className={css.Input} id="recipient" ref={recipientRef} placeholder={myShopWalletAddress} defaultValue={''} pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$" />
+                                </fieldset>
+                                : null
+                            }
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="currency">
                                     <FormattedMessage id="currency" />
@@ -127,7 +131,7 @@ export const MerchantInfoDialog: FC<MerchantInfoDialogProps> = ({ merchantInfoLi
                                 <label className={css.Label} htmlFor="maxValue">
                                     <FormattedMessage id="maxValue" />
                                 </label>
-                                <input className={css.Input} id="maxValue" ref={maxValueRef} placeholder={useTranslate("maximumReceivableValue")} defaultValue={MAX_VALUE} pattern="^[1-9]\d{0,4}(\.\d{1,2})?\s*$" />
+                                <input className={css.Input} id="maxValue" ref={maxValueRef} placeholder={maximumReceivableValue} defaultValue={MAX_VALUE} pattern="^$|^[1-9]\d{0,4}(\.\d{1,2})?\s*$" />
                             </fieldset>
                             <div className={css.Validation}>
                                 <button id="unregisteredMerchant" className={classNames(css.Button, css.green)} onClick={handleClick}><FormattedMessage id="letsgo" /></button>

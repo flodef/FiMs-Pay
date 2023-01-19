@@ -24,9 +24,12 @@ const TransactionsPage: NextPage = () => {
             <div className={css.header}>
                 <BackButton onClick={handleClick}><FormattedMessage id="back" /></BackButton>
             </div>
-            <div className={!disabled ? css.main : css.mainHidden}>
-                <Transactions />
-            </div>
+            {!disabled
+                ? <div className={css.main}>
+                    <Transactions />
+                </div>
+                : null
+            }
             <PoweredBy />
         </div>
     );

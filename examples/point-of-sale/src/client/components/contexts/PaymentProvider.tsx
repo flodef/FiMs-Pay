@@ -18,7 +18,7 @@ import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
-import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT } from '../../utils/env';
+import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT, POS_USE_WALLET } from '../../utils/env';
 import { exitFullscreen, isFullscreen } from "../../utils/fullscreen";
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
 import { WalletName } from "@solana/wallet-adapter-base";
@@ -30,7 +30,7 @@ export interface PaymentProviderProps {
 
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
-    const { link, recipient, splToken, decimals, label, message, requiredConfirmations, connectWallet } = useConfig();
+    const { link, recipient: recipientParam, splToken, decimals, label, message, requiredConfirmations, connectWallet } = useConfig();
     const { publicKey, sendTransaction, connect, select, wallet } = useWallet();
     const { processError } = useError();
 
@@ -43,6 +43,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
     const navigate = useNavigateWithQuery();
     const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
+    const recipient = useMemo(() => IS_CUSTOMER_POS || !POS_USE_WALLET || !publicKey ? recipientParam : publicKey, [recipientParam, publicKey]);
 
     const changeStatus = useCallback((status: PaymentStatus) => {
         console.log(status);
@@ -146,6 +147,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [connect, select, wallet]);
 
+    // If there's a connected wallet, load it's token balance
     useEffect(() => {
         if (!(connection && publicKey)) { setBalance(undefined); return; }
         let changed = false;
@@ -176,7 +178,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
-        if (!(status === PaymentStatus.Pending && connectWallet && publicKey)) return;
+        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && connection && publicKey)) return;
         let changed = false;
 
         const run = async () => {

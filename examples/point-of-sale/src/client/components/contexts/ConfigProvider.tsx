@@ -2,7 +2,6 @@ import { PublicKey } from '@solana/web3.js';
 import React, { FC, ReactElement, ReactNode } from 'react';
 import { ConfigContext } from '../../hooks/useConfig';
 import { Confirmations, Digits } from '../../types';
-import { MAX_VALUE } from '../../utils/env';
 
 export interface ConfigProviderProps {
     children: ReactNode;
@@ -36,7 +35,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     decimals,
     minDecimals = 0,
     maxDecimals = 2,
-    maxValue = MAX_VALUE,
+    maxValue,
     requiredConfirmations = 1,
     currency,
     id,
