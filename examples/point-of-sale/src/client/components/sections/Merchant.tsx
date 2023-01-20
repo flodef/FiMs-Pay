@@ -18,13 +18,15 @@ export interface MerchantProps {
     alt: string;
 }
 
-export const Merchant: FC<MerchantProps> = ({ index, company, alt }) => {
-    const merchantImageSrc = MERCHANT_IMAGE_PATH + index + '.png';
+export function merchantImageSrc(index: number | string) {
+    return MERCHANT_IMAGE_PATH + index + '.png';
+}
 
+export const Merchant: FC<MerchantProps> = ({ index, company, alt }) => {
     return (
         <div className={css.body}>
             <div className={css.row}>
-                <Image className={css.image} src={merchantImageSrc} alt={alt} height={250} width={250} priority={true} />
+                <Image className={css.image} src={merchantImageSrc(index)} alt={alt} height={250} width={250} priority={true} />
             </div>
             <div className={css.row}>
                 <div className={css.label}>{company}</div>
