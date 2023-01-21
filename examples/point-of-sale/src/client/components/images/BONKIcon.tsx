@@ -3,8 +3,7 @@ import React, { FC, SVGProps } from 'react';
 export const BONKIcon: FC<SVGProps<SVGSVGElement>> = ({ width = 32, height = 32 }) => {
 	return (
 		<svg width={width} height={height} fill="none" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg"
-			version="1.1" id="Layer_1" x="0px" y="0px"
-			enable-background="new 0 0 640 640">
+			version="1.1" id="Layer_1" x="0px" y="0px">
 			<path fill="#F58400" opacity="1.000000" stroke="none"
 				d="
 M641.000000,613.000000 
@@ -9261,6 +9260,6 @@ M295.044952,296.763855
 	C294.140228,296.811646 294.297028,296.526764 294.732361,296.135223 
 	C294.969391,296.153473 295.013519,296.325592 295.044952,296.763855 
 z"/>
-		</svg>
+		</svg >
 	);
 };
