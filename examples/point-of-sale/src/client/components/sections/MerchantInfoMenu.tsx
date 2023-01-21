@@ -9,7 +9,7 @@ import { APP_TITLE, IS_CUSTOMER_POS, MAX_VALUE, POS_USE_WALLET } from "../../uti
 import { merchantImageSrc, MerchantInfo } from "./Merchant";
 import { createURLWithParams } from "../../utils/createURLWithQuery";
 import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
-import { SelectImage } from "./Select";
+import { SelectImage } from "./SelectImage";
 import Image from "next/image";
 
 export interface MerchantInfoMenuProps {
@@ -28,6 +28,9 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
 
     const [index, setIndex] = useState(merchantInfoList.length > 0 ? merchantInfoList[0].index.toString() : '');
     const [currency, setCurrency] = useState(Object.keys(CURRENCY_LIST).length > 0 ? Object.keys(CURRENCY_LIST)[0] : '');
+    const [label, setLabel] = useState('');
+    const [recipient, setRecipient] = useState('');
+    const [maxValue, setMaxValue] = useState('');
 
     const navigate = useNavigateWithQuery();
     const handleClick = useCallback((event: MouseEvent) => {
@@ -69,6 +72,22 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
 
     }, [labelRef, maxValueRef, recipientRef, index, currency, navigate]);
 
+    const onInput = useCallback<React.FormEventHandler<HTMLInputElement>>((event) => {
+        const a = (x: string) => {
+            switch (event.currentTarget.id) {
+                case 'label':
+                    return () => setLabel(x);
+                case 'recipient':
+                    return () => setRecipient(x);
+                case 'maxValue':
+                    return () => setMaxValue(x);
+                default:
+                    return () => { };
+            }
+        };
+        a(event.currentTarget.value)();
+    }, []);
+
     const getMerchantData = (item: MerchantInfo) => { return { key: item.index, value: item.index.toString(), text: item.company }; };
     const getMerchantImage = (value: string) => <Image className={css.image} src={merchantImageSrc(value)} alt={value} height={32} width={32} priority={true} />;
     const getCurrencyImage = (value: string) => React.createElement(CURRENCY_LIST[value][1]);
@@ -90,7 +109,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                 <label className={css.Label} htmlFor="id">
                                     <FormattedMessage id="merchant" />
                                 </label>
-                                <SelectImage id="id" onValueChange={setIndex} options={merchantInfoList} getData={getMerchantData} getImage={getMerchantImage} />
+                                <SelectImage id="id" value={index} onValueChange={setIndex} options={merchantInfoList} getData={getMerchantData} getImage={getMerchantImage} />
                             </fieldset>
                             <div className={css.Validation}>
                                 <button id="selectMerchant" className={classNames(css.Button, css.green)} onClick={handleClick}><FormattedMessage id="letsgo" /></button>
@@ -113,14 +132,14 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                 <label className={css.Label} htmlFor="label">
                                     <FormattedMessage id="merchant" />
                                 </label>
-                                <input className={css.Input} id="label" ref={labelRef} placeholder={myShopName} pattern=".{0,50}" />
+                                <input className={css.Input} id="label" value={label} onInput={onInput} ref={labelRef} placeholder={myShopName} pattern=".{0,50}" />
                             </fieldset>
                             {IS_CUSTOMER_POS || !POS_USE_WALLET
                                 ? <fieldset className={css.Fieldset}>
                                     <label className={css.Label} htmlFor="recipient">
                                         <FormattedMessage id="address" />
                                     </label>
-                                    <input className={css.Input} id="recipient" ref={recipientRef} placeholder={myShopWalletAddress} pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$" />
+                                    <input className={css.Input} id="recipient" value={recipient} onInput={onInput} ref={recipientRef} placeholder={myShopWalletAddress} pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$" />
                                 </fieldset>
                                 : null
                             }
@@ -128,16 +147,13 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                 <label className={css.Label} htmlFor="currency">
                                     <FormattedMessage id="currency" />
                                 </label>
-                                <SelectImage id="currency" onValueChange={setCurrency} options={Object.keys(CURRENCY_LIST)} getImage={getCurrencyImage} />
-                                {/* <select className={css.Input} id="currency" ref={currencyRef}>
-                                    {Object.keys(CURRENCY_LIST).map(currency => <option id={currency} key={currency}>{currency}</option>)}
-                                </select> */}
+                                <SelectImage id="currency" value={currency} onValueChange={setCurrency} options={Object.keys(CURRENCY_LIST)} getImage={getCurrencyImage} />
                             </fieldset>
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="maxValue">
                                     <FormattedMessage id="maxValue" />
                                 </label>
-                                <input className={css.Input} id="maxValue" ref={maxValueRef} placeholder={maximumReceivableValue} pattern="^$|^[1-9]\d{0,4}(\.\d{1,2})?\s*$" />
+                                <input className={css.Input} id="maxValue" value={maxValue} onInput={onInput} ref={maxValueRef} placeholder={maximumReceivableValue} pattern="^$|^[1-9]\d{0,4}(\.\d{1,2})?\s*$" />
                             </fieldset>
                             <div className={css.Validation}>
                                 <button id="unregisteredMerchant" className={classNames(css.Button, css.green)} onClick={handleClick}><FormattedMessage id="letsgo" /></button>
