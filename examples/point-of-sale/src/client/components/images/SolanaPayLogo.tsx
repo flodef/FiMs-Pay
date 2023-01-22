@@ -1,6 +1,6 @@
 import React, { FC, SVGProps } from 'react';
 
-export const AppLogo: FC<SVGProps<SVGSVGElement>> = ({ width = 60, height = 22 }) => {
+export const SolanaPayLogo: FC<SVGProps<SVGSVGElement>> = ({ width = 60, height = 22 }) => {
     return (
         <svg
             width={width}
