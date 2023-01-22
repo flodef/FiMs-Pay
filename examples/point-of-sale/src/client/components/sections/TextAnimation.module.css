@@ -1,0 +1,55 @@
+.body {
+  padding: 0;
+  margin: 0; 
+  font-family: 'Rubik Mono One', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ul {
+  position: relative;
+  display: flex;
+  padding: 0px;
+}
+
+.li {
+  list-style: none;
+}
+
+.input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 80px;
+  width: 80px;
+  z-index: 100;
+}
+
+.div {
+  position: relative;
+  height: 80px;
+  min-width: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 10vw;
+  cursor: pointer;
+  margin: 0 4px;
+  border-radius: 20px;
+}
+
+.input[type="checkbox"]:checked ~ div {
+  color: yellowgreen;
+  text-shadow: 0 0 15px yellowgreen, 0 0 25px yellowgreen;
+  animation: glow 1.5s linear infinite;
+}
+
+@keyframes glow {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}

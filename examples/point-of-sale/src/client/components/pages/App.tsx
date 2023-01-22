@@ -12,7 +12,6 @@ import { FullscreenProvider } from '../contexts/FullscreenProvider';
 import { PaymentProvider } from '../contexts/PaymentProvider';
 import { ThemeProvider } from '../contexts/ThemeProvider';
 import { TransactionsProvider } from '../contexts/TransactionsProvider';
-import { SolanaPayLogo } from '../images/SolanaPayLogo';
 import { ABOUT, APP_TITLE, CURRENCY, IS_DEV, SHOW_SYMBOL, USE_HTTP, USE_LINK, USE_WEB_WALLET, DEFAULT_LANGUAGE, SHOW_MERCHANT_LIST, MAX_VALUE, GOOGLE_SPREADSHEET_ID, GOOGLE_API_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import css from './App.module.css';
 import { ErrorProvider } from '../contexts/ErrorProvider';
@@ -25,6 +24,7 @@ import { isMobileDevice } from "../../utils/mobile";
 import { convertMerchantData } from "../../utils/convertData";
 import { MerchantInfoMenu } from "../sections/MerchantInfoMenu";
 import { Header } from "../sections/Header";
+import { TextAnimation } from "../sections/TextAnimation";
 
 interface AppProps extends NextAppProps {
     host: string;
@@ -251,7 +251,9 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                     <div className={css.root}>
                         <Header />
                         <div className={css.logo}>
-                            <SolanaPayLogo width={240} height={88} />
+                            {/* <AppLogo width={240} height={88} /> */}
+                            {/* <p className={css.logo}>{APP_TITLE}</p> */}
+                            <TextAnimation>{APP_TITLE}</TextAnimation>
                         </div>
                         <MerchantInfoMenu merchantInfoList={merchantInfoList.current} />
                     </div>

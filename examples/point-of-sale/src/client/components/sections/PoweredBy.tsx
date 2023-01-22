@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { FormattedMessage } from "react-intl";
-import { SolanaPayLogo } from '../images/SolanaPayLogo';
+import { SolanaPayLogo } from '../images/AppLogo';
 import css from './PoweredBy.module.css';
 
 export const PoweredBy: FC = () => {
