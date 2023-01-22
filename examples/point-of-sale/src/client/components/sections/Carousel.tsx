@@ -5,6 +5,7 @@ import { Merchant, MerchantInfo } from './Merchant';
 import css from './Carousel.module.css';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { createURLWithParams } from "../../utils/createURLWithQuery";
+import { PaymentStatus } from "../../hooks/usePayment";
 
 export interface MerchantsProps {
     merchants: MerchantInfo[];
@@ -22,7 +23,7 @@ export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => 
         urlParams.append('recipient', recipient.toString());
         urlParams.append('currency', currency.toString());
         urlParams.append('maxValue', maxValue.toString());
-        const url = createURLWithParams("new", urlParams);
+        const url = createURLWithParams(PaymentStatus.New, urlParams);
         navigate(url.toString());
     }, [merchants, navigate]);
     const selectedItem = id && merchants.length > 0 ? parseInt(id.toString()) - merchants[0].index : 0;

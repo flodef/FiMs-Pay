@@ -7,10 +7,6 @@
     align-items: center;
 }
 
-.logo {
-    margin: 24px;
-}
-
 .top {
     text-align: center;
     font-size: 24px;
@@ -63,7 +59,7 @@
 
 .logo,
 .logo::after {
-	animation-delay: var(--animation-delay, 2s);
+	animation-delay: var(--animation-delay, 0s);
 	animation-iteration-count: var(--iterations, 1);
 	animation-duration: var(--duration, 3000ms);
 	animation-fill-mode: both;

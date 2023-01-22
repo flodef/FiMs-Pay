@@ -11,6 +11,7 @@ import { createURLWithParams } from "../../utils/createURLWithQuery";
 import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
 import { SelectImage } from "./SelectImage";
 import Image from "next/image";
+import { PaymentStatus } from "../../hooks/usePayment";
 
 export interface MerchantInfoMenuProps {
     merchantInfoList: MerchantInfo[];
@@ -64,7 +65,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                 && b("currency", currency)
                 : undefined;
         if (go) {
-            const url = createURLWithParams("new", urlParams);
+            const url = createURLWithParams(PaymentStatus.New, urlParams);
             navigate(url.toString());
         } else if (go === undefined) {
             throw new Error("Unhandled button click");

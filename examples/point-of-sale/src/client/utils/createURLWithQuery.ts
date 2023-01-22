@@ -1,6 +1,6 @@
 import { ParsedUrlQuery } from 'querystring';
 
-export function createURLWithQuery(path: string | URL, query: ParsedUrlQuery): URL {
+export function createURLWithQuery(path: string | URL | undefined, query: ParsedUrlQuery): URL {
     const url = getBaseURL(path);
 
     for (const [key, value] of Object.entries(query)) {
@@ -18,7 +18,7 @@ export function createURLWithQuery(path: string | URL, query: ParsedUrlQuery): U
     return url;
 }
 
-export function createURLWithParams(path: string | URL, query: URLSearchParams): URL {
+export function createURLWithParams(path: string | URL | undefined, query: URLSearchParams): URL {
     const url = getBaseURL(path);
     url.search = query.toString();
 

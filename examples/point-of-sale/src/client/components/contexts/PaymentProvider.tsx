@@ -116,7 +116,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         setSignature(undefined);
         sendError(undefined);
         setTimeout(
-            () => navigate('/new', true),
+            () => navigate(PaymentStatus.New, true),
             status !== PaymentStatus.Finalized ? 0 : 3000
         );
     }, [navigate, status, changeStatus, sendError]);
@@ -125,7 +125,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         if ((status === PaymentStatus.New || status === PaymentStatus.Error) && !reference) {
             setReference(Keypair.generate().publicKey);
             changeStatus(PaymentStatus.Pending);
-            navigate('/pending');
+            navigate(PaymentStatus.Pending);
             if (IS_CUSTOMER_POS && isFullscreen()) {
                 exitFullscreen();
             }
@@ -249,7 +249,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     clearInterval(interval);
                     setSignature(signature.signature);
                     changeStatus(PaymentStatus.Confirmed);
-                    navigate('/confirmed', true);
+                    navigate(PaymentStatus.Confirmed, true);
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction signature yet, try again

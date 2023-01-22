@@ -25,6 +25,8 @@ import { convertMerchantData } from "../../utils/convertData";
 import { MerchantInfoMenu } from "../sections/MerchantInfoMenu";
 import { Header } from "../sections/Header";
 import { TextAnimation } from "../sections/TextAnimation";
+import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
+import { PaymentStatus } from "../../hooks/usePayment";
 
 interface AppProps extends NextAppProps {
     host: string;
@@ -81,6 +83,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         setLocation(location);
     }, []);
 
+    const navigate = useNavigateWithQuery();
     const merchantInfoList = useRef<MerchantInfo[]>([]);
     const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[]; }>();
     const { id: idParam, message, recipient: recipientParam, label: labelParam, currency: currencyParam, maxValue: maxValueParam, location: locationParam } = query;
@@ -99,6 +102,8 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                     if (merchant) {
                         const { address: recipient, company: label, currency, maxValue, location } = merchant;
                         setInfo(recipient, label, currency, maxValue, location);
+                    } else {
+                        navigate();     // Go to home page
                     }
                 } else if (data && data.length > 0) {
                     const result = data.reduce<{ [key: string]: MerchantInfo[]; }>((resultArray, item) => {
@@ -122,7 +127,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                 fetch(dataURL).then(convertMerchantData).then(a);
             }
         };
-    }, [baseURL, idParam, query, labelParam, currencyParam, maxValueParam, recipientParam, locationParam, setInfo]);
+    }, [baseURL, idParam, query, labelParam, currencyParam, maxValueParam, recipientParam, locationParam, setInfo, navigate]);
 
     const router = useRouter();
     const reset = useCallback(() => {
