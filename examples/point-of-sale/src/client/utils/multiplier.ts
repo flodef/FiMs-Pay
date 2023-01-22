@@ -9,13 +9,12 @@ export enum Multiplier {
 }
 
 export function getMultiplierInfo(amount: number | string | BigNumber | undefined, multiplier?: Multiplier) {
-    let num = 0;
     let info;
-    if (amount && multiplier) {
+    const num = typeof amount === "string" ? parseFloat(amount.toString().replaceAll(",", "")) : 0;
+    if (multiplier) {
         const operator = multiplier < 0 ? '/' : 'x';
         const operation = multiplier < 0 ? (x: number) => 1 / x : (x: number) => 1 * x;
         info = operator + ' ' + operation(multiplier).toLocaleString(undefined, { style: "decimal" });
-        num = parseFloat(amount.toString().replaceAll(",", ""));
     } else {
         multiplier = 1;
     }
