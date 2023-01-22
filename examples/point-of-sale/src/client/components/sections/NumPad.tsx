@@ -1,5 +1,4 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import BigNumber from 'bignumber.js';
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
 import { useConfig } from '../../hooks/useConfig';
@@ -26,9 +25,10 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
         onInput(input);
     }, [onInput, input]);
     return (
-        <button className={css.button} type="button" onClick={onClick}>
-            {input}
-        </button>
+        <div>
+            <input className={css.input} type="checkbox" onClick={onClick} />
+            <div className={css.div}>{input}</div>
+        </div>
     );
 };
 

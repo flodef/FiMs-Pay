@@ -54,7 +54,63 @@
     transition: background-color 100ms ease-in-out;
 }
 
-:global(html.light) .button {
+.input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 80px;
+    width: 80px;
+    z-index: 100;
+    margin: 12px;
+    border: 0;
+    border-radius: 50%;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 32px;
+    transition: background-color 100ms ease-in-out;
+}
+  
+.div {
+    position: relative;
+    height: 80px;
+    width: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    /* margin: 0 4px;
+    border-radius: 20px; */
+    margin: 12px;
+    border: 0;
+    border-radius: 50%;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 32px;
+    transition: background-color 100ms ease-in-out;
+}  
+  
+:global(html.light) .input[type="checkbox"]:checked ~ div {
+    color: var(--theme-light-numpad-button-color);
+    text-shadow: 0 0 15px var(--theme-light-numpad-button-background), 0 0 25px var(--theme-light-numpad-button-background);
+    animation: glow 3s linear 1;
+}
+
+:global(html.dark) .input[type="checkbox"]:checked ~ div {
+    color: var(--theme-dark-numpad-button-color);
+    text-shadow: 0 0 15px var(--theme-dark-numpad-button-background), 0 0 25px var(--theme-dark-numpad-button-background);
+    animation: glow 3s linear 1;
+}
+  
+@keyframes glow {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(360deg);
+    }
+}
+  
+:global(html.light) .div {
     background: var(--theme-light-numpad-button-background);
     color: var(--theme-light-numpad-button-color);
 
@@ -67,7 +123,7 @@
     }
 }
 
-:global(html.dark) .button {
+:global(html.dark) .div {
     background: var(--theme-dark-numpad-button-background);
     color: var(--theme-dark-numpad-button-color);
 
