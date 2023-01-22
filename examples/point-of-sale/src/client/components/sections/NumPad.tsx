@@ -1,13 +1,14 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import BigNumber from 'bignumber.js';
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { FormattedMessage, FormattedNumber } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import { useConfig } from '../../hooks/useConfig';
 import { usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { isFullscreen, requestFullscreen } from "../../utils/fullscreen";
 import { useIsMobileSize } from "../../utils/mobile";
+import { getMultiplierInfo } from "../../utils/multiplier";
 import { BackspaceIcon } from '../images/BackspaceIcon';
 import { Amount } from "./Amount";
 import css from './NumPad.module.css';
@@ -32,7 +33,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
 };
 
 export const NumPad: FC = () => {
-    const { maxDecimals, maxValue } = useConfig();
+    const { maxDecimals, maxValue, multiplier } = useConfig();
     const { balance, hasSufficientBalance } = usePayment();
     const { publicKey } = useWallet();
     const phone = useIsMobileSize();
@@ -55,7 +56,7 @@ export const NumPad: FC = () => {
     const onBackspace = useCallback(() => setValue((value) => (value.length ? value.slice(0, -1) || '0' : value)), []);
 
     const { setAmount } = usePayment();
-    useEffect(() => setAmount(value ? new BigNumber(value) : undefined), [setAmount, value]);
+    useEffect(() => setAmount(value ? getMultiplierInfo(value, multiplier).amount : undefined), [setAmount, value, multiplier]);
 
     const hasBalance = useMemo(() => balance !== undefined && balance >= 0, [balance]);
 
@@ -81,6 +82,7 @@ export const NumPad: FC = () => {
                     <div className={css.value}>
                         <Amount value={value} showZero />
                     </div>
+                    <div className={css.multiplier}>{getMultiplierInfo(value, multiplier).info}</div>
                     <div className={css.buttons}>
                         <div className={css.row}>
                             <NumPadButton input={7} onInput={onInput} />

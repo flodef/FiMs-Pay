@@ -90,7 +90,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
 
     const getMerchantData = (item: MerchantInfo) => { return { key: item.index, value: item.index.toString(), text: item.company }; };
     const getMerchantImage = (value: string) => <Image className={css.image} src={merchantImageSrc(value)} alt={value} height={32} width={32} priority={true} />;
-    const getCurrencyImage = (value: string) => React.createElement(CURRENCY_LIST[value][1]);
+    const getCurrencyImage = (value: string) => React.createElement(CURRENCY_LIST[value].icon);
 
     return (
         <NavigationMenu.Root className={css.NavigationMenuRoot}>

@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { createContext, ReactElement, useContext } from 'react';
 import { Confirmations, Digits } from '../types';
+import { Multiplier } from "../utils/multiplier";
 
 export interface ConfigContextState {
     link: URL | undefined;
@@ -14,8 +15,9 @@ export interface ConfigContextState {
     minDecimals: Digits;
     maxDecimals: Digits;
     maxValue: number;
-    requiredConfirmations: Confirmations;
+    multiplier?:Multiplier;
     currency: string;
+    requiredConfirmations: Confirmations;
     id?: number;
     connectWallet: boolean;
     reset?: () => void;

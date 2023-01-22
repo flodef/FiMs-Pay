@@ -157,11 +157,8 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
 
     const endpoint = IS_DEV ? DEVNET_ENDPOINT : MAINNET_ENDPOINT;
     const currencyDetail = CURRENCY_LIST[currency] ?? CURRENCY_LIST[CURRENCY] ?? CURRENCY_LIST["SOL"];
-    const splToken = currencyDetail[0];
-    const icon = React.createElement(currencyDetail[1]);
-    const decimals = currencyDetail[2];
-    const minDecimals = currencyDetail[3];
-    const symbol = currencyDetail[4];
+    const { splToken: splToken, icon, decimals, minDecimals, symbol, multiplier } = currencyDetail;
+
 
     const [maxDecimals, setMaxDecimals] = useState<Digits>(2);
     useEffect(() => {
@@ -207,12 +204,13 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                             message={message}
                                             splToken={splToken}
                                             symbol={symbol}
-                                            icon={icon}
+                                            icon={React.createElement(icon)}
                                             decimals={decimals}
                                             minDecimals={minDecimals}
                                             maxDecimals={maxDecimals}
-                                            currency={currency}
                                             maxValue={maxValue}
+                                            multiplier={multiplier}
+                                            currency={currency}
                                             id={id}
                                             connectWallet={connectWallet}
                                             reset={reset}
@@ -252,7 +250,6 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                         <Header />
                         <div className={css.logo}>
                             {/* <AppLogo width={240} height={88} /> */}
-                            {/* <p className={css.logo}>{APP_TITLE}</p> */}
                             <TextAnimation>{APP_TITLE}</TextAnimation>
                         </div>
                         <MerchantInfoMenu merchantInfoList={merchantInfoList.current} />

@@ -26,6 +26,13 @@
     min-width: 350px;
 }
 
+.multiplier {
+    text-align: center;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 8px;
+}
+
 .row {
     display: flex;
     justify-content: center;
