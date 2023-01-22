@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { CaretDownIcon } from '@radix-ui/react-icons';
 import { FormattedMessage, useIntl } from "react-intl";
 import { CURRENCY_LIST } from "../../utils/constants";
-import { APP_TITLE, IS_CUSTOMER_POS, MAX_VALUE, POS_USE_WALLET } from "../../utils/env";
+import { IS_CUSTOMER_POS, POS_USE_WALLET } from "../../utils/env";
 import { merchantImageSrc, MerchantInfo } from "./Merchant";
 import { createURLWithParams } from "../../utils/createURLWithQuery";
 import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
@@ -181,90 +181,3 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
         </NavigationMenu.Root >
     );
 };
-
-//     <Popover.Root>
-//         <Popover.Trigger asChild>
-//             <button className={css.IconButton" aria-label="Update dimensions">
-//                 Test
-//             </button>
-//         </Popover.Trigger>
-//         <Popover.Portal>
-//             <Popover.Content className={css.PopoverContent" sideOffset={5}>
-//                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-//                     <p className={css.Text" style={{ marginBottom: 10 }}>
-//                         Dimensions
-//                     </p>
-//                     <fieldset className={css.Fieldset}>
-//                         <label className={css.Label" htmlFor="width">
-//                             Width
-//                         </label>
-//                         <input className={css.Input" id="width" defaultValue="100%" />
-//                     </fieldset>
-//                     <fieldset className={css.Fieldset}>
-//                         <label className={css.Label" htmlFor="maxWidth">
-//                             Max. width
-//                         </label>
-//                         <input className={css.Input" id="maxWidth" defaultValue="300px" />
-//                     </fieldset>
-//                     <fieldset className={css.Fieldset}>
-//                         <label className={css.Label" htmlFor="height">
-//                             Height
-//                         </label>
-//                         <input className={css.Input" id="height" defaultValue="25px" />
-//                     </fieldset>
-//                     <fieldset className={css.Fieldset}>
-//                         <label className={css.Label" htmlFor="maxHeight">
-//                             Max. height
-//                         </label>
-//                         <input className={css.Input" id="maxHeight" defaultValue="none" />
-//                     </fieldset>
-//                 </div>
-//                 <Popover.Close className={css.PopoverClose" aria-label="Close">
-//                     <Cross2Icon />
-//                 </Popover.Close>
-//                 <Popover.Arrow className={css.PopoverArrow" />
-//             </Popover.Content>
-//         </Popover.Portal>
-//     </Popover.Root>
-// );
-
-// <Dialog.Root>
-//     <Dialog.Trigger asChild>
-//         <button className={css.Button}>
-//             {children}
-//         </button>
-//     </Dialog.Trigger>
-//     <Dialog.Portal>
-//         <Dialog.Overlay className={css.DialogOverlay} />
-//         <Dialog.Content className={css.DialogContent}>
-//             <Dialog.Title className={css.DialogTitle}>Edit profile</Dialog.Title>
-//             <Dialog.Description className={css.DialogDescription}>
-//                 Make changes to your profile here. Click save when you're done.
-//             </Dialog.Description>
-//             <fieldset className={css.Fieldset}>
-//                 <label className={css.Label} htmlFor="name">
-//                     Name
-//                 </label>
-//                 <input className={css.Input} id="name" defaultValue="Pedro Duarte" />
-//             </fieldset>
-//             <fieldset className={css.Fieldset}>
-//                 <label className={css.Label} htmlFor="username">
-//                     Username
-//                 </label>
-//                 <input className={css.Input} id="username" defaultValue="@peduarte" />
-//             </fieldset >
-//             <div style={{ display: 'flex', marginTop: 25, justifyContent: 'flex-end' }}>
-//                 <Dialog.Close asChild>
-//                     <button className={css.Button}>Save changes</button>
-//                 </Dialog.Close>
-//             </div >
-//             {/* <Dialog.Close asChild>
-//             <button className={css.IconButton" aria-label="Close">
-//                 <Cross2Icon />
-//             </button>
-//         </Dialog.Close> */}
-//         </Dialog.Content >
-//     </Dialog.Portal >
-// </Dialog.Root >
-//     );
-// };

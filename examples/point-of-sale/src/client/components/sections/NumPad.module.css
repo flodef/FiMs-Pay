@@ -44,6 +44,7 @@
     cursor: pointer;
     height: 80px;
     width: 80px;
+    margin:12px;
     z-index: 100;
 }
 
@@ -120,24 +121,24 @@
     background: var(--theme-backspacebutton-background);
     color: var(--theme-light-numpad-button-color);
 
-    &:hover {
+    /* &:hover {
         background: var(--theme-light-numpad-button-hover);
     }
 
     &:active {
         background: var(--theme-light-numpad-button-active);
-    }
+    } */
 }
 
 :global(html.dark) .button {
     background: var(--theme-backspacebutton-background);
     color: var(--theme-dark-numpad-button-color);
 
-    &:hover {
+    /* &:hover {
         background: var(--theme-dark-numpad-button-hover);
     }
 
     &:active {
         background: var(--theme-dark-numpad-button-active);
-    }
+    } */
 }
