@@ -38,22 +38,6 @@
     justify-content: center;
 }
 
-.button {
-    width: 80px;
-    height: 80px;
-    margin: 12px;
-    border: 0;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 32px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 100ms ease-in-out;
-}
-
 .input[type="checkbox"] {
     position: absolute;
     opacity: 0;
@@ -61,15 +45,9 @@
     height: 80px;
     width: 80px;
     z-index: 100;
-    margin: 12px;
-    border: 0;
-    border-radius: 50%;
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 32px;
-    transition: background-color 100ms ease-in-out;
 }
-  
+
+.button,
 .div {
     position: relative;
     height: 80px;
@@ -78,29 +56,31 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    /* margin: 0 4px;
-    border-radius: 20px; */
     margin: 12px;
     border: 0;
-    border-radius: 50%;
+    border-radius: 50% 0 50% 50%;
     font-size: 32px;
     font-weight: 700;
     line-height: 32px;
     transition: background-color 100ms ease-in-out;
 }  
-  
+
+.button {
+    border-radius: 50% 50% 50% 0;
+}
+
 :global(html.light) .input[type="checkbox"]:checked ~ div {
     color: var(--theme-light-numpad-button-color);
-    text-shadow: 0 0 15px var(--theme-light-numpad-button-background), 0 0 25px var(--theme-light-numpad-button-background);
+    text-shadow: 0 0 15px var(--theme-number-button-background), 0 0 25px var(--theme-number-button-background);
     animation: glow 3s linear 1;
 }
 
 :global(html.dark) .input[type="checkbox"]:checked ~ div {
     color: var(--theme-dark-numpad-button-color);
-    text-shadow: 0 0 15px var(--theme-dark-numpad-button-background), 0 0 25px var(--theme-dark-numpad-button-background);
+    text-shadow: 0 0 15px var(--theme-number-button-background), 0 0 25px var(--theme-number-button-background);
     animation: glow 3s linear 1;
 }
-  
+
 @keyframes glow {
     0% {
         filter: hue-rotate(0deg);
@@ -111,7 +91,33 @@
 }
   
 :global(html.light) .div {
-    background: var(--theme-light-numpad-button-background);
+    background: var(--theme-number-button-background);
+    color: var(--theme-light-numpad-button-color);
+
+    /* &:hover {
+        background: var(--theme-light-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-light-numpad-button-active);
+    } */
+}
+
+:global(html.dark) .div {
+    background: var(--theme-number-button-background);
+    color: var(--theme-dark-numpad-button-color);
+
+    /* &:hover {
+        background: var(--theme-dark-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-dark-numpad-button-active);
+    } */
+}
+
+:global(html.light) .button {
+    background: var(--theme-backspacebutton-background);
     color: var(--theme-light-numpad-button-color);
 
     &:hover {
@@ -123,8 +129,8 @@
     }
 }
 
-:global(html.dark) .div {
-    background: var(--theme-dark-numpad-button-background);
+:global(html.dark) .button {
+    background: var(--theme-backspacebutton-background);
     color: var(--theme-dark-numpad-button-color);
 
     &:hover {

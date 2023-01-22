@@ -19,11 +19,15 @@
 }
 
 :global(html.light) .root {
-    background: var(--theme-light-button-background);
-    color: var(--theme-light-button-color);
+    background-image:var(--theme-button-grandient-background);
+    color: var(--theme-light-gradient-button-color);
+    /* background: var(--theme-light-button-background); */
+    /* color: var(--theme-light-button-color); */
 }
 
 :global(html.dark) .root {
-    background: var(--theme-dark-button-background);
-    color: var(--theme-dark-button-color);
+    background-image:var(--theme-button-grandient-background);
+    color: var(--theme-dark-gradient-button-color);
+    /* background: var(--theme-dark-button-background); */
+    /* color: var(--theme-dark-button-color); */
 }
