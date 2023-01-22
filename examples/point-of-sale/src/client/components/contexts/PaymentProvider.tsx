@@ -23,6 +23,7 @@ import { exitFullscreen, isFullscreen } from "../../utils/fullscreen";
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
 import { WalletName } from "@solana/wallet-adapter-base";
 import { isMobileDevice } from "../../utils/mobile";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export interface PaymentProviderProps {
     children: ReactNode;
@@ -132,20 +133,25 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [status, reference, navigate, changeStatus]);
 
+    const { setVisible } = useWalletModal();
     const selectWallet = useCallback(() => {
-        const defaultWallet = DEFAULT_WALLET as WalletName;
-        const a = AUTO_CONNECT ? () => { try { connect().catch(() => setTimeout(() => select(defaultWallet), 100)); } catch { } } : () => { };
-        if (!wallet) {
-            const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
+        if (DEFAULT_WALLET) {
+            const defaultWallet = DEFAULT_WALLET as WalletName;
+            const a = AUTO_CONNECT ? () => { try { connect().catch(() => setTimeout(() => select(defaultWallet), 100)); } catch { } } : () => { };
+            if (!wallet) {
+                const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
 
-            setTimeout(() => {
-                select(walletName);
+                setTimeout(() => {
+                    select(walletName);
+                    a();
+                }, 100);
+            } else {
                 a();
-            }, 100);
+            }
         } else {
-            a();
+            setVisible(true);
         }
-    }, [connect, select, wallet]);
+    }, [connect, select, wallet, setVisible]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
