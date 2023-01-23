@@ -12,6 +12,7 @@ import { ActivityIcon } from "../images/ActivityIcon";
 import { useFullscreen } from "../../hooks/useFullscreen";
 import { MaximizeIcon } from "../images/MaximizeIcon";
 import { MinimizeIcon } from "../images/MinimizeIcon";
+import { IS_CUSTOMER_POS } from "../../utils/env";
 
 export const ActionMenu: FC = () => {
     const { connected } = useWallet();
@@ -33,7 +34,7 @@ export const ActionMenu: FC = () => {
                         <FormattedMessage id={!connected ? "connect" : "disconnect"} />
                         <div className={css.RightSlot}>{!connected ? <ConnectIcon /> : <DisconnectIcon />}</div>
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item className={css.DropdownMenuItem} onClick={() => navigate('/transactions')}>
+                    <DropdownMenu.Item className={css.DropdownMenuItem} onClick={() => navigate('/transactions')} disabled={IS_CUSTOMER_POS}>
                         <FormattedMessage id="recentTransactions" />
                         <div className={css.RightSlot}><ActivityIcon /></div>
                     </DropdownMenu.Item>
