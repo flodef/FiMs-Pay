@@ -103,11 +103,11 @@ Alternatively, you can go straight to the point of sale, by adding at least one 
 You can specify a parameter by adding it at the end of the web address.
 
 > Between the web address and the first parameter, a `?` should be added.
-
+> 
 > Between a parameter and its value, a `=` should be added.
-
+> 
 > Between the two parameters, a `&` should be added.
-
+> 
 > Because space character is not allowed in a web address, replace all spaces by a `+`.
 
 Example: 
