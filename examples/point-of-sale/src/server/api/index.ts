@@ -1,7 +1,7 @@
-import { createTransfer } from '@solana/pay';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import { NextApiHandler } from 'next';
+import { createTransfer } from "../core/createTransfer";
 import { connection } from '../core';
 import { cors, rateLimit } from '../middleware';
 

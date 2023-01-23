@@ -1,5 +1,4 @@
 import {
-    createTransfer,
     encodeURL,
     fetchTransaction,
     findReference,
@@ -24,6 +23,7 @@ import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapt
 import { WalletName } from "@solana/wallet-adapter-base";
 import { isMobileDevice } from "../../utils/mobile";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { createTransfer } from "../../../server/core/createTransfer";
 
 export interface PaymentProviderProps {
     children: ReactNode;
