@@ -23,10 +23,10 @@ The Solana blockchain confirms transactions in less than a second and costs on a
 ## How to use Solana Pay
 
 ### Accept payments in your web app
-Use the [`@solana/pay` JavaScript SDK](https://github.com/solana-labs/solana-pay/tree/master/core) to start accepting payments in your app today.
+Use the [`@solana/pay` JavaScript SDK](https://github.com/flodef/FiMs-Pay/tree/master/core) to start accepting payments in your app today.
 
 ### Accept payments in person
-Run the open-source [Solana Pay Point of Sale app](https://github.com/solana-labs/solana-pay/tree/master/examples/point-of-sale) to start accepting payments in-person.
+Run the open-source [Solana Pay Point of Sale app](https://github.com/flodef/FiMs-Pay/tree/master/examples/point-of-sale) to start accepting payments in-person.
 
 ## Getting Involved
 
@@ -34,7 +34,7 @@ Solana Pay is an open standard to facilitate commerce on Solana. We are looking 
 
 ### Hackathon Projects
 
-The [Solana Summer Camp Hackathon](https://solana.com/summercamp) is happening right now. There's with a dedicated Payments track, presented by Visa.
+The [Sandstorm Hackathon](https://www.sandstormhackathon.com/) is happening right now. There're some Payments tracks...
 
 Here are some [Solana Pay hackathon ideas](https://www.figma.com/community/file/1070574785723157359) to get started thinking about how you can build the future of payments.
 
