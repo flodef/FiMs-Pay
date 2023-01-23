@@ -19,7 +19,7 @@ export interface ConfigContextState {
     currency: string;
     requiredConfirmations: Confirmations;
     id?: number;
-    connectWallet: boolean;
+    shouldConnectWallet: boolean;
     reset?: () => void;
 }
 

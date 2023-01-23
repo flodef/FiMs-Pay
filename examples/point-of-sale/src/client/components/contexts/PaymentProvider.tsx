@@ -31,8 +31,9 @@ export interface PaymentProviderProps {
 
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
-    const { link, recipient: recipientParam, splToken, decimals, label, message, requiredConfirmations, connectWallet } = useConfig();
-    const { publicKey, sendTransaction, connect, select, wallet } = useWallet();
+    const { link, recipient: recipientParam, splToken, decimals, label, message, requiredConfirmations, shouldConnectWallet } = useConfig();
+    const { publicKey, sendTransaction, connect, disconnect, select, wallet } = useWallet();
+    const { setVisible } = useWalletModal();
     const { processError } = useError();
 
     const [balance, setBalance] = useState<number>();
@@ -133,7 +134,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [status, reference, navigate, changeStatus]);
 
-    const { setVisible } = useWalletModal();
     const selectWallet = useCallback(() => {
         if (DEFAULT_WALLET) {
             const defaultWallet = DEFAULT_WALLET as WalletName;
@@ -152,6 +152,15 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             setVisible(true);
         }
     }, [connect, select, wallet, setVisible]);
+
+    const connectWallet = useCallback(async () => {
+        if (!publicKey) {
+            selectWallet();
+        } else {
+            disconnect().catch(() => { });
+        }
+    }, [disconnect, publicKey, selectWallet]);
+
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
@@ -231,7 +240,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, connectWallet, publicKey, url, connection, sendTransaction, changeStatus, sendError]);
+    }, [status, shouldConnectWallet, publicKey, url, connection, sendTransaction, changeStatus, sendError]);
 
     // When the status is pending, poll for the transaction using the reference key
     useEffect(() => {
@@ -355,6 +364,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 reset,
                 generate,
                 selectWallet,
+                connectWallet,
             }}
         >
             {children}

@@ -21,7 +21,7 @@ export interface ConfigProviderProps {
     currency: string;
     requiredConfirmations?: Confirmations;
     id?: number;
-    connectWallet?: boolean;
+    shouldConnectWallet?: boolean;
     reset?: () => void;
 }
 
@@ -42,7 +42,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     currency,
     requiredConfirmations = 1,
     id,
-    connectWallet = false,
+    shouldConnectWallet = false,
     reset,
 }) => {
     return (
@@ -63,7 +63,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
                 currency,
                 requiredConfirmations,
                 id,
-                connectWallet,
+                shouldConnectWallet,
                 reset
             }}
         >

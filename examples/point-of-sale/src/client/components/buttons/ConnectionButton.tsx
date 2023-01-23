@@ -7,19 +7,11 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { usePayment } from "../../hooks/usePayment";
 
 export const ConnectionButton: FC = () => {
-    const { publicKey, disconnect, connected } = useWallet();
-    const { selectWallet } = usePayment();
-
-    const handleClick = useCallback(async () => {
-        if (!publicKey) {
-            selectWallet();
-        } else {
-            disconnect().catch(() => { });
-        }
-    }, [disconnect, publicKey, selectWallet]);
+    const { connected } = useWallet();
+    const { connectWallet } = usePayment();
 
     return POS_USE_WALLET || IS_CUSTOMER_POS
-        ? <button className={css.button} type="button" onClick={handleClick}>
+        ? <button className={css.button} type="button" onClick={connectWallet}>
             {connected ? <ConnectIcon /> : <DisconnectIcon />}
         </button>
         : null;

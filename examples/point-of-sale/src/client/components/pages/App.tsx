@@ -50,19 +50,19 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const baseURL = (USE_HTTP ? 'http' : 'https') + `://${host}`;
 
     // If you're testing without a mobile wallet, set USE_WEB_WALLET environment setting to true to allow a browser wallet to be used.
-    const connectWallet = !isMobileDevice() || USE_WEB_WALLET;
+    const shouldConnectWallet = !isMobileDevice() || USE_WEB_WALLET;
     const network = IS_DEV ? WalletAdapterNetwork.Devnet : WalletAdapterNetwork.Mainnet;
 
     const wallets = useMemo(
         () =>
-            connectWallet
+            shouldConnectWallet
                 ? [
                     new GlowWalletAdapter({ network }),
                     new PhantomWalletAdapter(),
                     new SolflareWalletAdapter({ network })
                 ]
                 : [],
-        [connectWallet, network]
+        [shouldConnectWallet, network]
     );
 
     // Set USE_LINK environment setting to use transaction requests instead of transfer requests.
@@ -200,7 +200,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                     <ErrorProvider>
                         <FullscreenProvider>
                             <ConnectionProvider endpoint={endpoint}>
-                                <WalletProvider wallets={wallets} autoConnect={connectWallet}>
+                                <WalletProvider wallets={wallets} autoConnect={shouldConnectWallet}>
                                     <WalletModalProvider>
                                         <ConfigProvider
                                             link={link}
@@ -217,7 +217,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                             multiplier={multiplier}
                                             currency={currency}
                                             id={id}
-                                            connectWallet={connectWallet}
+                                            shouldConnectWallet={shouldConnectWallet}
                                             reset={reset}
                                         >
                                             <TransactionsProvider>

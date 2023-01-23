@@ -32,6 +32,7 @@ export interface PaymentContextState {
     reset(): void;
     generate(): void;
     selectWallet(): void;
+    connectWallet():void;
 }
 
 export const PaymentContext = createContext<PaymentContextState>({} as PaymentContextState);

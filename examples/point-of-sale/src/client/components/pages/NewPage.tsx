@@ -13,6 +13,7 @@ import css from './NewPage.module.css';
 import { BackButton } from '../buttons/BackButton';
 import { FormattedMessage } from "react-intl";
 import { useIsMobileSize } from "../../utils/mobile";
+import { ActionMenu } from "../sections/ActionMenu";
 
 const NewPage: NextPage = () => {
     const { reset } = useConfig();
@@ -23,13 +24,8 @@ const NewPage: NextPage = () => {
         <div className={css.root}>
             <div className={css.main}>
                 <div className={css.top}>
-                    {IS_CUSTOMER_POS ? (
-                        <BackButton onClick={reset}><FormattedMessage id={SHOW_MERCHANT_LIST ? "merchants" : "back"} /></BackButton>
-                    ) : null}
-
-                    <FullscreenButton />
-                    <TransactionsLink />
-                    <ConnectionButton />
+                    <BackButton onClick={reset}><FormattedMessage id={SHOW_MERCHANT_LIST ? "merchants" : "back"} /></BackButton>
+                    <ActionMenu />
                 </div>
                 <div className={css.body}>
                     <NumPad />
@@ -42,8 +38,8 @@ const NewPage: NextPage = () => {
         <div className={css.root}>
             <div className={css.main}>
                 <div className={css.top}>
-                    <FullscreenButton />
-                    <ConnectionButton />
+                    <BackButton onClick={reset}><FormattedMessage id={SHOW_MERCHANT_LIST ? "merchants" : "back"} /></BackButton>
+                    <ActionMenu />
                 </div>
                 <div className={css.body}>
                     <NumPad />
@@ -54,9 +50,6 @@ const NewPage: NextPage = () => {
                 <div className={css.summary}>
                     <Summary />
                     <GenerateButton id={generateId} />
-                </div>
-                <div className={css.bottom}>
-                    <TransactionsLink />
                 </div>
             </div>
         </div>
