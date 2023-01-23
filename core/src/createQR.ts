@@ -4,6 +4,7 @@ import type {
     DotType,
     DrawType,
     ErrorCorrectionLevel,
+    Gradient,
     Mode,
     Options,
     TypeNumber,
@@ -18,12 +19,24 @@ import QRCodeStyling from '@solana/qr-code-styling';
  * @param background - Background color, which should be light for device compatibility.
  * @param color - Foreground color, which should be dark for device compatibility.
  */
-export function createQR(url: string | URL, size = 512, background = 'white', color = 'black'): QRCodeStyling {
-    return new QRCodeStyling(createQROptions(url, size, background, color));
+export function createQR(
+    url: string | URL,
+    size = 512,
+    background = 'white',
+    color = 'black',
+    gradient?: Gradient
+): QRCodeStyling {
+    return new QRCodeStyling(createQROptions(url, size, background, color, gradient));
 }
 
 /** @ignore */
-export function createQROptions(url: string | URL, size = 512, background = 'white', color = 'black'): Options {
+export function createQROptions(
+    url: string | URL,
+    size = 512,
+    background = 'white',
+    color = 'black',
+    gradient?: Gradient
+): Options {
     return {
         type: 'svg' as DrawType,
         width: size,
@@ -36,12 +49,13 @@ export function createQROptions(url: string | URL, size = 512, background = 'whi
             errorCorrectionLevel: 'Q' as ErrorCorrectionLevel,
         },
         backgroundOptions: { color: background },
-        dotsOptions: { type: 'extra-rounded' as DotType, color },
+        dotsOptions: { type: 'extra-rounded' as DotType, gradient, color },
         cornersSquareOptions: {
             type: 'extra-rounded' as CornerSquareType,
+            gradient,
             color,
         },
-        cornersDotOptions: { type: 'square' as CornerDotType, color },
+        cornersDotOptions: { type: 'square' as CornerDotType, gradient, color },
         imageOptions: { hideBackgroundDots: true, imageSize: 0.15, margin: 8 },
         image: `data:image/svg+xml;utf8,<svg fill="${encodeURIComponent(
             color
