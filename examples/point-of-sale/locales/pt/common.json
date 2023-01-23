@@ -62,7 +62,7 @@
     "walletNotConnected": "Carteira não conectada!",
     "WalletSignTransactionError": "Você recusou a transação!",
     "WalletSendTransactionError": "Você demorou muito para aprovar a transação!",
-    "TokenAccountNotFoundError": "Você precisa adicionar \"{currency}\" à sua carteira!",
+    "TokenAccountNotFoundError": "Este vendedor precisa adicionar a moeda \"{currency}\" à sua carteira!",
     "insufficient SOL funds to pay for transaction fee": "Você não tem SOL para pagar as taxas de transação!",
     "sender is also recipient": "Você é pagador e recebedor ao mesmo tempo",
     "sender not found": "A moeda \"{currency}\" em sua carteira não foi encontrada!",

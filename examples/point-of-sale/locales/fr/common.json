@@ -62,7 +62,7 @@
     "walletNotConnected": "Porte-monnaie non connecté !",
     "WalletSignTransactionError": "Vous avez refusé la transaction !",
     "WalletSendTransactionError": "Vous avez trop tardé à approuver la transaction !",
-    "TokenAccountNotFoundError": "Vous devez ajouter la monnaie \"{currency}\" à votre porte-monnaie !",
+    "TokenAccountNotFoundError": "Ce commerçant doit ajouter la monnaie \"{currency}\" à son porte-monnaie !",
     "insufficient SOL funds to pay for transaction fee": "Vous manquez de SOL pour payer les frais de transaction !",
     "sender is also recipient": "Vous êtes en même temps payeur et payé",
     "sender not found": "La monnaie \"{currency}\" dans votre porte-monnaie est introuvable !",

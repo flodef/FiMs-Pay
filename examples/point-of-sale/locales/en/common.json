@@ -62,7 +62,7 @@
     "walletNotConnected": "Wallet Not Connected!",
     "WalletSignTransactionError": "You declined the transaction!",
     "WalletSendTransactionError": "You took too long to approve the transaction!",
-    "TokenAccountNotFoundError": "You need to add \"{currency}\" to your wallet!",
+    "TokenAccountNotFoundError": "This merchant needs to add the currency \"{currency}\" to its wallet!",
     "insufficient SOL funds to pay for transaction fee": "You lack SOL to pay transaction fees!",
     "sender is also recipient": "You are both payer and paid at the same time",
     "sender not found": "The currency \"{currency}\" in your wallet could not be found!",

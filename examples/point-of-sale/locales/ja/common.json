@@ -62,7 +62,7 @@
     "walletNotConnected": "ウォレットが接続されていません!",
     "WalletSignTransactionError": "取引を拒否しました!",
     "WalletSendTransactionError": "トランザクションの承認に時間がかかりすぎました!",
-    "TokenAccountNotFoundError": "\"{currency}\" をウォレットに追加する必要があります!",
+    "TokenAccountNotFoundError": "このマーチャントは通貨\"{currency}\"をウォレットに追加する必要があります!",
     "insufficient SOL funds to pay for transaction fee": "取引手数料を支払うための SOL が不足しています!",
     "sender is also recipient": "あなたは同時に支払者であると同時に支払われます",
     "sender not found": "あなたのウォレットの通貨 \"{currency}\" が見つかりませんでした!",
