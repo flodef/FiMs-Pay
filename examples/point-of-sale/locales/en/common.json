@@ -56,6 +56,8 @@
     "exitFullScreen": "Exit FullScreen",
     "selectCurrency": "Select Currency",
     "theme": "Theme",
+    "blackWhite": "Black & White",
+    "color": "Color",
     "letsgo": "Let's go!",
     "walletNotConnected": "Wallet Not Connected!",
     "WalletSignTransactionError": "You declined the transaction!",
