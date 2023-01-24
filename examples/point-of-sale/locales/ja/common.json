@@ -58,6 +58,7 @@
     "theme": "テーマ",
     "blackWhite": "白黒",
     "color": "色",
+    "classic": "クラシック",
     "letsgo": "行こう!",
     "walletNotConnected": "ウォレットが接続されていません!",
     "WalletSignTransactionError": "取引を拒否しました!",

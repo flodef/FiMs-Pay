@@ -58,6 +58,7 @@
     "theme": "Thème",
     "blackWhite": "Noir et blanc",
     "color": "Couleur",
+    "classic": "Classique",
     "letsgo": "C'est parti !",
     "walletNotConnected": "Porte-monnaie non connecté !",
     "WalletSignTransactionError": "Vous avez refusé la transaction !",

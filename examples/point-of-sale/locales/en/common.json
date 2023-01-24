@@ -58,6 +58,7 @@
     "theme": "Theme",
     "blackWhite": "Black & White",
     "color": "Color",
+    "classic": "Classic",
     "letsgo": "Let's go!",
     "walletNotConnected": "Wallet Not Connected!",
     "WalletSignTransactionError": "You declined the transaction!",

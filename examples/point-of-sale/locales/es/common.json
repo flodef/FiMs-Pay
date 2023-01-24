@@ -58,6 +58,7 @@
     "theme": "Tema",
     "blackWhite": "Blanco y negro",
     "color": "Color",
+    "classic": "clásico",
     "letsgo": "Vamos !",
     "walletNotConnected": "Billetera no conectado!",
     "WalletSignTransactionError": "¡Rechazaste la transacción!",
