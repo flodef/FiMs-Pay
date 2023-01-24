@@ -38,7 +38,9 @@
     justify-content: center;
 }
 
-.input[type="checkbox"] {
+.input[type="checkbox"], 
+.inputBW[type="checkbox"],
+.inputColor[type="checkbox"] {
     position: absolute;
     opacity: 0;
     cursor: pointer;
@@ -49,7 +51,11 @@
 }
 
 .button,
-.div {
+.div,
+.buttonBW,
+.divBW,
+.divColor, 
+.buttonColor {
     position: relative;
     height: 80px;
     width: 80px;
@@ -59,26 +65,45 @@
     cursor: pointer;
     margin: 12px;
     border: 0;
-    border-radius: 50% 0 50% 50%;
     font-size: 32px;
     font-weight: 700;
     line-height: 32px;
     transition: background-color 100ms ease-in-out;
 }  
-
+.div,
 .button {
+    border-radius: 50%;
+}
+.buttonBW,
+.buttonColor {
     border-radius: 50% 50% 50% 0;
 }
+.divBW,
+.divColor {
+    border-radius: 50% 0 50% 50%;
+}
 
-:global(html.light) .input[type="checkbox"]:checked ~ div {
+:global(html.light) .inputColor[type="checkbox"]:checked ~ div {
     color: var(--theme-light-numpad-button-color);
     text-shadow: 0 0 15px var(--theme-number-button-background), 0 0 25px var(--theme-number-button-background);
     animation: glow 3s linear 1;
 }
 
-:global(html.dark) .input[type="checkbox"]:checked ~ div {
+:global(html.dark) .inputColor[type="checkbox"]:checked ~ div {
     color: var(--theme-dark-numpad-button-color);
     text-shadow: 0 0 15px var(--theme-number-button-background), 0 0 25px var(--theme-number-button-background);
+    animation: glow 3s linear 1;
+}
+
+:global(html.light) .inputBW[type="checkbox"]:checked ~ div {
+    color: var(--theme-light-numpad-button-color);
+    text-shadow: 0 0 15px var(--theme-light-numpad-button-background), 0 0 25px var(--theme-light-numpad-button-background);
+    animation: glow 3s linear 1;
+}
+
+:global(html.dark) .inputBW[type="checkbox"]:checked ~ div {
+    color: var(--theme-dark-numpad-button-color);
+    text-shadow: 0 0 15px var(--theme-light-dark-button-background), 0 0 25px var(--theme-dark-numpad-button-background);
     animation: glow 3s linear 1;
 }
 
@@ -90,8 +115,8 @@
         filter: hue-rotate(360deg);
     }
 }
-  
-:global(html.light) .div {
+
+:global(html.light) .divColor {
     background: var(--theme-number-button-background);
     color: var(--theme-light-numpad-button-color);
 
@@ -102,43 +127,147 @@
     &:active {
         background: var(--theme-light-numpad-button-active);
     } */
+}
+
+:global(html.dark) .divColor {
+    background: var(--theme-number-button-background);
+    color: var(--theme-dark-numpad-button-color);
+
+    /* &:hover {
+        background: var(--theme-dark-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-dark-numpad-button-active);
+    } */
+}
+
+:global(html.light) .buttonColor {
+    background: var(--theme-backspacebutton-background);
+    color: var(--theme-light-numpad-button-color);
+
+    /* &:hover {
+        background: var(--theme-light-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-light-numpad-button-active);
+    } */
+}
+
+:global(html.dark) .buttonColor {
+    background: var(--theme-backspacebutton-background);
+    color: var(--theme-dark-numpad-button-color);
+
+    /* &:hover {
+        background: var(--theme-dark-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-dark-numpad-button-active);
+    } */
+}
+
+:global(html.light) .div {
+    background: var(--theme-light-numpad-button-background);
+    color: var(--theme-light-numpad-button-color);
+
+    &:hover {
+        background: var(--theme-light-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-light-numpad-button-active);
+    }
 }
 
 :global(html.dark) .div {
-    background: var(--theme-number-button-background);
+    background: var(--theme-dark-numpad-button-background);
     color: var(--theme-dark-numpad-button-color);
 
-    /* &:hover {
+    &:hover {
         background: var(--theme-dark-numpad-button-hover);
     }
 
     &:active {
         background: var(--theme-dark-numpad-button-active);
-    } */
+    }
 }
 
 :global(html.light) .button {
-    background: var(--theme-backspacebutton-background);
+    background: var(--theme-dark-numpad-button-background);
+    color: var(--theme-dark-numpad-button-color);
+
+    &:hover {
+        background: var(--theme-dark-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-dark-numpad-button-active);
+    }
+}
+
+:global(html.dark) .button {
+    background: var(--theme-light-numpad-button-background);
     color: var(--theme-light-numpad-button-color);
 
-    /* &:hover {
+    &:hover {
         background: var(--theme-light-numpad-button-hover);
     }
 
     &:active {
         background: var(--theme-light-numpad-button-active);
-    } */
+    }
 }
 
-:global(html.dark) .button {
-    background: var(--theme-backspacebutton-background);
+:global(html.light) .divBW {
+    background: var(--theme-light-numpad-button-background);
+    color: var(--theme-light-numpad-button-color);
+
+    &:hover {
+        background: var(--theme-light-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-light-numpad-button-active);
+    }
+}
+
+:global(html.dark) .divBW {
+    background: var(--theme-dark-numpad-button-background);
     color: var(--theme-dark-numpad-button-color);
 
-    /* &:hover {
+    &:hover {
         background: var(--theme-dark-numpad-button-hover);
     }
 
     &:active {
         background: var(--theme-dark-numpad-button-active);
-    } */
+    }
+}
+
+:global(html.light) .buttonBW {
+    background: var(--theme-dark-numpad-button-background);
+    color: var(--theme-dark-numpad-button-color);
+
+    &:hover {
+        background: var(--theme-dark-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-dark-numpad-button-active);
+    }
+}
+
+:global(html.dark) .buttonBW {
+    background: var(--theme-light-numpad-button-background);
+    color: var(--theme-light-numpad-button-color);
+
+    &:hover {
+        background: var(--theme-light-numpad-button-hover);
+    }
+
+    &:active {
+        background: var(--theme-light-numpad-button-active);
+    }
 }

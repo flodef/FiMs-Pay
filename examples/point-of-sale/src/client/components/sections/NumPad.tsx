@@ -9,6 +9,7 @@ import { isFullscreen, requestFullscreen } from "../../utils/fullscreen";
 import { useIsMobileSize } from "../../utils/mobile";
 import { getMultiplierInfo } from "../../utils/multiplier";
 import { BackspaceIcon } from '../images/BackspaceIcon';
+import { Theme } from "./ActionMenu";
 import { Amount } from "./Amount";
 import css from './NumPad.module.css';
 
@@ -18,6 +19,8 @@ interface NumPadInputButton {
 }
 
 const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
+    const { theme } = useConfig();
+
     const onClick = useCallback(() => {
         if (IS_CUSTOMER_POS && !isFullscreen()) {
             requestFullscreen();
@@ -26,14 +29,14 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
     }, [onInput, input]);
     return (
         <div>
-            <input className={css.input} type="checkbox" onClick={onClick} />
-            <div className={css.div}>{input}</div>
+            <input className={theme === Theme.Color ? css.inputColor : theme === Theme.BlackWhite ? css.inputBW : css.input} type="checkbox" onClick={onClick} />
+            <div className={theme === Theme.Color ? css.divColor : theme === Theme.BlackWhite ? css.divBW : css.div}>{input}</div>
         </div>
     );
 };
 
 export const NumPad: FC = () => {
-    const { maxDecimals, maxValue, multiplier } = useConfig();
+    const { maxDecimals, maxValue, multiplier, theme } = useConfig();
     const { balance, hasSufficientBalance } = usePayment();
     const { publicKey } = useWallet();
     const phone = useIsMobileSize();
@@ -102,7 +105,7 @@ export const NumPad: FC = () => {
                         <div className={css.row}>
                             <NumPadButton input="." onInput={onInput} />
                             <NumPadButton input={0} onInput={onInput} />
-                            <button className={css.button} type="button" onClick={onBackspace}>
+                            <button className={theme === Theme.Color ? css.buttonColor : theme === Theme.BlackWhite ? css.buttonBW : css.button} type="button" onClick={onBackspace}>
                                 <BackspaceIcon />
                             </button>
                         </div>

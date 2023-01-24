@@ -1,8 +1,10 @@
 import { PublicKey } from '@solana/web3.js';
-import React, { FC, ReactElement, ReactNode } from 'react';
+import React, { FC, ReactElement, ReactNode, useState } from 'react';
 import { ConfigContext } from '../../hooks/useConfig';
 import { Confirmations, Digits } from '../../types';
+import { DEFAULT_THEME } from "../../utils/env";
 import { Multiplier } from "../../utils/multiplier";
+import { Theme } from "../sections/ActionMenu";
 
 export interface ConfigProviderProps {
     children: ReactNode;
@@ -22,6 +24,7 @@ export interface ConfigProviderProps {
     requiredConfirmations?: Confirmations;
     id?: number;
     shouldConnectWallet?: boolean;
+    theme: string;
     reset?: () => void;
 }
 
@@ -45,6 +48,8 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     shouldConnectWallet = false,
     reset,
 }) => {
+    const [theme, setTheme] = useState(DEFAULT_THEME);
+
     return (
         <ConfigContext.Provider
             value={{
@@ -64,6 +69,8 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
                 requiredConfirmations,
                 id,
                 shouldConnectWallet,
+                theme,
+                setTheme,
                 reset
             }}
         >

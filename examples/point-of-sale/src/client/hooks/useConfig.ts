@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { createContext, ReactElement, useContext } from 'react';
+import { Theme } from "../components/sections/ActionMenu";
 import { Confirmations, Digits } from '../types';
 import { Multiplier } from "../utils/multiplier";
 
@@ -15,11 +16,13 @@ export interface ConfigContextState {
     minDecimals: Digits;
     maxDecimals: Digits;
     maxValue: number;
-    multiplier?:Multiplier;
+    multiplier?: Multiplier;
     currency: string;
     requiredConfirmations: Confirmations;
     id?: number;
     shouldConnectWallet: boolean;
+    theme: string;
+    setTheme: (theme: string) => void;
     reset?: () => void;
 }
 

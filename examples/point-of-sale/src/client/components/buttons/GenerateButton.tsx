@@ -1,8 +1,10 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import React, { FC, MouseEventHandler, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
+import { useConfig } from "../../hooks/useConfig";
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { FAUCET, IS_CUSTOMER_POS, POS_USE_WALLET } from "../../utils/env";
+import { Theme } from "../sections/ActionMenu";
 import css from './GenerateButton.module.css';
 
 export interface GenerateButtonProps {
@@ -12,6 +14,7 @@ export interface GenerateButtonProps {
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const { amount, status, hasSufficientBalance, generate, balance, selectWallet } = usePayment();
     const { publicKey, connecting } = useWallet();
+    const { theme } = useConfig();
 
     const [needRefresh, setNeedRefresh] = useState(false);
 
@@ -49,7 +52,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
 
     return (
         <button
-            className={css.root}
+            className={theme === Theme.Color ? css.rootColor : theme === Theme.BlackWhite ? css.rootBW : css.root}
             type="button"
             onClick={handleClick}
             disabled={(!IS_CUSTOMER_POS && isInvalidAmount) || (IS_CUSTOMER_POS && publicKey !== null && !connecting && hasSufficientBalance && (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))}
