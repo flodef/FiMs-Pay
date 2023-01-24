@@ -264,6 +264,42 @@ Here is the list of all availables settings with their explanation and default v
 -   NEXT_PUBLIC_MERCHANT_IMAGE_PATH='/Img/Merchant/' : The path or Web address to where the merchant's logo is located
 -   NEXT_PUBLIC_FAUCET=https://spl-token-faucet.com : A web address to a SOL / SPL Token faucet 
 -   NEXT_PUBLIC_ABOUT=https://solanapay.com/ : A web address to know more about the app / project
+-   NEXT_PUBLIC_PRIV_KEY : A Solana wallet private key to use Elusiv ZK private payments (see Private Payments below)
+
+## Private Payments
+
+In order to use Elusiv ZK private payments, you need to configure the app with a Solana wallet private key.
+Your private key should have the format `[x, x, x, ...  x, x]` where x is a number between 0 and 255. There are 64 of them.
+Because the Private Key is a very sensitive information, use it with great care.
+
+!WARNING! If you are not sure on how to handle it, create a new wallet first and take the private key from it, instead of using your own wallet.
+
+### Solflare
+
+1. Go to the wallet account you want to get the private key from
+2. Select `Modify` (on the Android app only)
+3. Select the "Settings" icon
+4. Click on `Export Private Key`
+5. Click on `Show`
+6. Insert your password if needed
+3. Copy
+
+### Phantom
+
+1. Go to `Settings > Security & Privacy > Export Private Key`
+2. Insert your password if needed
+3. Copy 
+
+### What to do with my Private Key ?
+
+When you get this key, paste it in the settings under `NEXT_PUBLIC_PRIV_KEY` in `.env.local` and the `Environment Variables` in Vercel (see above).
+The correct format does not have the brackets `[ ]` included, so please make sure you remove them after pasting.
+Your setting should look like this: `NEXT_PUBLIC_PRIV_KEY=x, x, x, ...  x, x`
+
+NOTES: 
+-   As a private key should stay "Private", pay great attention to where you store it.
+-   Never give your Wallet Private Key to anybody untrusted as it can be used against you, and your wallet can be depleted.
+-   You should also never commit it on Github in `.env.example` (`.env.local` file always stays on your device, and Vercel's Environment Variables are encrypted by default).
 
 ## Merchants
 
