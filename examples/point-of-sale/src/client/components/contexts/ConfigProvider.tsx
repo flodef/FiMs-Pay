@@ -24,7 +24,6 @@ export interface ConfigProviderProps {
     requiredConfirmations?: Confirmations;
     id?: number;
     shouldConnectWallet?: boolean;
-    theme: string;
     reset?: () => void;
 }
 
