@@ -58,7 +58,6 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
 
     // Poll for signatures referencing the associated token account
     useEffect(() => {
-        if (IS_CUSTOMER_POS) return;
         let changed = false;
 
         const run = async () => {

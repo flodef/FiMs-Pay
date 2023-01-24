@@ -15,6 +15,12 @@ export const NON_BREAKING_SPACE = '\u00a0';
 export const DEVNET_ENDPOINT = clusterApiUrl('devnet');
 export const MAINNET_ENDPOINT = process.env.NEXT_PUBLIC_CLUSTER_ENDPOINT || 'https://solana-mainnet.rpc.extrnode.com';
 
+/**
+ * ONLY FOR SAMPLES NEVER EVER STORE YOUR/ANYONE'S PRIVATE KEY IN PLAIN TEXT
+ * TODO: Insert your private key here
+ */
+export const PRIV_KEY = Uint8Array.from(process.env.NEXT_PUBLIC_PRIV_KEY ? process.env.NEXT_PUBLIC_PRIV_KEY.split(', ').map(x=> Number(x)) : []);
+
 // Mint DUMMY tokens on devnet @ https://spl-token-faucet.com
 const DEVNET_DUMMY_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
 

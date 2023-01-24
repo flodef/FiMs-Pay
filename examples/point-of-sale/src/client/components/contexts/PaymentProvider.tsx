@@ -4,12 +4,13 @@ import {
     findReference,
     FindReferenceError,
     parseURL,
+    TransferRequestURL,
     validateTransfer,
     ValidateTransferError,
 } from '@solana/pay';
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { ConfirmedSignatureInfo, Keypair, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
+import { ConfirmedSignatureInfo, Keypair, LAMPORTS_PER_SOL, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
@@ -17,13 +18,17 @@ import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
-import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT, POS_USE_WALLET } from '../../utils/env';
+import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT, POS_USE_WALLET, USER_PASSWORD } from '../../utils/env';
 import { exitFullscreen, isFullscreen } from "../../utils/fullscreen";
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
 import { WalletName } from "@solana/wallet-adapter-base";
 import { isMobileDevice } from "../../utils/mobile";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { createTransfer } from "../../../server/core/createTransfer";
+import { PRIV_KEY } from "../../utils/constants";
+import { sign } from "@noble/ed25519";
+import { Elusiv, SendTxData, TokenType } from "elusiv-sdk";
+
 
 export interface PaymentProviderProps {
     children: ReactNode;
@@ -36,7 +41,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { setVisible } = useWalletModal();
     const { processError } = useError();
 
-    const [balance, setBalance] = useState<number>();
+    const [balance, setBalance] = useState<BigNumber>();
     const [amount, setAmount] = useState<BigNumber>();
     const [memo, setMemo] = useState<string>();
     const [reference, setReference] = useState<PublicKey>();
@@ -107,7 +112,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [link, recipient, amount, splToken, reference, label, message, memo]);
 
-    const hasSufficientBalance = useMemo(() => !IS_CUSTOMER_POS || balance === undefined || (balance > 0 && amount !== undefined && balance >= parseFloat(amount.toString())), [balance, amount]);
+    const hasSufficientBalance = useMemo(() => !IS_CUSTOMER_POS || balance === undefined || (balance > BigNumber(0) && amount !== undefined && balance >= amount), [balance, amount]);
 
     const reset = useCallback(() => {
         changeStatus(PaymentStatus.New);
@@ -151,7 +156,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         } else {
             setVisible(true);
         }
-    }, [connect, select, wallet, setVisible]);
+    }, [
+        connect, select, wallet, setVisible
+    ]);
 
     const connectWallet = useCallback(async () => {
         if (!publicKey) {
@@ -159,8 +166,52 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         } else {
             disconnect().catch(() => { });
         }
-    }, [disconnect, publicKey, selectWallet]);
+    }, [
+        disconnect, publicKey, selectWallet
+    ]);
 
+    // Helper function to generate params used by all samples, namely a web3js connection, the keypair of the user, and the elusiv instance 
+    // export async function getParams(): Promise<{ elusiv: Elusiv, keyPair: Keypair, conn: Connection; }> {
+    const getParams = useCallback(async () => {
+        if (PRIV_KEY.length === 0) throw new Error('Need to provide a private key in constants.ts');
+
+        // Generate a keypair from the private key to retrieve the public key and optionally 
+        // sign txs
+        const keyPair = Keypair.fromSecretKey(PRIV_KEY);
+
+        // Generate the input seed. Remember, this is almost as important as the private key, so don't log this!
+        // (We use sign from an external library here because there is no wallet connected. Usually you'd use the wallet adapter here) 
+        // (Slice because in Solana's keypair type the first 32 bytes is the privkey and the last 32 is the pubkey)
+        const seed = await sign(Elusiv.hashPw(USER_PASSWORD), keyPair.secretKey.slice(0, 32));
+
+        // Create the elusiv instance
+        const elusiv = await Elusiv.getElusivInstance(seed, keyPair.publicKey, connection);
+
+        return { elusiv, keyPair, conn: connection };
+    }, [connection]);
+
+    const topup = useCallback(async (elusivInstance: Elusiv, keyPair: Keypair, amount: number, tokenType: TokenType) => {
+        // Build our topup transaction
+        const topupTx = await elusivInstance.buildTopUpTx(amount, tokenType);
+        // Sign it (only needed for topups, as we're topping up from our public key there)
+        topupTx.tx.partialSign(keyPair);
+        // Send it off
+        return elusivInstance.sendElusivTx(topupTx);
+    }, []);
+
+    const supply = useCallback(async () => {
+        const { elusiv, keyPair } = await getParams();
+
+        // Top up with 1 Sol
+        const res = await topup(elusiv, keyPair, LAMPORTS_PER_SOL, 'LAMPORTS');
+        console.log(
+            `Topup initiated: https://solscan.io/tx/${res.sig.signature}${{ IS_DEV } ? '?cluster=devnet' : ''}`
+        );
+
+        // Wait for the topup to be confirmed (have your UI do something else here, this takes a little)
+        await res.isConfirmed;
+        console.log('Topup complete!');
+    }, [getParams, topup]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
@@ -169,18 +220,13 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         const run = async () => {
             try {
-                let amount = 0;
-                if (splToken) {
-                    const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
-                    const senderAccount = await getAccount(connection, senderATA);
-                    amount = Number(senderAccount.amount);
-                } else {
-                    const senderInfo = await connection.getAccountInfo(publicKey);
-                    amount = senderInfo ? senderInfo.lamports : 0;
-                }
-                setBalance(amount / Math.pow(10, decimals));
+                const { elusiv } = await getParams();
+
+                // Fetch our current private balance to check if we have enough money to pay for the item
+                const amount = await elusiv.getLatestPrivateBalance('LAMPORTS');
+                setBalance(BigNumber(amount.toString()));
             } catch (error: any) {
-                setBalance(-1);
+                setBalance(BigNumber(-1));
             }
         };
         let timeout = setTimeout(run, 0);
@@ -189,7 +235,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [connection, publicKey, splToken, decimals]);
+    }, [connection, publicKey, splToken, decimals, getParams]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
@@ -199,31 +245,21 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         const run = async () => {
             try {
                 const request = parseURL(url);
-                let transaction: Transaction;
+                const { elusiv } = await getParams();
 
-                if ('link' in request) {
-                    const { link } = request;
-                    transaction = await fetchTransaction(connection, publicKey, link);
-                } else {
-                    const { recipient, amount, splToken, reference, memo } = request;
-                    if (!amount) return;
+                const { recipient, amount, splToken, reference, memo } = request as TransferRequestURL;
+                if (!amount) return;
 
-                    transaction = await createTransfer(connection, publicKey, {
-                        recipient,
-                        amount,
-                        splToken,
-                        reference,
-                        memo,
-                    });
-                }
+                const amountLamports = amount.toNumber() * LAMPORTS_PER_SOL;
+                const transaction = await elusiv.buildSendTx(amountLamports, recipient, 'LAMPORTS', reference ? reference[0] : undefined);
+                if (Number(balance) - transaction.getTotalFee().txFee < amountLamports) throw new Error('Insufficient private balance');
 
                 if (!changed) {
                     changeStatus(PaymentStatus.Creating);
-                    const transactionHash = await sendTransaction(transaction, connection);
+                    const res = await elusiv.sendElusivTx(transaction);
                     changeStatus(PaymentStatus.Sent);
                     console.log(
-                        `Transaction sent: https://solscan.io/tx/${transactionHash}${{ IS_DEV } ? '?cluster=devnet' : ''
-                        }`
+                        `Transaction sent: https://solscan.io/tx/${res.sig.signature}${{ IS_DEV } ? '?cluster=devnet' : ''}`
                     );
                 }
             } catch (error) {
@@ -240,7 +276,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, shouldConnectWallet, publicKey, url, connection, sendTransaction, changeStatus, sendError]);
+    }, [status, shouldConnectWallet, publicKey, url, connection, sendTransaction, changeStatus, sendError, balance, getParams]);
 
     // When the status is pending, poll for the transaction using the reference key
     useEffect(() => {
@@ -363,6 +399,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 hasSufficientBalance,
                 reset,
                 generate,
+                supply,
                 selectWallet,
                 connectWallet,
             }}

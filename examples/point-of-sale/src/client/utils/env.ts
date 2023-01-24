@@ -18,3 +18,5 @@ export const FAUCET = (!IS_DEV ? process.env.NEXT_PUBLIC_FAUCET : null) || 'http
 export const ABOUT = process.env.NEXT_PUBLIC_ABOUT || 'https://solanapay.com/';
 export const GOOGLE_SPREADSHEET_ID = process.env.NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID;
 export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+export const USER_PASSWORD = process.env.NEXT_PUBLIC_USER_PASSWORD || APP_TITLE;
+export const PUB_KEY = process.env.NEXT_PUBLIC_PUB_KEY;

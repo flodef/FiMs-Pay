@@ -1,4 +1,6 @@
 import { useWallet } from "@solana/wallet-adapter-react";
+import { Keypair } from "@solana/web3.js";
+import { Elusiv, TokenType } from "elusiv-sdk";
 import React, { FC, MouseEventHandler, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
 import { useConfig } from "../../hooks/useConfig";
@@ -12,7 +14,7 @@ export interface GenerateButtonProps {
 }
 
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
-    const { amount, status, hasSufficientBalance, generate, balance, selectWallet } = usePayment();
+    const { amount, status, hasSufficientBalance, generate, selectWallet, supply } = usePayment();
     const { publicKey, connecting } = useWallet();
     const { theme } = useConfig();
 
@@ -21,7 +23,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const isInvalidAmount = useMemo(() => !amount || amount.isLessThanOrEqualTo(0), [amount]);
     const action = useMemo(() =>
         hasSufficientBalance
-            ? publicKey || !(POS_USE_WALLET || IS_CUSTOMER_POS)
+            ? IS_CUSTOMER_POS
                 ? id
                 : connecting
                     ? "connecting"
@@ -29,7 +31,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             : needRefresh
                 ? "reload"
                 : "supply",
-        [connecting, hasSufficientBalance, id, needRefresh, publicKey]);
+        [connecting, hasSufficientBalance, id, needRefresh]);
 
     const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
         () => {
@@ -42,13 +44,13 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     case "reload":
                         return () => setNeedRefresh(false);//TODO : Refresh account 
                     case "supply":
-                        return () => { window.open(FAUCET, '_blank'); setNeedRefresh(true); };
+                        return () => supply();
                     default:
                         return () => { };
                 }
             };
             a()();
-        }, [generate, selectWallet, action, id]);
+        }, [generate, selectWallet, action, id, supply]);
 
     return (
         <button

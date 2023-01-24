@@ -1,4 +1,5 @@
 import { useWallet } from "@solana/wallet-adapter-react";
+import BigNumber from "bignumber.js";
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
 import { useConfig } from '../../hooks/useConfig';
@@ -61,14 +62,14 @@ export const NumPad: FC = () => {
     const { setAmount } = usePayment();
     useEffect(() => setAmount(value ? getMultiplierInfo(value, multiplier).amount : undefined), [setAmount, value, multiplier]);
 
-    const hasBalance = useMemo(() => balance !== undefined && balance >= 0, [balance]);
+    const hasBalance = useMemo(() => balance !== undefined && balance >= BigNumber(0), [balance]);
 
     return (
         <div className={css.root}>
             {(phone || IS_CUSTOMER_POS) && publicKey
                 ? <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined
-                        ? balance > 0
+                        ? balance > BigNumber(0)
                             ? <div>
                                 <FormattedMessage id="yourBalance" />:&nbsp;
                                 <Amount value={balance} />

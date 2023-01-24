@@ -21,7 +21,7 @@ export interface PaymentContextState {
     setAmount(amount: BigNumber | undefined): void;
     memo: string | undefined;
     setMemo(memo: string | undefined): void;
-    balance?: number;
+    balance?: BigNumber;
     reference: PublicKey | undefined;
     signature: TransactionSignature | undefined;
     status: PaymentStatus;
@@ -31,6 +31,7 @@ export interface PaymentContextState {
     hasSufficientBalance:boolean;
     reset(): void;
     generate(): void;
+    supply():void;
     selectWallet(): void;
     connectWallet():void;
 }
