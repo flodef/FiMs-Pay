@@ -22,6 +22,7 @@ export interface PaymentContextState {
     memo: string | undefined;
     setMemo(memo: string | undefined): void;
     balance?: BigNumber;
+    publicBalance:BigNumber;
     reference: PublicKey | undefined;
     signature: TransactionSignature | undefined;
     status: PaymentStatus;

@@ -5,7 +5,7 @@ import { FormattedMessage } from "react-intl";
 import { useConfig } from '../../hooks/useConfig';
 import { usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
-import { PRIV_KEY } from "../../utils/constants";
+import { PRIV_KEY, ZERO } from "../../utils/constants";
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { isFullscreen, requestFullscreen } from "../../utils/fullscreen";
 import { useIsMobileSize } from "../../utils/mobile";
@@ -63,20 +63,20 @@ export const NumPad: FC = () => {
     const { setAmount } = usePayment();
     useEffect(() => setAmount(value ? getMultiplierInfo(value, multiplier).amount : undefined), [setAmount, value, multiplier]);
 
-    const hasBalance = useMemo(() => balance !== undefined && balance >= BigNumber(0), [balance]);
+    const hasBalance = useMemo(() => balance !== undefined && balance.gte(ZERO), [balance]);
 
     return (
         <div className={css.root}>
             {(phone || IS_CUSTOMER_POS) && (publicKey || PRIV_KEY)
                 ? <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined
-                        ? balance > BigNumber(0)
+                        ? balance.gt(ZERO)
                             ? <div>
                                 <FormattedMessage id="yourBalance" />:&nbsp;
                                 <Amount value={balance} />
                                 {!hasSufficientBalance ? <FormattedMessage id="insufficient" /> : null}
                             </div>
-                            : balance < BigNumber(0) 
+                            : balance.lt(ZERO) 
                                 ? <FormattedMessage id="balanceLoadingError" />
                                 : <FormattedMessage id="emptyBalance" />
                         : <FormattedMessage id="balanceLoading" />}
