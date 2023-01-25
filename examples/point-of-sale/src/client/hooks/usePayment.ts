@@ -32,6 +32,7 @@ export interface PaymentContextState {
     reset(): void;
     generate(): void;
     supply():void;
+    updateBalance():void;
     selectWallet(): void;
     connectWallet():void;
 }

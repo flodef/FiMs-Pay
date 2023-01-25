@@ -5,6 +5,7 @@ import { FormattedMessage } from "react-intl";
 import { useConfig } from '../../hooks/useConfig';
 import { usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
+import { PRIV_KEY } from "../../utils/constants";
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { isFullscreen, requestFullscreen } from "../../utils/fullscreen";
 import { useIsMobileSize } from "../../utils/mobile";
@@ -66,7 +67,7 @@ export const NumPad: FC = () => {
 
     return (
         <div className={css.root}>
-            {(phone || IS_CUSTOMER_POS) && publicKey
+            {(phone || IS_CUSTOMER_POS) && (publicKey || PRIV_KEY)
                 ? <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined
                         ? balance > BigNumber(0)
@@ -75,7 +76,9 @@ export const NumPad: FC = () => {
                                 <Amount value={balance} />
                                 {!hasSufficientBalance ? <FormattedMessage id="insufficient" /> : null}
                             </div>
-                            : <FormattedMessage id="emptyBalance" />
+                            : balance < BigNumber(0) 
+                                ? <FormattedMessage id="balanceLoadingError" />
+                                : <FormattedMessage id="emptyBalance" />
                         : <FormattedMessage id="balanceLoading" />}
                 </div>
                 : null

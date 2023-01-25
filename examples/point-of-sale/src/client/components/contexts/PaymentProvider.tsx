@@ -5,7 +5,6 @@ import {
     FindReferenceError,
     parseURL,
     TransferRequestURL,
-    validateTransfer,
     ValidateTransferError,
 } from '@solana/pay';
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
@@ -28,6 +27,7 @@ import { createTransfer } from "../../../server/core/createTransfer";
 import { PRIV_KEY } from "../../utils/constants";
 import { sign } from "@noble/ed25519";
 import { Elusiv, SendTxData, TokenType } from "elusiv-sdk";
+import { validateTransfer } from '../../../server/core/validateTransfer';
 
 
 export interface PaymentProviderProps {
@@ -177,7 +177,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         // Generate a keypair from the private key to retrieve the public key and optionally 
         // sign txs
-        const keyPair = Keypair.fromSecretKey(PRIV_KEY);
+        const keyPair = Keypair.fromSecretKey(PRIV_KEY);    // TODO get from wallet
 
         // Generate the input seed. Remember, this is almost as important as the private key, so don't log this!
         // (We use sign from an external library here because there is no wallet connected. Usually you'd use the wallet adapter here) 
@@ -190,43 +190,20 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         return { elusiv, keyPair, conn: connection };
     }, [connection]);
 
-    const topup = useCallback(async (elusivInstance: Elusiv, keyPair: Keypair, amount: number, tokenType: TokenType) => {
-        // Build our topup transaction
-        const topupTx = await elusivInstance.buildTopUpTx(amount, tokenType);
-        // Sign it (only needed for topups, as we're topping up from our public key there)
-        topupTx.tx.partialSign(keyPair);
-        // Send it off
-        return elusivInstance.sendElusivTx(topupTx);
-    }, []);
-
-    const supply = useCallback(async () => {
-        const { elusiv, keyPair } = await getParams();
-
-        // Top up with 1 Sol
-        const res = await topup(elusiv, keyPair, LAMPORTS_PER_SOL, 'LAMPORTS');
-        console.log(
-            `Topup initiated: https://solscan.io/tx/${res.sig.signature}${{ IS_DEV } ? '?cluster=devnet' : ''}`
-        );
-
-        // Wait for the topup to be confirmed (have your UI do something else here, this takes a little)
-        await res.isConfirmed;
-        console.log('Topup complete!');
-    }, [getParams, topup]);
-
-    // If there's a connected wallet, load it's token balance
-    useEffect(() => {
-        if (!(connection && publicKey)) { setBalance(undefined); return; }
+    const updateBalance = useCallback(async () => {
+        if (!(connection && (publicKey || PRIV_KEY))) { setBalance(undefined); return; }
         let changed = false;
 
+        setBalance(undefined);  // Set the balance as 'loading balance'
         const run = async () => {
             try {
                 const { elusiv } = await getParams();
 
-                // Fetch our current private balance to check if we have enough money to pay for the item
-                const amount = await elusiv.getLatestPrivateBalance('LAMPORTS');
-                setBalance(BigNumber(amount.toString()));
+                const amountLamports = await elusiv.getLatestPrivateBalance('LAMPORTS');
+                const amount = parseInt(amountLamports.toString())/LAMPORTS_PER_SOL;
+                setBalance(BigNumber(amount));
             } catch (error: any) {
-                setBalance(BigNumber(-1));
+                setBalance(BigNumber(-1));    // Set the balance as 'balance loading error'
             }
         };
         let timeout = setTimeout(run, 0);
@@ -235,11 +212,44 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [connection, publicKey, splToken, decimals, getParams]);
+    }, [getParams, connection, publicKey]);
+
+    const supply = useCallback(async () => {
+        const { elusiv, keyPair } = await getParams();
+
+        // Top up with 1 Sol
+        const topup = LAMPORTS_PER_SOL; // TODO with UI
+        const token = 'LAMPORTS';       // TODO with UI
+
+        // Build our topup transaction
+        console.log('Requesting topup of ' + topup/LAMPORTS_PER_SOL + token);
+        const topupTx = await elusiv.buildTopUpTx(topup, token);
+        // Sign it (only needed for topups, as we're topping up from our public key there)
+        topupTx.tx.partialSign(keyPair);
+        // Send it off
+        console.log('Sending topup Tx ...');
+        const res = await elusiv.sendElusivTx(topupTx);
+        
+        console.log(
+            `Topup initiated: https://solscan.io/tx/${res.sig.signature}${{ IS_DEV } ? '?cluster=devnet' : ''}`
+        );
+
+        // Wait for the topup to be confirmed (have your UI do something else here, this takes a little)
+        await res.isConfirmed;
+        console.log('Topup complete!');
+
+        updateBalance();
+    }, [getParams, updateBalance]);
+
+    // If there's a connected wallet, load it's token balance
+    useEffect(() => {
+        if (!(status === PaymentStatus.New)) return;
+        updateBalance();
+    }, [status, updateBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
-        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && connection && publicKey)) return;
+        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && connection && (publicKey || PRIV_KEY))) return;
         let changed = false;
 
         const run = async () => {
@@ -248,11 +258,12 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 const { elusiv } = await getParams();
 
                 const { recipient, amount, splToken, reference, memo } = request as TransferRequestURL;
-                if (!amount) return;
+                if (!amount || !balance) return;
 
-                const amountLamports = amount.toNumber() * LAMPORTS_PER_SOL;
-                const transaction = await elusiv.buildSendTx(amountLamports, recipient, 'LAMPORTS', reference ? reference[0] : undefined);
-                if (Number(balance) - transaction.getTotalFee().txFee < amountLamports) throw new Error('Insufficient private balance');
+                const amountLamports = amount.multipliedBy(LAMPORTS_PER_SOL);
+                const transaction = await elusiv.buildSendTx(amountLamports.toNumber(), recipient, 'LAMPORTS', reference ? reference[0] : undefined);
+                const fee = transaction.getTotalFee().txFee / LAMPORTS_PER_SOL;
+                if (balance.minus(fee).lt(amount)) throw new Error('Insufficient private balance'); // TODO translate
 
                 if (!changed) {
                     changeStatus(PaymentStatus.Creating);
@@ -323,7 +334,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         const run = async () => {
             try {
-                await validateTransfer(connection, signature, { recipient, amount, splToken, reference });
+                await validateTransfer(connection, signature, { recipient, amount, splToken, reference }, {
+                    maxSupportedTransactionVersion:0
+                });
                 if (!changed) {
                     changeStatus(PaymentStatus.Valid);
                 }
@@ -383,7 +396,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [status, signature, connection, requiredConfirmations, changeStatus, sendError]);
 
     return (
-        <PaymentContext.Provider
+        <PaymentContext.Provider 
             value={{
                 amount,
                 setAmount,
@@ -400,6 +413,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 reset,
                 generate,
                 supply,
+                updateBalance,
                 selectWallet,
                 connectWallet,
             }}
