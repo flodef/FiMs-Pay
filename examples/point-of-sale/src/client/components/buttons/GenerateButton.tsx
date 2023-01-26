@@ -1,15 +1,13 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import BigNumber from "bignumber.js";
-import { Elusiv, TokenType } from "elusiv-sdk";
-import React, { FC, MouseEventHandler, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
 import { useConfig } from "../../hooks/useConfig";
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { PRIV_KEY, ZERO } from "../../utils/constants";
 import { FAUCET, IS_CUSTOMER_POS, POS_USE_WALLET } from "../../utils/env";
 import { Theme } from "../sections/ActionMenu";
-import { AlertDetails, AlertDialogPopup, AlertType } from "../sections/AlertDialogPopup";
+import { AlertDialogPopup, AlertType } from "../sections/AlertDialogPopup";
 import css from './GenerateButton.module.css';
 
 enum state {
@@ -43,7 +41,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     , [connecting, hasSufficientBalance, id, needRefresh, publicKey, balance]);
 
     const alert = useMemo(() =>
-        action === state.Supply && publicBalance.gt(0)
+        action === state.Supply && PRIV_KEY && publicBalance.gt(0)
             ? {
                 title: 'Your private wallet balance is empty!',
                 description: [`You need to top it up with some SOL:`,
@@ -52,17 +50,17 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 `For privacy reason, it's recommended that you topup a different amount to your private wallet than the what you are going to pay!`],
                 type:AlertType.Alert
             }
-            : action === state.Supply && publicBalance.lte(0)
+            : action === state.Supply && PRIV_KEY && publicBalance.lte(0)
                 ? {
                     title: 'Your public wallet balance is empty!',
                     description: [`A new tab will open on a Solana Faucet where you can get some SOL:`,
-                    `1. Copy your wallet address: ${recipient.toString()}`,
+                    `1. Copy your wallet address: ${Keypair.fromSecretKey(PRIV_KEY).publicKey}`,
                     `2. Paste it in the faucet recipient text box`,
                     `3. Airdrop some SOL to your wallet on the DEVNET network`],
                     type:AlertType.Message
                 }
             : undefined
-    , [publicBalance, recipient, action]);
+    , [publicBalance, action]);
 
     const handleClick = useCallback(
         () => {
