@@ -32,7 +32,7 @@ export interface PaymentContextState {
     hasSufficientBalance:boolean;
     reset(): void;
     generate(): void;
-    supply():void;
+    topup():void;
     updateBalance():void;
     selectWallet(): void;
     connectWallet():void;

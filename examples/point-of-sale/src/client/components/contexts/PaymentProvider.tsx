@@ -231,7 +231,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 const { elusiv } = await getParams();
 
                 const amountLamports = await elusiv.getLatestPrivateBalance('LAMPORTS');
-                const amount = parseInt(amountLamports.toString())/LAMPORTS_PER_SOL;
+                const amount = parseInt(amountLamports.toString()) / LAMPORTS_PER_SOL;
                 setBalance(BigNumber(amount));
 
                 updatePublicBalance();
@@ -248,7 +248,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [getParams, connection, publicKey, updatePublicBalance]);
 
 
-    const supply = useCallback(async () => {
+    const topup = useCallback(async () => {
         const { elusiv, keyPair } = await getParams();
 
         setBalance(undefined);  // Set the balance as 'loading balance'
@@ -258,25 +258,25 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             const token = 'LAMPORTS';               // TODO with UI
 
             // Build our topup transaction
-            console.log('Requesting topup of ' + topup/LAMPORTS_PER_SOL + token);
+            console.log('Requesting topup of ' + topup / LAMPORTS_PER_SOL + token);
             const topupTx = await elusiv.buildTopUpTx(topup, token);
             // Sign it (only needed for topups, as we're topping up from our public key there)
             topupTx.tx.partialSign(keyPair);
             // Send it off
             console.log('Sending topup Tx ...');
             const res = await elusiv.sendElusivTx(topupTx);
-            
+
             console.log(
                 `Topup initiated: https://solscan.io/tx/${res.sig.signature}${{ IS_DEV } ? '?cluster=devnet' : ''}`
             );
-    
+
             // Wait for the topup to be confirmed (have your UI do something else here, this takes a little)
             await res.isConfirmed;
             console.log('Topup complete!');
-    
-            updateBalance();  
+
+            updateBalance();
         }
-    },[getParams, publicBalance, updateBalance]);
+    }, [getParams, publicBalance, updateBalance]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
@@ -372,7 +372,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         const run = async () => {
             try {
                 await validateTransfer(connection, signature, { recipient, amount, splToken, reference }, {
-                    maxSupportedTransactionVersion:0
+                    maxSupportedTransactionVersion: 0
                 });
                 if (!changed) {
                     changeStatus(PaymentStatus.Valid);
@@ -433,7 +433,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [status, signature, connection, requiredConfirmations, changeStatus, sendError]);
 
     return (
-        <PaymentContext.Provider 
+        <PaymentContext.Provider
             value={{
                 amount,
                 setAmount,
@@ -450,7 +450,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 hasSufficientBalance,
                 reset,
                 generate,
-                supply,
+                topup,
                 updateBalance,
                 selectWallet,
                 connectWallet,
