@@ -4,6 +4,11 @@ const nextConfig = {
         domains: [process.env.IMAGE_DOMAIN || 'flodef.github.io'],
     },
     reactStrictMode: true,
+    modularizeImports:{
+        '@radix-ui/react-icons':{
+            transform:'@radix-ui/react-icons/{{member}}',
+        },
+    },
     async redirects() {
         return [
             {

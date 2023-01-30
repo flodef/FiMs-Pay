@@ -26,7 +26,6 @@ import { MerchantInfoMenu } from "../sections/MerchantInfoMenu";
 import { Header } from "../sections/Header";
 import { TextAnimation } from "../sections/TextAnimation";
 import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
-import { PaymentStatus } from "../../hooks/usePayment";
 
 interface AppProps extends NextAppProps {
     host: string;
