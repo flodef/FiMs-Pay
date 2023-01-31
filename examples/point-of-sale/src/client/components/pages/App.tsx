@@ -26,7 +26,11 @@ import { MerchantInfoMenu } from "../sections/MerchantInfoMenu";
 import { Header } from "../sections/Header";
 import { TextAnimation } from "../sections/TextAnimation";
 import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
-import { PaymentStatus } from "../../hooks/usePayment";
+import { Inter } from "@next/font/google";
+
+const inter = Inter({
+    subsets: ['latin']
+});
 
 interface AppProps extends NextAppProps {
     host: string;
@@ -194,74 +198,76 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     }, [currency, symbol, language, messages]);
 
     return (messages.about ?
-        <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
-            <ThemeProvider>
-                {label && recipient && currency && maxValue ? (
-                    <ErrorProvider>
-                        <FullscreenProvider>
-                            <ConnectionProvider endpoint={endpoint}>
-                                <WalletProvider wallets={wallets} autoConnect={shouldConnectWallet}>
-                                    <WalletModalProvider>
-                                        <ConfigProvider
-                                            link={link}
-                                            recipient={recipient}
-                                            label={label}
-                                            message={message}
-                                            splToken={splToken}
-                                            symbol={symbol}
-                                            icon={React.createElement(icon)}
-                                            decimals={decimals}
-                                            minDecimals={minDecimals}
-                                            maxDecimals={maxDecimals}
-                                            maxValue={maxValue}
-                                            multiplier={multiplier}
-                                            currency={currency}
-                                            id={id}
-                                            shouldConnectWallet={shouldConnectWallet}
-                                            reset={reset}
-                                        >
-                                            <TransactionsProvider>
-                                                <PaymentProvider>
-                                                    <Header label={label} />
-                                                    <Component {...pageProps} />
-                                                </PaymentProvider>
-                                            </TransactionsProvider>
-                                        </ConfigProvider>
-                                    </WalletModalProvider>
-                                </WalletProvider>
-                            </ConnectionProvider>
-                        </FullscreenProvider>
-                    </ErrorProvider>
-                ) : SHOW_MERCHANT_LIST && merchants && Object.keys(merchants).length > 0 ? (
-                    <div className={css.root}>
-                        <Header />
-                        <div className={css.top}><FormattedMessage id="merchants" /></div>
-                        <div>
-                            {Object.entries(merchants).map(([location, merchant]) => (
-                                <div key={location}>
-                                    <div className={css.location}>{location}</div>
-                                    <MerchantCarousel merchants={merchant} id={id} alt={messages.merchantLogo} />
-                                </div>
-                            ))}
+        <main className={inter.className}>
+            <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
+                <ThemeProvider>
+                    {label && recipient && currency && maxValue ? (
+                        <ErrorProvider>
+                            <FullscreenProvider>
+                                <ConnectionProvider endpoint={endpoint}>
+                                    <WalletProvider wallets={wallets} autoConnect={shouldConnectWallet}>
+                                        <WalletModalProvider>
+                                            <ConfigProvider
+                                                link={link}
+                                                recipient={recipient}
+                                                label={label}
+                                                message={message}
+                                                splToken={splToken}
+                                                symbol={symbol}
+                                                icon={React.createElement(icon)}
+                                                decimals={decimals}
+                                                minDecimals={minDecimals}
+                                                maxDecimals={maxDecimals}
+                                                maxValue={maxValue}
+                                                multiplier={multiplier}
+                                                currency={currency}
+                                                id={id}
+                                                shouldConnectWallet={shouldConnectWallet}
+                                                reset={reset}
+                                            >
+                                                <TransactionsProvider>
+                                                    <PaymentProvider>
+                                                        <Header label={label} />
+                                                        <Component {...pageProps} />
+                                                    </PaymentProvider>
+                                                </TransactionsProvider>
+                                            </ConfigProvider>
+                                        </WalletModalProvider>
+                                    </WalletProvider>
+                                </ConnectionProvider>
+                            </FullscreenProvider>
+                        </ErrorProvider>
+                    ) : SHOW_MERCHANT_LIST && merchants && Object.keys(merchants).length > 0 ? (
+                        <div className={css.root}>
+                            <Header />
+                            <div className={css.top}><FormattedMessage id="merchants" /></div>
+                            <div>
+                                {Object.entries(merchants).map(([location, merchant]) => (
+                                    <div key={location}>
+                                        <div className={css.location}>{location}</div>
+                                        <MerchantCarousel merchants={merchant} id={id} alt={messages.merchantLogo} />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className={css.bottom}>
+                                <a className={css.link} href={ABOUT} target="_blank" rel="noreferrer">
+                                    <FormattedMessage id="about" />
+                                </a>
+                            </div>
                         </div>
-                        <div className={css.bottom}>
-                            <a className={css.link} href={ABOUT} target="_blank" rel="noreferrer">
-                                <FormattedMessage id="about" />
-                            </a>
+                    ) : (
+                        <div className={css.root}>
+                            <Header />
+                            <div className={css.logo}>
+                                {/* <AppLogo width={240} height={88} /> */}
+                                <TextAnimation>{APP_TITLE}</TextAnimation>
+                            </div>
+                            <MerchantInfoMenu merchantInfoList={merchantInfoList.current} />
                         </div>
-                    </div>
-                ) : (
-                    <div className={css.root}>
-                        <Header />
-                        <div className={css.logo}>
-                            {/* <AppLogo width={240} height={88} /> */}
-                            <TextAnimation>{APP_TITLE}</TextAnimation>
-                        </div>
-                        <MerchantInfoMenu merchantInfoList={merchantInfoList.current} />
-                    </div>
-                )}
-            </ThemeProvider>
-        </IntlProvider >
+                    )}
+                </ThemeProvider>
+            </IntlProvider >
+        </main>
         : null);
 };
 
