@@ -4,7 +4,6 @@ import {
     findReference,
     FindReferenceError,
     parseURL,
-    validateTransfer,
     ValidateTransferError,
 } from '@solana/pay';
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
@@ -24,6 +23,8 @@ import { WalletName } from "@solana/wallet-adapter-base";
 import { isMobileDevice } from "../../utils/mobile";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { createTransfer } from "../../../server/core/createTransfer";
+import { validateTransfer } from '../../../server/core/validateTransfer';
+import { ZERO } from "../../utils/constants";
 
 export interface PaymentProviderProps {
     children: ReactNode;
@@ -36,7 +37,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { setVisible } = useWalletModal();
     const { processError } = useError();
 
-    const [balance, setBalance] = useState<number>();
+    const [balance, setBalance] = useState<BigNumber>();
     const [amount, setAmount] = useState<BigNumber>();
     const [memo, setMemo] = useState<string>();
     const [reference, setReference] = useState<PublicKey>();
@@ -107,7 +108,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [link, recipient, amount, splToken, reference, label, message, memo]);
 
-    const hasSufficientBalance = useMemo(() => !IS_CUSTOMER_POS || balance === undefined || (balance > 0 && amount !== undefined && balance >= parseFloat(amount.toString())), [balance, amount]);
+    const hasSufficientBalance = useMemo(() => !IS_CUSTOMER_POS || balance === undefined || (balance.gt(ZERO) && amount !== undefined && balance >= amount), [balance, amount]);
 
     const reset = useCallback(() => {
         changeStatus(PaymentStatus.New);
@@ -161,9 +162,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [disconnect, publicKey, selectWallet]);
 
-
-    // If there's a connected wallet, load it's token balance
-    useEffect(() => {
+    const updateBalance = useCallback(() => {
         if (!(connection && publicKey)) { setBalance(undefined); return; }
         let changed = false;
 
@@ -178,9 +177,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     const senderInfo = await connection.getAccountInfo(publicKey);
                     amount = senderInfo ? senderInfo.lamports : 0;
                 }
-                setBalance(amount / Math.pow(10, decimals));
+                setBalance(BigNumber(amount / Math.pow(10, decimals)));
             } catch (error: any) {
-                setBalance(-1);
+                setBalance(BigNumber(-1));
             }
         };
         let timeout = setTimeout(run, 0);
@@ -190,6 +189,12 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             clearTimeout(timeout);
         };
     }, [connection, publicKey, splToken, decimals]);
+
+    // If there's a connected wallet, load it's token balance
+    useEffect(() => {
+        if (!(status === PaymentStatus.New)) return;
+        updateBalance();
+    }, [status, updateBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
@@ -363,6 +368,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 hasSufficientBalance,
                 reset,
                 generate,
+                updateBalance,
                 selectWallet,
                 connectWallet,
             }}

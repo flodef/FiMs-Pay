@@ -1,42 +1,10 @@
+import { Amount, Memo, Recipient, References, SPLToken } from '@solana/pay';
 import { createTransferCheckedInstruction, getAccount, getAssociatedTokenAddress, getMint } from '@solana/spl-token';
 import { AccountInfo, Commitment, Connection, PublicKey } from '@solana/web3.js';
 import { LAMPORTS_PER_SOL, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-// import { MEMO_PROGRAM_ID, SOL_DECIMALS, TEN } from "./constants.js";
-// import type { Amount, Memo, Recipient, References, SPLToken } from './types.js';
+import { MEMO_PROGRAM_ID, SOL_DECIMALS, TEN } from './constants';
 
-export const SOLANA_PROTOCOL = 'solana:';
-export const HTTPS_PROTOCOL = 'https:';
-export const MEMO_PROGRAM_ID = new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr');
-export const SOL_DECIMALS = 9;
-export const TEN = new BigNumber(10);
-
-/** `recipient` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#recipient). */
-export type Recipient = PublicKey;
-
-/** `amount` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#amount). */
-export type Amount = BigNumber;
-
-/** `spl-token` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#spl-token). */
-export type SPLToken = PublicKey;
-
-/** `reference` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#reference). */
-export type Reference = PublicKey;
-
-/** `reference` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#reference). */
-export type References = Reference | Reference[];
-
-/** `label` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#label). */
-export type Label = string;
-
-/** `message` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#message). */
-export type Message = string;
-
-/** `memo` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#memo). */
-export type Memo = string;
-
-/** `link` in the [Solana Pay spec](https://github.com/solana-labs/solana-pay/blob/master/SPEC.md#link). */
-export type Link = URL;
 
 /**
  * Thrown when a Solana Pay transfer transaction can't be created from the fields provided.

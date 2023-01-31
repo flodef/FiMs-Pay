@@ -21,18 +21,19 @@ export interface PaymentContextState {
     setAmount(amount: BigNumber | undefined): void;
     memo: string | undefined;
     setMemo(memo: string | undefined): void;
-    balance?: number;
+    balance?: BigNumber;
     reference: PublicKey | undefined;
     signature: TransactionSignature | undefined;
     status: PaymentStatus;
     confirmations: Confirmations;
     progress: number;
     url: URL;
-    hasSufficientBalance:boolean;
+    hasSufficientBalance: boolean;
     reset(): void;
     generate(): void;
+    updateBalance(): void;
     selectWallet(): void;
-    connectWallet():void;
+    connectWallet(): void;
 }
 
 export const PaymentContext = createContext<PaymentContextState>({} as PaymentContextState);

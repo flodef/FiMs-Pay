@@ -2,6 +2,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import React, { FC } from 'react';
 import { FormattedMessage } from "react-intl";
 import { usePayment } from '../../hooks/usePayment';
+import { ZERO } from "../../utils/constants";
 import { IS_CUSTOMER_POS, POS_USE_WALLET } from "../../utils/env";
 import { Amount } from './Amount';
 import css from './Summary.module.css';
@@ -20,9 +21,11 @@ export const Summary: FC = () => {
                     <div className={css.balance}>
                         {publicKey
                             ? balance !== undefined
-                                ? balance > 0
+                                ? balance.gt(ZERO)
                                     ? <Amount value={balance} />
-                                    : <FormattedMessage id="emptyBalance" />
+                                    : balance.lt(ZERO)
+                                        ? <FormattedMessage id="balanceLoadingError" />
+                                        : <FormattedMessage id="emptyBalance" />
                                 : <FormattedMessage id="balanceLoading" />
                             : <FormattedMessage id="walletNotConnected" />
                         }

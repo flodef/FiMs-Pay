@@ -7,10 +7,11 @@ import { agEURIcon } from '../components/images/agEURIcon';
 import { BONKIcon } from '../components/images/BONKIcon';
 import { Digits } from '../types';
 import { Multiplier } from "./multiplier";
+import BigNumber from "bignumber.js";
 
 export const MAX_CONFIRMATIONS = 32;
-
 export const NON_BREAKING_SPACE = '\u00a0';
+export const ZERO = new BigNumber(0);
 
 export const DEVNET_ENDPOINT = clusterApiUrl('devnet');
 export const MAINNET_ENDPOINT = process.env.NEXT_PUBLIC_CLUSTER_ENDPOINT || 'https://solana-mainnet.rpc.extrnode.com';
