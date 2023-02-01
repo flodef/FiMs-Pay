@@ -2,11 +2,11 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { GlowWalletAdapter, PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, SolanaJSONRPCError } from '@solana/web3.js';
 import { AppContext, AppProps as NextAppProps, default as NextApp } from 'next/app';
 import { AppInitialProps } from 'next/dist/shared/lib/utils';
 import React, { useState, useEffect, FC, useCallback, useMemo, useRef } from 'react';
-import { CURRENCY_LIST, DEVNET_ENDPOINT, MAINNET_ENDPOINT } from '../../utils/constants';
+import { CURRENCY_LIST, DEVNET_ENDPOINT, MAINNET_ENDPOINT, SOLANA_PAY } from '../../utils/constants';
 import { ConfigProvider } from '../contexts/ConfigProvider';
 import { FullscreenProvider } from '../contexts/FullscreenProvider';
 import { PaymentProvider } from '../contexts/PaymentProvider';
@@ -27,6 +27,7 @@ import { Header } from "../sections/Header";
 import { TextAnimation } from "../sections/TextAnimation";
 import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
 import { Inter } from "@next/font/google";
+import { SolanaPayLogo } from "../images/SolanaPayLogo";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -260,8 +261,10 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                         <div className={css.root}>
                             <Header />
                             <div className={css.logo}>
-                                {/* <AppLogo width={240} height={88} /> */}
-                                <TextAnimation>{APP_TITLE}</TextAnimation>
+                                {APP_TITLE === SOLANA_PAY
+                                    ? <SolanaPayLogo width={240} height={88} />
+                                    : <TextAnimation>{APP_TITLE}</TextAnimation>
+                                }
                             </div>
                             <MerchantInfoMenu merchantInfoList={merchantInfoList.current} />
                         </div>
