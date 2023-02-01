@@ -40,15 +40,17 @@ export const TextAnimation: FC<TextAnimationProps> = ({ children }) => {
     }, [inputRef]);
 
     return (
-        <div className={classNames(css.body, rubik)}>
-            <ul className={css.ul}>
-                {children.split('').map((item, index) => (
-                    <li key={index} className={css.li}>
-                        <input className={css.input} type="checkbox" ref={inputRef[index]} />
-                        <div className={css.div}>{item}</div>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <main className={rubik.className}>
+            <div className={classNames(css.body)}>
+                <ul className={css.ul}>
+                    {children.split('').map((item, index) => (
+                        <li key={index} className={css.li}>
+                            <input className={css.input} type="checkbox" ref={inputRef[index]} />
+                            <div className={css.div}>{item}</div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </main>
     );
 };

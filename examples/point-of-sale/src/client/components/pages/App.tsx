@@ -29,7 +29,8 @@ import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
 import { Inter } from "@next/font/google";
 
 const inter = Inter({
-    subsets: ['latin']
+    subsets: ['latin'],
+    // 'Helvetica Neue', Helvetica, Arial, sans-serif;
 });
 
 interface AppProps extends NextAppProps {
