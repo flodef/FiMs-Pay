@@ -292,7 +292,12 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         const run = async () => {
             try {
-                await validateTransfer(connection, signature, { recipient, amount, splToken, reference });
+                await validateTransfer(
+                    connection,
+                    signature,
+                    { recipient, amount, splToken, reference },
+                    { maxSupportedTransactionVersion: 0 }
+                );
                 if (!changed) {
                     changeStatus(PaymentStatus.Valid);
                 }
