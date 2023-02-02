@@ -4,7 +4,6 @@ import { ConfigContext } from '../../hooks/useConfig';
 import { Confirmations, Digits } from '../../types';
 import { DEFAULT_THEME } from "../../utils/env";
 import { Multiplier } from "../../utils/multiplier";
-import { Theme } from "../sections/ActionMenu";
 
 export interface ConfigProviderProps {
     children: ReactNode;
