@@ -18,6 +18,7 @@
   max-height: 85vh;
   padding: 25px;
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: sans-serif;
 }
 .AlertDialogContent:focus {
   outline: none;

@@ -31,8 +31,9 @@ import { SolanaPayLogo } from "../images/SolanaPayLogo";
 
 const inter = Inter({
     subsets: ['latin'],
-    // 'Helvetica Neue', Helvetica, Arial, sans-serif;
 });
+const className = process.env.NEXT_PUBLIC_VERCEL_ENV ? inter.className : css.mainLocal;
+
 
 interface AppProps extends NextAppProps {
     host: string;
@@ -200,7 +201,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     }, [currency, symbol, language, messages]);
 
     return (messages.about ?
-        <main className={inter.className}>
+        <main className={className}>
             <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
                 <ThemeProvider>
                     {label && recipient && currency && maxValue ? (
