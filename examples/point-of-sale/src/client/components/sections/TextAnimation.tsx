@@ -1,13 +1,12 @@
 import React, { FC, useCallback, useEffect, useRef } from 'react';
 import css from './TextAnimation.module.css';
 import classNames from "classnames";
-import { Inter, Rubik_Mono_One } from "@next/font/google";
+import { Rubik_Mono_One } from "@next/font/google";
 
 const rubik = Rubik_Mono_One({
     subsets: ['latin'],
     weight: ['400'],
 });
-
 const className = process.env.NEXT_PUBLIC_VERCEL_ENV ? rubik.className : css.bodyLocal;
 
 export interface TextAnimationProps {

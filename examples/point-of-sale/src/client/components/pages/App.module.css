@@ -7,6 +7,10 @@
     align-items: center;
 }
 
+.mainLocal {
+  font-family: Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 .top {
     text-align: center;
     font-size: 24px;
