@@ -1,8 +1,10 @@
 // import { createQROptions } from '@solana/pay';
 import QRCodeStyling from '@solana/qr-code-styling';
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { useConfig } from "../../hooks/useConfig";
 import { usePayment } from '../../hooks/usePayment';
 import { createQROptions } from "../../utils/createQR";
+import { Theme } from "./ActionMenu";
 import css from './QRCode.module.css';
 
 export const QRCode: FC = () => {
@@ -16,8 +18,17 @@ export const QRCode: FC = () => {
         return () => window.removeEventListener('resize', listener);
     }, []);
 
+    const { theme } = useConfig();
+    const isColor = theme === Theme.Color;
+
     const { url } = usePayment();
-    const options = useMemo(() => createQROptions(url, size, 'transparent', '#34A5FF', { type: 'linear', colorStops: [{ offset: 0, color: '#9945FF' }, { offset: 1, color: '#14f195' }] }), [url, size]);
+    const options = useMemo(() => createQROptions(
+        url,
+        size,
+        'transparent',
+        isColor ? '#34A5FF' : '#2A2A2A',
+        isColor ? { type: 'linear', colorStops: [{ offset: 0, color: '#9945FF' }, { offset: 1, color: '#14F195' }] } : undefined),
+        [url, size, isColor]);
 
     const qr = useMemo(() => new QRCodeStyling(), []);
     const isQRUpdated = useRef(false);

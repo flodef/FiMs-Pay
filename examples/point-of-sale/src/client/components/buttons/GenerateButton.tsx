@@ -1,10 +1,9 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import React, { FC, MouseEventHandler, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
-import { useConfig } from "../../hooks/useConfig";
+import { Theme, useConfig } from "../../hooks/useConfig";
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { FAUCET, IS_CUSTOMER_POS, IS_DEV, POS_USE_WALLET } from "../../utils/env";
-import { Theme } from "../sections/ActionMenu";
 import { AlertDialogPopup, AlertType } from "../sections/AlertDialogPopup";
 import css from './GenerateButton.module.css';
 
