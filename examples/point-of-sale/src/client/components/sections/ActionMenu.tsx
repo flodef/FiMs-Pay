@@ -16,13 +16,7 @@ import { useFullscreen } from "../../hooks/useFullscreen";
 import { MaximizeIcon } from "../images/MaximizeIcon";
 import { MinimizeIcon } from "../images/MinimizeIcon";
 import { IS_CUSTOMER_POS } from "../../utils/env";
-import { useConfig } from "../../hooks/useConfig";
-
-export enum Theme {
-    Classic = "classic",
-    Color = "color",
-    BlackWhite = "blackWhite"
-}
+import { Theme, useConfig } from "../../hooks/useConfig";
 
 export const ActionMenu: FC = () => {
     const { connected } = useWallet();
