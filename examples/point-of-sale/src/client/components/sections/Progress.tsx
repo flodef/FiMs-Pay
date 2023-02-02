@@ -27,7 +27,7 @@ export const Progress: FC = () => {
     const styles = useMemo(
         () =>
             buildStyles({
-                pathTransitionDuration: 3,
+                pathTransitionDuration: value === 1 ? 3 : 1.5,
                 pathColor: status !== PaymentStatus.Invalid ? interpolated(value) : '#FF0000',
                 trailColor: 'rgba(0,0,0,.1)',
             }),
