@@ -1,32 +1,24 @@
 import { NextPage } from 'next';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { IS_CUSTOMER_POS, SHOW_MERCHANT_LIST } from '../../utils/env';
 import { useConfig } from '../../hooks/useConfig';
-import { FullscreenButton } from '../buttons/FullscreenButton';
 import { GenerateButton } from '../buttons/GenerateButton';
-import { TransactionsLink } from '../buttons/TransactionsLink';
-import { ConnectionButton } from '../buttons/ConnectionButton';
 import { NumPad } from '../sections/NumPad';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Summary } from '../sections/Summary';
 import css from './NewPage.module.css';
-import { BackButton } from '../buttons/BackButton';
-import { FormattedMessage } from "react-intl";
 import { useIsMobileSize } from "../../utils/mobile";
-import { ActionMenu } from "../sections/ActionMenu";
+import { TopBar } from "../sections/TopBar";
 
 const NewPage: NextPage = () => {
-    const { reset } = useConfig();
     const phone = useIsMobileSize() || IS_CUSTOMER_POS;
     const generateId = IS_CUSTOMER_POS ? 'pay' : 'generateCode';
+
 
     return phone ? (
         <div className={css.root}>
             <div className={css.main}>
-                <div className={css.top}>
-                    <BackButton onClick={reset}><FormattedMessage id={SHOW_MERCHANT_LIST ? "merchants" : "back"} /></BackButton>
-                    <ActionMenu />
-                </div>
+                <TopBar />
                 <div className={css.body}>
                     <NumPad />
                     <GenerateButton id={generateId} />
@@ -37,10 +29,7 @@ const NewPage: NextPage = () => {
     ) : (
         <div className={css.root}>
             <div className={css.main}>
-                <div className={css.top}>
-                    <BackButton onClick={reset}><FormattedMessage id={SHOW_MERCHANT_LIST ? "merchants" : "back"} /></BackButton>
-                    <ActionMenu />
-                </div>
+                <TopBar />
                 <div className={css.body}>
                     <NumPad />
                 </div>

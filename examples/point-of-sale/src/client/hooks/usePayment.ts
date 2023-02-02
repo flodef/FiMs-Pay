@@ -1,6 +1,6 @@
 import { PublicKey, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { Confirmations } from '../types';
 
 export enum PaymentStatus {
@@ -29,6 +29,7 @@ export interface PaymentContextState {
     progress: number;
     url: URL;
     hasSufficientBalance: boolean;
+    isPaidStatus: boolean;
     reset(): void;
     generate(): void;
     updateBalance(): void;

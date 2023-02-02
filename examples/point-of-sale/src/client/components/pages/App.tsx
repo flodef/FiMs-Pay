@@ -2,7 +2,7 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { GlowWalletAdapter, PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { PublicKey, SolanaJSONRPCError } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { AppContext, AppProps as NextAppProps, default as NextApp } from 'next/app';
 import { AppInitialProps } from 'next/dist/shared/lib/utils';
 import React, { useState, useEffect, FC, useCallback, useMemo, useRef } from 'react';
@@ -85,8 +85,8 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const setInfo = useCallback((recipient: string, label: string, currency: string, maxValue: number, location: string) => {
         setRecipient(new PublicKey(recipient ?? 0));
         setLabel(label ?? APP_TITLE);
-        setCurrency((!IS_DEV ? currency : null) ?? CURRENCY);
-        setMaxValue((!IS_DEV ? maxValue : null) ?? MAX_VALUE);
+        setCurrency(currency ?? CURRENCY);
+        setMaxValue(maxValue ?? MAX_VALUE);
         setLocation(location);
     }, []);
 

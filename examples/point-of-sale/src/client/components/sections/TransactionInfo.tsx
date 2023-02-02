@@ -8,13 +8,12 @@ import css from './TransactionInfo.module.css';
 export const TransactionInfo: FC = () => {
     const { status } = usePayment();
     const { label } = useConfig();
-    const { amount } = usePayment();
+    const { amount, isPaidStatus } = usePayment();
     const date = useMemo(() => new Intl.DateTimeFormat(undefined, {
         year: 'numeric', month: 'short', day: "numeric",
         hour: "numeric", minute: "numeric", second: "numeric"
     }).format(new Date()), []);
     const isNewStatus = useMemo(() => status === PaymentStatus.New, [status]);
-    const isPaidStatus = useMemo(() => status === PaymentStatus.Finalized || status === PaymentStatus.Valid || status === PaymentStatus.Invalid || status === PaymentStatus.Confirmed || status === PaymentStatus.Error, [status]);
 
     return (
         <div className={css.root}>

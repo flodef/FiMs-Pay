@@ -23,7 +23,7 @@ export interface ConfigContextState {
     shouldConnectWallet: boolean;
     theme: string;
     setTheme: (theme: string) => void;
-    reset?: () => void;
+    reset: () => void;
 }
 
 export const ConfigContext = createContext<ConfigContextState>({} as ConfigContextState);

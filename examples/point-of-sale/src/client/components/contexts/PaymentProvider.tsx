@@ -108,7 +108,20 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [link, recipient, amount, splToken, reference, label, message, memo]);
 
-    const hasSufficientBalance = useMemo(() => !IS_CUSTOMER_POS || balance === undefined || (balance.gt(ZERO) && amount !== undefined && balance.gte(amount)), [balance, amount]);
+    const hasSufficientBalance = useMemo(() =>
+        !IS_CUSTOMER_POS
+        || balance === undefined
+        || (balance.gt(ZERO)
+            && amount !== undefined
+            && balance.gte(amount)),
+        [balance, amount]);
+    const isPaidStatus = useMemo(() =>
+        status === PaymentStatus.Finalized
+        || status === PaymentStatus.Valid
+        || status === PaymentStatus.Invalid
+        || status === PaymentStatus.Confirmed
+        || status === PaymentStatus.Error,
+        [status]);
 
     const reset = useCallback(() => {
         changeStatus(PaymentStatus.New);
@@ -120,9 +133,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         sendError(undefined);
         setTimeout(
             () => navigate(PaymentStatus.New, true),
-            status !== PaymentStatus.Finalized ? 0 : 3000
+            isPaidStatus ? 1500 : 0
         );
-    }, [navigate, status, changeStatus, sendError]);
+    }, [navigate, changeStatus, sendError, isPaidStatus]);
 
     const generate = useCallback(() => {
         if ((status === PaymentStatus.New || status === PaymentStatus.Error) && !reference) {
@@ -135,10 +148,19 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [status, reference, navigate, changeStatus]);
 
-    const selectWallet = useCallback(() => {
+    const selectWallet = useCallback(async () => {
+        if (publicKey) return;
         if (DEFAULT_WALLET) {
             const defaultWallet = DEFAULT_WALLET as WalletName;
-            const a = AUTO_CONNECT ? () => { try { connect().catch(() => setTimeout(() => select(defaultWallet), 100)); } catch { } } : () => { };
+            const a = AUTO_CONNECT
+                ? () => {
+                    try {
+                        connect().catch(() =>
+                            setTimeout(() => select(defaultWallet), 100)
+                        );
+                    } catch { }
+                }
+                : () => { };
             if (!wallet) {
                 const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
 
@@ -152,7 +174,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         } else {
             setVisible(true);
         }
-    }, [connect, select, wallet, setVisible]);
+    }, [connect, select, wallet, setVisible, publicKey]);
 
     const connectWallet = useCallback(async () => {
         if (!publicKey) {
@@ -192,9 +214,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
-        if (!(status === PaymentStatus.New)) return;
-        updateBalance();
-    }, [status, updateBalance]);
+        if (!(status === PaymentStatus.New && recipient)) return;
+        selectWallet().then(updateBalance);
+    }, [status, recipient, selectWallet, updateBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
@@ -371,6 +393,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 progress,
                 url,
                 hasSufficientBalance,
+                isPaidStatus,
                 reset,
                 generate,
                 updateBalance,

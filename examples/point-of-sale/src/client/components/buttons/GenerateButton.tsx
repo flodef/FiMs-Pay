@@ -77,7 +77,16 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             className={theme === Theme.Color ? css.rootColor : theme === Theme.BlackWhite ? css.rootBW : css.root}
             type="button"
             onClick={!alert ? handleClick : undefined}
-            disabled={(!IS_CUSTOMER_POS && isInvalidAmount) || (IS_CUSTOMER_POS && publicKey !== null && !connecting && hasSufficientBalance && (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))}
+            disabled={
+                (!IS_CUSTOMER_POS
+                    && isInvalidAmount)
+                || (IS_CUSTOMER_POS
+                    && publicKey !== null
+                    && !connecting
+                    && hasSufficientBalance
+                    && (isInvalidAmount
+                        || (status !== PaymentStatus.New
+                            && status !== PaymentStatus.Error)))}
         >
             <FormattedMessage id={action} />
         </button>
