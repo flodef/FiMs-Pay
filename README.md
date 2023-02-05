@@ -1,10 +1,18 @@
 # Point of Sale
 
-This is an example of how you can use the `@solana/pay` JavaScript library to create a simple point of sale system.
+This Point of Sale use the `@solana/pay` JavaScript library to create a simple point of sale system, yet usable in a shop!
 
-You can [check out the app](https://demo.fims.fi?currency=USDC&maxValue=99999.99&recipient=5uXKZWCYbaKwFMwu9BxMGEYowbhuG34qqYkg36hL5YvG&label=FiMs+Pay💕), inspired by Solana Pay's version. 
+You can [check out the app](https://demo.fims.fi?currency=USDC&maxValue=99999.99&recipient=5uXKZWCYbaKwFMwu9BxMGEYowbhuG34qqYkg36hL5YvG&label=FiMs+Pay💕), inspired by Solana's Proof of Concept version. 
 
-You can also try a [more advanced & customised version](https://pos.fims.fi)
+You can also try a [customised version](https://pos.fims.fi)
+
+See a [real life video](https://www.youtube.com/watch?v=oBDJEQpiLws)
+
+If the merchant does not have a point of sale and just want to receive payments, it would have first to register it's shop's info (name, Solana wallet address, currency accepted and maximum value), then to redirect customers to the customer direct payment app
+
+You can try it [here](https://pay.fims.fi)
+
+See a [real life video](https://www.youtube.com/watch?v=uTertz4la2I)
 
 Use the code as a reference, or run it yourself to start accepting decentralized payments in-person.
 
