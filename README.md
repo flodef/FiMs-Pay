@@ -236,7 +236,7 @@ Import the forked repository from GitHub.
 
 Configure the project as follows:
 
-![](./setup/4.Configuration.png)
+![](./setup/3.Configuration.png)
 
 NOTE: At this step, you can set up manually any settings in `Environment Variables` that are in your `.env.local` file. 
 However, I would recommend to wait for the build to deploy and follow the next step...
@@ -248,7 +248,7 @@ Settings in `.env.local` file can be imported one by one, or in one go.
 To copy one setting at the time, copy a setting line and paste it directly the `Key` text box (for example ```NEXT_PUBLIC_IS_DEV=true```). It will automatically copy the parameter properly.
 If you want to import the whole `.env.local` file, imports all your settings in one go by clicking on `Import` then selecting the file and finally click on `Save`.
 
-![](./setup/5.Environment_Variables.png)
+![](./setup/4.Environment_Variables.png)
 
 NOTES: 
 -   You can click `select custom branch` if you want your settings to only apply to a specific branch. `Production` is set to your master branch (the branch by defaults). 
