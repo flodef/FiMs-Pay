@@ -1,6 +1,7 @@
 # What is FiMs Pay ?
+![FiMs Pay](/public/FiMsPay-logo.png)
 
-FiMs Pay is a fully customisable web app, that can be use as a Point Of Sale by a merchant, or directly as a Customer Payment app.
+**FiMs Pay** is a fully customisable web app, that can be use as a Point Of Sale by a merchant, or directly as a Customer Payment app.
 The app requires pre-registered merchants, but can also be used on-the-fly by directly entering one's merchant infos (name, Solana wallet address, currency accepted and maximum value).
 Use the code as a reference, or run it yourself to start accepting decentralized payments in-person.
 
