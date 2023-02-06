@@ -289,6 +289,7 @@ Here is the list of all availables settings with their explanation and default v
 -   NEXT_PUBLIC_FAUCET=https://spl-token-faucet.com : A web address to a SOL / SPL Token faucet 
 -   NEXT_PUBLIC_ABOUT=https://solanapay.com/ : A web address to know more about the app / project
 -   NEXT_PUBLIC_PRIV_KEY : A Solana wallet private key to use Elusiv ZK private payments (see Private Payments below)
+-   NEXT_PUBLIC_PRIVATE_PAYMENT : Whether to use Private payments or not
 
 ## Private Payments
 
