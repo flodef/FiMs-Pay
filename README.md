@@ -22,17 +22,23 @@ This Point of Sale use the `@solana/pay` JavaScript library to create a simple p
 The merchant use the Point of Sale on its device (tablet / computer / phone) and set the amount to receive.
 The customer will then scan a QR code and validate the transaction on its phone.
 
--    [check out the app](https://demo.fims.fi?currency=USDC&maxValue=99999.99&recipient=5uXKZWCYbaKwFMwu9BxMGEYowbhuG34qqYkg36hL5YvG&label=FiMs+Pay💕), inspired by Solana's Proof of Concept version. 
+-    [Check out the app](https://demo.fims.fi?currency=USDC&maxValue=99999.99&recipient=5uXKZWCYbaKwFMwu9BxMGEYowbhuG34qqYkg36hL5YvG&label=FiMs+Pay💕), inspired by Solana's Proof of Concept version. 
 -    Try a [customised version](https://pos.fims.fi)
 -    Watch a [real life video](https://www.youtube.com/watch?v=oBDJEQpiLws)
 
 ## Customer Direct Payment
 
-If the merchant does not have a point of sale and just want to receive payments, it would have to redirect its customers to the customer direct payment app:
+If the merchant does not have a point of sale and just want to receive payments, it would have to redirect its customers to the customer direct payment web app on its mobile phone:
 
 -    Try paying directly [here](https://pay.fims.fi)
--    Watch a [quick screen recording](https://www.youtube.com/shorts/tpYBaOLsnAo)
+-    Check out a [quick demo](https://www.youtube.com/shorts/tpYBaOLsnAo)
 -    Watch a [real life video](https://www.youtube.com/watch?v=uTertz4la2I)
+
+## Preview
+
+Responsive (PAY)                               |  Desktop (POS)
+:---------------------------------------------:|:---------------------------------------------:
+![FiMs Pay Mobile](/public/FiMsPay-Mobile.png) | ![FiMs Pay Desktop](/public/FiMsPay-Desktop.png)
 
 # Customising / Playing with the app
 
@@ -297,6 +303,20 @@ Your private key should have the format `[x, x, x, ...  x, x]` where x is a numb
 Because the Private Key is a very sensitive information, use it with great care.
 
 !WARNING! If you are not sure on how to handle it, create a new wallet first and take the private key from it, instead of using your own wallet.
+
+---
+
+> **Note**
+> Currently only working in localhost because Elusiv Warden Network is based on HTTP requests which the browser blocks
+
+---
+
+---
+
+> **Note**
+> Elusiv is only available on devnet currently - our app interacts with devnet
+
+---
 
 ### Solflare
 
