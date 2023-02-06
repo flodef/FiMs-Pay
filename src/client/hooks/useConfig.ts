@@ -1,8 +1,13 @@
 import { PublicKey } from '@solana/web3.js';
 import { createContext, ReactElement, useContext } from 'react';
-import { Theme } from "../components/sections/ActionMenu";
 import { Confirmations, Digits } from '../types';
 import { Multiplier } from "../utils/multiplier";
+
+export enum Theme {
+    Classic = "classic",
+    Color = "color",
+    BlackWhite = "blackWhite"
+}
 
 export interface ConfigContextState {
     link: URL | undefined;
@@ -23,7 +28,7 @@ export interface ConfigContextState {
     shouldConnectWallet: boolean;
     theme: string;
     setTheme: (theme: string) => void;
-    reset?: () => void;
+    reset: () => void;
 }
 
 export const ConfigContext = createContext<ConfigContextState>({} as ConfigContextState);

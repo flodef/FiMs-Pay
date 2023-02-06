@@ -1,6 +1,6 @@
 import { PublicKey, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { Confirmations } from '../types';
 
 export enum PaymentStatus {
@@ -22,20 +22,21 @@ export interface PaymentContextState {
     memo: string | undefined;
     setMemo(memo: string | undefined): void;
     balance?: BigNumber;
-    publicBalance:BigNumber;
+    publicBalance: BigNumber;
     reference: PublicKey | undefined;
     signature: TransactionSignature | undefined;
     status: PaymentStatus;
     confirmations: Confirmations;
     progress: number;
     url: URL;
-    hasSufficientBalance:boolean;
+    hasSufficientBalance: boolean;
+    isPaidStatus: boolean;
     reset(): void;
     generate(): void;
-    topup():void;
-    updateBalance():void;
+    topup(): void;
+    updateBalance(): void;
     selectWallet(): void;
-    connectWallet():void;
+    connectWallet(): void;
 }
 
 export const PaymentContext = createContext<PaymentContextState>({} as PaymentContextState);

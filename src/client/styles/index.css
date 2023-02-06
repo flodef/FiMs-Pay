@@ -12,10 +12,6 @@
 @import '@radix-ui/colors/orange.css';
 
 
-* {
-    font-family: Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
 /* eslint-disable css-ruleorselectorexpected */
 html {
     &.light {

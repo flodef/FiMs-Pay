@@ -1,8 +1,7 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import BigNumber from "bignumber.js";
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
-import { useConfig } from '../../hooks/useConfig';
+import { Theme, useConfig } from '../../hooks/useConfig';
 import { usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
 import { PRIV_KEY, ZERO } from "../../utils/constants";
@@ -11,7 +10,6 @@ import { isFullscreen, requestFullscreen } from "../../utils/fullscreen";
 import { useIsMobileSize } from "../../utils/mobile";
 import { getMultiplierInfo } from "../../utils/multiplier";
 import { BackspaceIcon } from '../images/BackspaceIcon';
-import { Theme } from "./ActionMenu";
 import { Amount } from "./Amount";
 import css from './NumPad.module.css';
 
@@ -76,7 +74,7 @@ export const NumPad: FC = () => {
                                 <Amount value={balance} />
                                 {!hasSufficientBalance ? <FormattedMessage id="insufficient" /> : null}
                             </div>
-                            : balance.lt(ZERO) 
+                            : balance.lt(ZERO)
                                 ? <FormattedMessage id="balanceLoadingError" />
                                 : <FormattedMessage id="emptyBalance" />
                         : <FormattedMessage id="balanceLoading" />}

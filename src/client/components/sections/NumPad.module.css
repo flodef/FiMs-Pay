@@ -144,7 +144,7 @@
 
 :global(html.light) .buttonColor {
     background: var(--theme-backspacebutton-background);
-    color: var(--theme-light-numpad-button-color);
+    color: var(--theme-dark-numpad-button-color);
 
     /* &:hover {
         background: var(--theme-light-numpad-button-hover);
@@ -157,7 +157,7 @@
 
 :global(html.dark) .buttonColor {
     background: var(--theme-backspacebutton-background);
-    color: var(--theme-dark-numpad-button-color);
+    color: var(--theme-light-numpad-button-color);
 
     /* &:hover {
         background: var(--theme-dark-numpad-button-hover);

@@ -10,16 +10,19 @@ import { TransactionInfo } from '../sections/TransactionInfo';
 import css from './ConfirmedPage.module.css';
 
 const ConfirmedPage: NextPage = () => {
-    const { reset } = usePayment();
+    const { reset, isPaidStatus } = usePayment();
 
     return (
         <div className={css.root}>
-            <div className={css.header}>
-                <BackButton onClick={reset}>
-                    <FormattedMessage id="newPayment" />
-                </BackButton>
-                <TransactionsLink />
-            </div>
+            {isPaidStatus
+                ? <div className={css.header}>
+                    <BackButton onClick={reset}>
+                        <FormattedMessage id="newPayment" />
+                    </BackButton>
+                    <TransactionsLink />
+
+                </div>
+                : null}
             <div className={css.main}>
                 <TransactionInfo />
                 <Progress />

@@ -4,7 +4,6 @@ import { ConfigContext } from '../../hooks/useConfig';
 import { Confirmations, Digits } from '../../types';
 import { DEFAULT_THEME } from "../../utils/env";
 import { Multiplier } from "../../utils/multiplier";
-import { Theme } from "../sections/ActionMenu";
 
 export interface ConfigProviderProps {
     children: ReactNode;
@@ -24,7 +23,7 @@ export interface ConfigProviderProps {
     requiredConfirmations?: Confirmations;
     id?: number;
     shouldConnectWallet?: boolean;
-    reset?: () => void;
+    reset: () => void;
 }
 
 export const ConfigProvider: FC<ConfigProviderProps> = ({

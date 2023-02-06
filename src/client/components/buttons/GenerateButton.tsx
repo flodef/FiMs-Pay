@@ -2,11 +2,10 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
-import { useConfig } from "../../hooks/useConfig";
+import { Theme, useConfig } from "../../hooks/useConfig";
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { PRIV_KEY, ZERO } from "../../utils/constants";
 import { FAUCET, IS_CUSTOMER_POS, IS_DEV, POS_USE_WALLET } from "../../utils/env";
-import { Theme } from "../sections/ActionMenu";
 import { AlertDialogPopup, AlertType } from "../sections/AlertDialogPopup";
 import css from './GenerateButton.module.css';
 

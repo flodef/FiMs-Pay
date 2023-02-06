@@ -8,6 +8,7 @@
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
+  font-family: sans-serif;
 }
 .DropdownMenuContent[data-side='top'],
 .DropdownMenuSubContent[data-side='top'] {
@@ -102,9 +103,7 @@
   box-shadow: 0 2px 10px var(--blackA7);
   cursor: pointer;
   float:right;
-  /* border: 0;
-  background: none; */
-}
+ }
 .IconButton:hover {
   background-color: var(--violet3);
 }

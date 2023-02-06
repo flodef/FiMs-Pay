@@ -1,6 +1,6 @@
-import { Amount, Memo, Recipient, References, SPLToken } from '@solana/pay';
+import type { Amount, Memo, Recipient, References, SPLToken } from '@solana/pay';
 import { createTransferCheckedInstruction, getAccount, getAssociatedTokenAddress, getMint } from '@solana/spl-token';
-import { AccountInfo, Commitment, Connection, PublicKey } from '@solana/web3.js';
+import type { AccountInfo, Commitment, Connection, PublicKey } from '@solana/web3.js';
 import { LAMPORTS_PER_SOL, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import { MEMO_PROGRAM_ID, SOL_DECIMALS, TEN } from './constants';

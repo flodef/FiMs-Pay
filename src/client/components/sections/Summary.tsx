@@ -1,5 +1,4 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import BigNumber from "bignumber.js";
 import React, { FC } from 'react';
 import { FormattedMessage } from "react-intl";
 import { usePayment } from '../../hooks/usePayment';
@@ -24,7 +23,9 @@ export const Summary: FC = () => {
                             ? balance !== undefined
                                 ? balance.gt(ZERO)
                                     ? <Amount value={balance} />
-                                    : <FormattedMessage id="emptyBalance" />
+                                    : balance.lt(ZERO)
+                                        ? <FormattedMessage id="balanceLoadingError" />
+                                        : <FormattedMessage id="emptyBalance" />
                                 : <FormattedMessage id="balanceLoading" />
                             : <FormattedMessage id="walletNotConnected" />
                         }
