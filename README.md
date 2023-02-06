@@ -300,6 +300,9 @@ Here is the list of all availables settings with their explanation and default v
 
 ## Private Payments
 
+Private Payments are provided by Elusiv. Elusiv is a privacy solution using ZK technology with an off-chain “Warden Network” to create private transactions. 
+You can read more about it on their website: https://elusiv.io/
+
 In order to use Elusiv ZK private payments, you need to configure the app with a Solana wallet private key.
 Your private key should have the format `[x, x, x, ...  x, x]` where x is a number between 0 and 255. There are 64 of them.
 Because the Private Key is a very sensitive information, use it with great care.
