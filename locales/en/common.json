@@ -36,6 +36,7 @@
     "connect": "Connect",
     "reload": "Reload",
     "supply": "Supply",
+    "topup":"Topup",
     "pay": "Pay",
     "at": "at",
     "recentTransactions": "Recent Transactions",
