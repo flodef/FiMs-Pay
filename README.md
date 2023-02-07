@@ -1,4 +1,3 @@
-# What is FiMs Pay ?
 ![FiMs Pay](/public/FiMsPay-logo.png)
 
 **FiMs Pay** is a fully customisable web app, that can be use as a Point Of Sale by a merchant, or directly as a Customer Payment app.
