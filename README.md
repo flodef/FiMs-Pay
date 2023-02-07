@@ -6,16 +6,17 @@ Use the code as a reference, or run it yourself to start accepting decentralized
 
 ## Advantages / Functionalities
 -    Usable all over the world, translated in many languages: English, Spanish, Portuguese, French, Japanese and Esperanto
--    Accepts a lot of currencies: agEUR, Euro, USDC, USDT, SOL and even BONK
--    Private payments with [Elusiv](https://elusiv.io/)
--    Select your favorite theme: classic, color or black & white
--    Maximum value to avoid having a small shop accepting a huge amount
--    Custom RPC
+-    Accept a lot of currencies: agEUR, Euro, USDC, USDT, SOL and even BONK
+-    Send Private payments with [Elusiv](https://elusiv.io/)
+-    Fully responsive web app with themes: classic, color or black & white
+-    Set a Maximum Value threshold to accept only a small amount
+-    Choose your favorite RPC
 -    Compatible with Mobile Wallet Adapter
 -    Use Transfer or Transaction Request
--    Full Configuration in an Environment settings file or in a Google Spreadsheet
+-    Fully Configurable in a settings file or in a Google Spreadsheet (on the fly)
 -    Custom Faucet / Onramp link and about page / website
--    Fully responsive
+
+And many more ...
 
 ## Point of Sale
 
