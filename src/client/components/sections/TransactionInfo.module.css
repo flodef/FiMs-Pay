@@ -2,7 +2,8 @@
     margin-bottom: 16px;
 }
 
-.amount {
+.amount, 
+.amountHidden {
     line-height: 64px;
     font-size: 48px;
     font-weight: 700;
@@ -12,11 +13,19 @@
 }
 
 .date,
-.symbol {
+.symbol,
+.dateHidden,
+.symbolHidden {
     font-size: 18px;
     line-height: 32px;
     font-weight: 700;
     justify-content: center;
     align-items: center;
     text-align: center;
+}
+
+.dateHidden,
+.symbolHidden,
+.amountHidden {
+    visibility: hidden;
 }

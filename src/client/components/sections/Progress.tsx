@@ -37,7 +37,13 @@ export const Progress: FC = () => {
     return (
         <div className={css.root}>
             <CircularProgressbar maxValue={1} value={value} styles={styles} />
-            <div className={css.text}>{value === 1 ? <FormattedMessage id={text} /> : <FormattedNumber value={value} style="percent" />}</div>
+            <div className={css.text}>
+                {value === 1
+                    ? <FormattedMessage id={text} />
+                    : value !== 0
+                        ? <FormattedNumber value={value} style="percent" />
+                        : null}
+            </div>
         </div>
     );
 };
