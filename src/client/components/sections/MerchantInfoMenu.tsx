@@ -164,10 +164,9 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                 </NavigationMenu.Item >
 
                 <NavigationMenu.Item>
-                    <NavigationMenu.Trigger className={css.NavigationMenuTrigger} disabled>
+                    <NavigationMenu.Link className={css.NavigationMenuLink} href="https://www.fims.fi/pay/inscription">
                         <FormattedMessage id="register" />
-                        {/* <CaretDownIcon className={css.CaretDown} aria-hidden /> */}
-                    </NavigationMenu.Trigger>
+                    </NavigationMenu.Link>
                 </NavigationMenu.Item >
 
                 <NavigationMenu.Indicator className={css.NavigationMenuIndicator}>
