@@ -19,7 +19,9 @@ const PendingPage: NextPage = () => {
             case PaymentStatus.Pending:
                 return "createTransaction";
             case PaymentStatus.Creating:
-                return !PRIVATE_PAYMENT ? "approveTransaction" : "sendTransaction";
+                return "approveTransaction";
+            case PaymentStatus.Preparing:
+                return "prepareTransaction";
             case PaymentStatus.Sent:
                 return "sendTransaction";
             case PaymentStatus.Confirmed:

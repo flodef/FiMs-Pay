@@ -11,6 +11,7 @@
     "balance": "Balance",
     "createTransaction": "Creating transaction...",
     "approveTransaction": "Please approve the transaction!",
+    "prepareTransaction": "Preparing transaction...",
     "sendTransaction": "Sending transaction...",
     "verifyTransaction": "Verifying...",
     "scanCode": "Scan this code with your Solana Pay wallet",

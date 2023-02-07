@@ -4,7 +4,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
 import { Theme, useConfig } from "../../hooks/useConfig";
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { ZERO } from "../../utils/constants";
+import { TOPUP_COST, ZERO } from "../../utils/constants";
 import { FAUCET, IS_CUSTOMER_POS, IS_DEV, PRIVATE_PAYMENT } from "../../utils/env";
 import { AlertDialogPopup, AlertType } from "../sections/AlertDialogPopup";
 import css from './GenerateButton.module.css';
@@ -37,17 +37,18 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     : state.Connect
             : needRefresh || (balance !== undefined && balance.lt(ZERO))
                 ? state.Reload
-                : PRIVATE_PAYMENT && publicBalance.gt(0)
+                : PRIVATE_PAYMENT && balance !== undefined && amount !== undefined 
+                && publicBalance.minus(TOPUP_COST).div(LAMPORTS_PER_SOL).plus(balance).gte(amount)
                     ? state.Topup
                     : state.Supply
-        , [connecting, hasSufficientBalance, id, needRefresh, publicKey, balance, publicBalance]);
+        , [connecting, hasSufficientBalance, id, needRefresh, publicKey, balance, publicBalance, amount]);
 
     const alert = useMemo(() =>
         action === state.Topup && PRIVATE_PAYMENT
             ? {
                 title: 'Your private wallet balance is empty!',
                 description: [`You need to top it up with some SOL:`,
-                    `It's an automatic process but BE AWARE that all your SOL (${publicBalance.div(LAMPORTS_PER_SOL).toNumber()}) will be transfered to this private wallet!`,
+                    `It's an automatic process but BE AWARE THAT MOST OF YOUR SOL (${publicBalance.minus(TOPUP_COST).div(LAMPORTS_PER_SOL).toNumber()}) will be transfered to this private wallet!`,
                     `To keep some SOL in your public wallet, transfer them first to another account before toping up.`,
                     `For privacy reason, it's recommended that you topup a different amount to your private wallet than the what you are going to pay!`],
                 type: AlertType.Alert
@@ -75,9 +76,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     case state.Reload:
                         return () => { updateBalance(); setNeedRefresh(false); };
                     case state.Supply:
-                        return publicBalance.eq(0)
-                            ? () => { window.open(FAUCET, '_blank'); setNeedRefresh(true); }
-                            : () => setNeedRefresh(true);
+                        return () => { window.open(FAUCET, '_blank'); setNeedRefresh(true); }
                     case state.Topup:
                         return () => topup();
                     default:
@@ -85,7 +84,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 }
             };
             a()();
-        }, [generate, selectWallet, action, id, topup, updateBalance, publicBalance]);
+        }, [generate, selectWallet, action, id, topup, updateBalance]);
 
     const button = useMemo(() =>
         <button

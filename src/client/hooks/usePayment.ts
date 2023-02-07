@@ -7,8 +7,9 @@ export enum PaymentStatus {
     New = 'new',
     Pending = 'pending',
     Creating = 'creating',
+    Preparing = 'preparing',
     Sent = 'sent',
-    Processed = "processed",
+    Processed = 'processed',
     Confirmed = 'confirmed',
     Valid = 'valid',
     Invalid = 'invalid',
@@ -31,6 +32,7 @@ export interface PaymentContextState {
     url: URL;
     hasSufficientBalance: boolean;
     isPaidStatus: boolean;
+    isTopUp: boolean;
     reset(): void;
     generate(): void;
     topup(): void;
