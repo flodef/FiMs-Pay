@@ -124,7 +124,7 @@ npm run dev
 npm run proxy
 ```
 
-### Open the point of sale app
+### Open the Point of Sale app
 ```shell
 open "https://localhost:3001"
 ```
@@ -137,13 +137,15 @@ Alternatively, you can go straight to the point of sale, by adding at least one 
 -   a max value (maxValue): can be any number
 You can specify a parameter by adding it at the end of the web address.
 
+---
+
+> **Notes**
 > Between the web address and the first parameter, a `?` should be added.
-> 
 > Between a parameter and its value, a `=` should be added.
-> 
 > Between the two parameters, a `&` should be added.
-> 
 > Because space character is not allowed in a web address, replace all spaces by a `+`.
+
+---
 
 Example: 
 ```shell
