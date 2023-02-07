@@ -9,7 +9,7 @@ Use the code as a reference, or run it yourself to start accepting decentralized
 -    Accept a lot of currencies: agEUR, Euro, USDC, USDT, SOL and even BONK
 -    Send Private payments with [Elusiv](https://elusiv.io/)
 -    Fully responsive web app with themes: classic, color or black & white
--    Set a Maximum Value threshold to accept only a small amount
+-    Register your shop's info for fast access or just test it immediately
 -    Choose your favorite RPC
 -    Compatible with Mobile Wallet Adapter
 -    Use Transfer or Transaction Request
