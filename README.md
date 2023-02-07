@@ -11,12 +11,12 @@ Use the code as a reference, or run it yourself to start accepting decentralized
 -    Fully responsive web app with themes: classic, color or black & white
 -    Register your shop's info for fast access or just test it immediately
 -    Choose your favorite RPC
--    Compatible with Mobile Wallet Adapter
+-    Compatible with Mobile Wallet Adapter and "Saga" mobile phone
 -    Use Transfer or Transaction Request
 -    Fully Configurable in a settings file or in a Google Spreadsheet (on the fly)
 -    Custom Faucet / Onramp link and about page / website
 
-And many more ...
+And much more ...
 
 ## Point of Sale
 
