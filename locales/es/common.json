@@ -49,7 +49,7 @@
     "enterMerchantInfo": "Ingrese la información de su tienda:",
     "merchant": "Comerciante",
     "address": "Dirección",
-    "moneda": "Moneda",
+    "currency": "Moneda",
     "maxValue": "Valor máximo",
     "myShopName": "Nombre de mi tienda",
     "myShopWalletAddress": "Dirección de la billetera de mi tienda",
