@@ -125,7 +125,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         status === PaymentStatus.Finalized
         || status === PaymentStatus.Valid
         || status === PaymentStatus.Invalid
-        || status === PaymentStatus.Confirmed
         || status === PaymentStatus.Error,
         [status]);
 
