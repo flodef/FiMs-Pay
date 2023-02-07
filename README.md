@@ -245,8 +245,13 @@ Configure the project as follows:
 
 ![](./setup/3.Configuration.png)
 
-NOTE: At this step, you can set up manually any settings in `Environment Variables` that are in your `.env.local` file. 
+---
+
+> **Notes**
+> At this step, you can set up manually any settings in `Environment Variables` that are in your `.env.local` file. 
 However, I would recommend to wait for the build to deploy and follow the next step...
+
+---
 
 ### 4. Import your settings
 
@@ -257,9 +262,13 @@ If you want to import the whole `.env.local` file, imports all your settings in 
 
 ![](./setup/4.Environment_Variables.png)
 
-NOTES: 
--   You can click `select custom branch` if you want your settings to only apply to a specific branch. `Production` is set to your master branch (the branch by defaults). 
--   Once a setting is changed, you'll have to `Redeploy` your project.
+---
+
+> **Notes**
+>-   You can click `select custom branch` if you want your settings to only apply to a specific branch. `Production` is set to your master branch (the branch by defaults). 
+>-   Once a setting is changed, you'll have to `Redeploy` your project.
+
+---
 
 ### 5. Deploy project
 
@@ -295,7 +304,6 @@ Here is the list of all availables settings with their explanation and default v
 -   NEXT_PUBLIC_MERCHANT_IMAGE_PATH='/Img/Merchant/' : The path or Web address to where the merchant's logo is located
 -   NEXT_PUBLIC_FAUCET=https://spl-token-faucet.com : A web address to a SOL / SPL Token faucet 
 -   NEXT_PUBLIC_ABOUT=https://solanapay.com/ : A web address to know more about the app / project
--   NEXT_PUBLIC_PRIV_KEY : A Solana wallet private key to use Elusiv ZK private payments (see Private Payments below)
 -   NEXT_PUBLIC_PRIVATE_PAYMENT : Whether to use Private payments or not
 
 ## Private Payments
@@ -303,52 +311,16 @@ Here is the list of all availables settings with their explanation and default v
 Private Payments are provided by Elusiv. Elusiv is a privacy solution using ZK technology with an off-chain “Warden Network” to create private transactions. 
 You can read more about it on their website: https://elusiv.io/
 
-In order to use Elusiv ZK private payments, you need to configure the app with a Solana wallet private key.
-Your private key should have the format `[x, x, x, ...  x, x]` where x is a number between 0 and 255. There are 64 of them.
-Because the Private Key is a very sensitive information, use it with great care.
-
-!WARNING! If you are not sure on how to handle it, create a new wallet first and take the private key from it, instead of using your own wallet.
+In order to use Elusiv ZK private payments, you'll be asked to sign a message with your Solana wallet.
 
 ---
 
-> **Note**
-> Currently only working in localhost because Elusiv Warden Network is based on HTTP requests which the browser blocks
+> **Notes**
+>- Currently only working in localhost because Elusiv Warden Network is based on HTTP requests which the browser blocks
+>- Elusiv is only available on devnet currently - our app interacts with devnet
 
 ---
 
----
-
-> **Note**
-> Elusiv is only available on devnet currently - our app interacts with devnet
-
----
-
-### Solflare
-
-1. Go to the wallet account you want to get the private key from
-2. Select `Modify` (on the Android app only)
-3. Select the "Settings" icon
-4. Click on `Export Private Key`
-5. Click on `Show`
-6. Insert your password if needed
-3. Copy
-
-### Phantom
-
-1. Go to `Settings > Security & Privacy > Export Private Key`
-2. Insert your password if needed
-3. Copy 
-
-### What to do with my Private Key ?
-
-When you get this key, paste it in the settings under `NEXT_PUBLIC_PRIV_KEY` in `.env.local` and the `Environment Variables` in Vercel (see above).
-The correct format does not have the brackets `[ ]` included, so please make sure you remove them after pasting.
-Your setting should look like this: `NEXT_PUBLIC_PRIV_KEY=x, x, x, ...  x, x`
-
-NOTES: 
--   As a private key should stay "Private", pay great attention to where you store it.
--   Never give your Wallet Private Key to anybody untrusted as it can be used against you, and your wallet can be depleted.
--   You should also never commit it on Github in `.env.example` (`.env.local` file always stays on your device, and Vercel's Environment Variables are encrypted by default).
 
 ## Merchants
 
@@ -380,8 +352,12 @@ If you have multiple shops / multiple locations, you can simply edit the [`serve
     ]
 }
 ```
+---
 
-NOTE: Don't delete the first row `["index", "address", "company", "currency", "maxValue", "location"],` as it's mandatory.
+> **Notes**
+> Don't delete the first row `["index", "address", "company", "currency", "maxValue", "location"],` as it's mandatory.
+
+---
 
 #### Google Spreadsheet
 
@@ -404,10 +380,14 @@ index	address	company	currency	maxValue	location
 10. Click on `+ CREATE CREDENTIALS` then `API Keys`
 11. Copy your new created API key and Paste it in your `.env.local` settings file and / or in Vercel's Environment Variables under `NEXT_PUBLIC_GOOGLE_API_KEY` (for example, `NEXT_PUBLIC_GOOGLE_API_KEY=MY_API_KEY`).
 
-NOTES: 
--   Never give your API Key to anybody untrusted as it can be used against you. 
--   To avoid this, you can restrict your key by clicking on it in the `APIs & Services` dashboard, then use Application Restrictions or API Restrictions (at least, tick `Google Sheets API`) then `Save`
--   You should also never commit it on Github in `.env.example` (`.env.local` file always stays on your device, and Vercel's Environment Variables are encrypted by default).
+---
+
+> **Notes**
+>-   Never give your API Key to anybody untrusted as it can be used against you. 
+>-   To avoid this, you can restrict your key by clicking on it in the `APIs & Services` dashboard, then use Application Restrictions or API Restrictions (at least, tick `Google Sheets API`) then `Save`
+>-   You should also never commit it on Github in `.env.example` (`.env.local` file always stays on your device, and Vercel's Environment Variables are encrypted by default).
+
+---
 
 ## Languages
 

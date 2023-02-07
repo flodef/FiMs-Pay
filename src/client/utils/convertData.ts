@@ -1,8 +1,9 @@
 import { MerchantInfo } from "../components/sections/Merchant";
 
 export async function convertMerchantData(response: Response) {
-    return response.json().then((data: { values: (string | number)[][]; }) => {
+    return response.json().then((data: { values: (string | number)[][], error: {message:string} }) => {
         if (!data) throw new Error('data not fetched');
+        if (data.error && data.error.message) throw new Error(data.error.message);
         if (!data.values || data.values.length === 0) throw new Error('missing data pattern');
         const labels = data.values[0];
         return data.values.filter((merchant, i) => i !== 0).map((merchant) => {

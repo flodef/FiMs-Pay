@@ -43,7 +43,7 @@ export const AlertDialogPopup: FC<AlertDialogPopupProps> = ({ button, onClick, a
                             {alert.title}
                         </AlertDialog.Title>
                         <AlertDialog.Description className={css.AlertDialogDescription}>
-                            {alert.description.map(x => <p key={x}>{x}<br/></p>)}
+                            {alert.description.map(x => <span key={x}>{x}<br/></span>)}
                         </AlertDialog.Description>
                             <div className={css.AlertDialogButton}>
                                 <AlertDialog.Cancel asChild>

@@ -4,7 +4,7 @@ import { FormattedMessage } from "react-intl";
 import { Theme, useConfig } from '../../hooks/useConfig';
 import { usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
-import { PRIV_KEY, ZERO } from "../../utils/constants";
+import { ZERO } from "../../utils/constants";
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { isFullscreen, requestFullscreen } from "../../utils/fullscreen";
 import { useIsMobileSize } from "../../utils/mobile";
@@ -65,7 +65,7 @@ export const NumPad: FC = () => {
 
     return (
         <div className={css.root}>
-            {(phone || IS_CUSTOMER_POS) && (publicKey || PRIV_KEY)
+            {(phone || IS_CUSTOMER_POS) && publicKey
                 ? <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined
                         ? balance.gt(ZERO)

@@ -17,14 +17,6 @@ export const SOLANA_PAY = 'Solana Pay';
 export const DEVNET_ENDPOINT = clusterApiUrl('devnet');
 export const MAINNET_ENDPOINT = process.env.NEXT_PUBLIC_CLUSTER_ENDPOINT || 'https://solana-mainnet.rpc.extrnode.com';
 
-/**
- * ONLY FOR SAMPLES NEVER EVER STORE YOUR/ANYONE'S PRIVATE KEY IN PLAIN TEXT
- * TODO: Insert your private key here
- */
-export const PRIV_KEY = process.env.NEXT_PUBLIC_PRIV_KEY 
-    ? Uint8Array.from(process.env.NEXT_PUBLIC_PRIV_KEY.replaceAll(' ','').replaceAll('[','').replaceAll(']','').split(',').map(x=> Number(x)))
-    : undefined;
-
 // Mint DUMMY tokens on devnet @ https://spl-token-faucet.com
 const DEVNET_DUMMY_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
 

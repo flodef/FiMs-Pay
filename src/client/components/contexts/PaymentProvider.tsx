@@ -23,9 +23,8 @@ import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapt
 import { WalletName } from "@solana/wallet-adapter-base";
 import { isMobileDevice } from "../../utils/mobile";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { PRIV_KEY, ZERO } from "../../utils/constants";
-import { sign } from "@noble/ed25519";
-import { Elusiv, SendTxData, TokenType } from "elusiv-sdk";
+import { ZERO } from "../../utils/constants";
+import { Elusiv } from "elusiv-sdk";
 import { validateTransfer } from '../../../server/core/validateTransfer';
 
 
@@ -195,19 +194,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     // Helper function to generate params used by all samples, namely a web3js connection, the keypair of the user, and the elusiv instance 
     // export async function getParams(): Promise<{ elusiv: Elusiv, keyPair: Keypair, conn: Connection; }> {
     const getElusiv = useCallback(async () => {
-        // if (!PRIV_KEY) throw new Error('Need to provide a private key in the settings (.env.local)');
-
-        // // Generate a keypair from the private key to retrieve the public key and optionally 
-        // // sign txs
-        // const keyPair = Keypair.fromSecretKey(PRIV_KEY);    // TODO get from wallet
-
-        // // Generate the input seed. Remember, this is almost as important as the private key, so don't log this!
-        // // (We use sign from an external library here because there is no wallet connected. Usually you'd use the wallet adapter here) 
-        // // (Slice because in Solana's keypair type the first 32 bytes is the privkey and the last 32 is the pubkey)
-        // const seed = await sign(Elusiv.hashPw(USER_PASSWORD), keyPair.secretKey.slice(0, 32));
-
-        // // Create the elusiv instance
-        // const elusiv = await Elusiv.getElusivInstance(seed, keyPair.publicKey, connection);
         if (!(signMessage && publicKey)) throw new Error('Elusiv instance should be called only when wallet is initialized!');
 
         if (!elusiv.current) {
@@ -283,13 +269,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         if (topup > 0) {
             const token = 'LAMPORTS';               // TODO with UI
 
-            // Build our topup transaction
             console.log('Requesting topup of ' + topup / LAMPORTS_PER_SOL + token);
             const elusiv = await getElusiv();
             const topupTx = await elusiv.buildTopUpTx(topup, token);
-            // Sign it (only needed for topups, as we're topping up from our public key there)
-            signTransaction(topupTx.tx);
-            // Send it off
+            await signTransaction(topupTx.tx);
+
             console.log('Sending topup Tx ...');
             const res = await elusiv.sendElusivTx(topupTx);
 
@@ -313,7 +297,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
-        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && connection && (publicKey || PRIV_KEY))) return;
+        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && connection && publicKey)) return;
         let changed = false;
 
         const run = async () => {

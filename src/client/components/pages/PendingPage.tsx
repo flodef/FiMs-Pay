@@ -2,8 +2,7 @@ import { NextPage } from 'next';
 import React, { useMemo } from 'react';
 import { FormattedMessage } from "react-intl";
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { PRIV_KEY } from '../../utils/constants';
-import { IS_CUSTOMER_POS } from '../../utils/env';
+import { IS_CUSTOMER_POS, PRIVATE_PAYMENT } from '../../utils/env';
 import { BackButton } from '../buttons/BackButton';
 import { GenerateButton } from '../buttons/GenerateButton';
 import { Error } from '../sections/Error';
@@ -20,7 +19,7 @@ const PendingPage: NextPage = () => {
             case PaymentStatus.Pending:
                 return "createTransaction";
             case PaymentStatus.Creating:
-                return !PRIV_KEY ? "approveTransaction" : "sendTransaction";
+                return !PRIVATE_PAYMENT ? "approveTransaction" : "sendTransaction";
             case PaymentStatus.Sent:
                 return "sendTransaction";
             case PaymentStatus.Confirmed:

@@ -1,11 +1,11 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from "react-intl";
 import { Theme, useConfig } from "../../hooks/useConfig";
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { PRIV_KEY, ZERO } from "../../utils/constants";
-import { FAUCET, IS_CUSTOMER_POS, IS_DEV, POS_USE_WALLET } from "../../utils/env";
+import { ZERO } from "../../utils/constants";
+import { FAUCET, IS_CUSTOMER_POS, IS_DEV, PRIVATE_PAYMENT } from "../../utils/env";
 import { AlertDialogPopup, AlertType } from "../sections/AlertDialogPopup";
 import css from './GenerateButton.module.css';
 
@@ -30,20 +30,20 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const isInvalidAmount = useMemo(() => !amount || amount.isLessThanOrEqualTo(0), [amount]);
     const action = useMemo(() =>
         hasSufficientBalance
-            ? IS_CUSTOMER_POS && (publicKey || PRIV_KEY)
+            ? IS_CUSTOMER_POS && publicKey
                 ? id
                 : connecting
                     ? state.Connecting
                     : state.Connect
             : needRefresh || (balance !== undefined && balance.lt(ZERO))
                 ? state.Reload
-                : PRIV_KEY && publicBalance.gt(0)
+                : PRIVATE_PAYMENT && publicBalance.gt(0)
                     ? state.Topup
                     : state.Supply
         , [connecting, hasSufficientBalance, id, needRefresh, publicKey, balance, publicBalance]);
 
     const alert = useMemo(() =>
-        action === state.Topup && PRIV_KEY
+        action === state.Topup && PRIVATE_PAYMENT
             ? {
                 title: 'Your private wallet balance is empty!',
                 description: [`You need to top it up with some SOL:`,
@@ -56,7 +56,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 ? {
                     title: 'Your public wallet balance is empty!',
                     description: [`A new tab will open on a Solana Faucet where you can get some SOL:`,
-                        `1. Copy your wallet address: ${PRIV_KEY ? Keypair.fromSecretKey(PRIV_KEY).publicKey : publicKey}`,
+                        `1. Copy your wallet address: ${publicKey}`,
                         `2. Paste it in the faucet recipient text box`,
                         `3. Airdrop some SOL to your wallet on the DEVNET network`],
                     type: AlertType.Message
@@ -92,7 +92,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             className={theme === Theme.Color ? css.rootColor : theme === Theme.BlackWhite ? css.rootBW : css.root}
             type="button"
             onClick={!alert ? handleClick : undefined}
-            disabled={(!IS_CUSTOMER_POS && isInvalidAmount) || (IS_CUSTOMER_POS && (publicKey !== null || PRIV_KEY !== null) && !connecting && hasSufficientBalance && (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))}
+            disabled={(!IS_CUSTOMER_POS && isInvalidAmount) || (IS_CUSTOMER_POS && publicKey !== null && !connecting && hasSufficientBalance && (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))}
         >
             <FormattedMessage id={action} />
         </button>

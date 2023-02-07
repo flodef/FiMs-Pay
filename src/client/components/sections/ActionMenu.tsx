@@ -35,7 +35,7 @@ export const ActionMenu: FC = () => {
 
             <DropdownMenu.Portal>
                 <DropdownMenu.Content className={css.DropdownMenuContent} side="left" sideOffset={5}>
-                    <DropdownMenu.Item className={css.DropdownMenuItem} onClick={connectWallet} disabled={IS_CUSTOMER_POS}>
+                    <DropdownMenu.Item className={css.DropdownMenuItem} onClick={connectWallet}>
                         <FormattedMessage id={!connected ? "connect" : "disconnect"} />
                         <div className={css.RightSlot}>{!connected ? <ConnectIcon /> : <DisconnectIcon />}</div>
                     </DropdownMenu.Item>
