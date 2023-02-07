@@ -17,9 +17,9 @@ export const TransactionInfo: FC = () => {
 
     return (
         <div className={css.root}>
-            <div className={css.date}>{isPaidStatus ? date : null}</div>
-            <div className={css.symbol}>{!isNewStatus ? label : null}</div>
-            <div className={css.amount}>{!isNewStatus ? <Amount value={amount} /> : null}</div>
+            <div className={isPaidStatus ? css.date : css.dateHidden}>{date}</div>
+            <div className={!isNewStatus ? css.symbol : css.symbolHidden}>{label}</div>
+            <div className={!isNewStatus ? css.amount : css.amountHidden}><Amount value={amount} /></div>
         </div>
     );
 };

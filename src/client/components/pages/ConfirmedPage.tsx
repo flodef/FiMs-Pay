@@ -14,15 +14,12 @@ const ConfirmedPage: NextPage = () => {
 
     return (
         <div className={css.root}>
-            {isPaidStatus
-                ? <div className={css.header}>
-                    <BackButton onClick={reset}>
-                        <FormattedMessage id="newPayment" />
-                    </BackButton>
-                    <TransactionsLink />
-
-                </div>
-                : null}
+            <div className={isPaidStatus ? css.header : css.headerHidden}>
+                <BackButton onClick={reset}>
+                    <FormattedMessage id="newPayment" />
+                </BackButton>
+                <TransactionsLink />
+            </div>
             <div className={css.main}>
                 <TransactionInfo />
                 <Progress />
