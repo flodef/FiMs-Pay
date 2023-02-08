@@ -316,6 +316,13 @@ You can read more about it on their website: https://elusiv.io/
 
 In order to use Elusiv ZK private payments, you'll be asked to sign a message with your Solana wallet.
 
+With Private Payments, you need to first **Top Up** your private funds from your wallet.
+In order to stay private and to avoid your payment being traced to your account, all your funds in your wallet will be transfered to your private balance.
+
+Once your private funds has enough balance, you can then proceed to your payment as usual (enter the amount and click "Pay").
+
+When your payment is complete, you can keep your private funds for further payments or withdraw all the left balance back to your wallet.
+
 ---
 
 > **Notes**
