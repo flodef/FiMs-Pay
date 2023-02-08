@@ -1,5 +1,5 @@
-import { PublicKey } from "@solana/web3.js";
-import BigNumber from "bignumber.js";
+import { PublicKey } from '@solana/web3.js';
+import BigNumber from 'bignumber.js';
 
 export const SOLANA_PROTOCOL = 'solana:';
 export const HTTPS_PROTOCOL = 'https:';

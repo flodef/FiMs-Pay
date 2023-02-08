@@ -49,11 +49,11 @@
 }
 
 :global(html.light) .rootColor {
-    background-image:var(--theme-button-grandient-background);
+    background-image: var(--theme-button-grandient-background);
     color: var(--theme-dark-gradient-button-color);
 }
 
 :global(html.dark) .rootColor {
-    background-image:var(--theme-button-grandient-background);
+    background-image: var(--theme-button-grandient-background);
     color: var(--theme-light-gradient-button-color);
 }

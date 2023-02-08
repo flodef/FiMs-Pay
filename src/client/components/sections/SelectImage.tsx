@@ -8,14 +8,16 @@ export interface SelectImageProps {
     options: Array<any>;
     value: string;
     onValueChange: (value: string) => void;
-    getData?: (item: any) => { key: string | number; value: string; text: string; };
+    getData?: (item: any) => { key: string | number; value: string; text: string };
     getImage?: (value: string) => JSX.Element;
 }
 
-const getDefaultData = (item: string) => { return { key: item, value: item, text: item }; };
+const getDefaultData = (item: string) => {
+    return { key: item, value: item, text: item };
+};
 
 export const SelectImage: FC<SelectImageProps> = ({ id, options, value, onValueChange, getData, getImage }) => {
-    if (options.length === 0) return (null);
+    if (options.length === 0) return null;
 
     getData ??= getDefaultData;
     const defaultValue = getData(options[0]).value;
@@ -35,21 +37,22 @@ export const SelectImage: FC<SelectImageProps> = ({ id, options, value, onValueC
                         <ChevronUpIcon />
                     </Select.ScrollUpButton>
                     <Select.Viewport className={css.SelectViewport}>
-                        {options.map(item => {
+                        {options.map((item) => {
                             const { key, value, text } = getData ? getData(item) : getDefaultData(item);
-                            return (<Select.Item className={css.SelectItem} key={key} value={value}>
-                                <Select.ItemText>
-                                    <div className={css.SelectedItem}>
-                                        {getImage ? getImage(value) : null}
-                                        {text}
-                                    </div>
-                                </Select.ItemText>
-                                <Select.ItemIndicator className={css.SelectItemIndicator}>
-                                    <CheckIcon />
-                                </Select.ItemIndicator>
-                            </Select.Item>);
-                        }
-                        )}
+                            return (
+                                <Select.Item className={css.SelectItem} key={key} value={value}>
+                                    <Select.ItemText>
+                                        <div className={css.SelectedItem}>
+                                            {getImage ? getImage(value) : null}
+                                            {text}
+                                        </div>
+                                    </Select.ItemText>
+                                    <Select.ItemIndicator className={css.SelectItemIndicator}>
+                                        <CheckIcon />
+                                    </Select.ItemIndicator>
+                                </Select.Item>
+                            );
+                        })}
                     </Select.Viewport>
                     <Select.ScrollDownButton className={css.SelectScrollButton}>
                         <ChevronDownIcon />

@@ -2,7 +2,7 @@ import interpolate from 'color-interpolate';
 import React, { FC, useMemo } from 'react';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { FormattedMessage, FormattedNumber } from "react-intl";
+import { FormattedMessage, FormattedNumber } from 'react-intl';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import css from './Progress.module.css';
 
@@ -38,11 +38,11 @@ export const Progress: FC = () => {
         <div className={css.root}>
             <CircularProgressbar maxValue={1} value={value} styles={styles} />
             <div className={css.text}>
-                {value === 1
-                    ? <FormattedMessage id={text} />
-                    : value !== 0
-                        ? <FormattedNumber value={value} style="percent" />
-                        : null}
+                {value === 1 ? (
+                    <FormattedMessage id={text} />
+                ) : value !== 0 ? (
+                    <FormattedNumber value={value} style="percent" />
+                ) : null}
             </div>
         </div>
     );

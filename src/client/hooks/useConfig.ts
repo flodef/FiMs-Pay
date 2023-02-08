@@ -1,12 +1,12 @@
 import { PublicKey } from '@solana/web3.js';
 import { createContext, ReactElement, useContext } from 'react';
 import { Confirmations, Digits } from '../types';
-import { Multiplier } from "../utils/multiplier";
+import { Multiplier } from '../utils/multiplier';
 
 export enum Theme {
-    Classic = "classic",
-    Color = "color",
-    BlackWhite = "blackWhite"
+    Classic = 'classic',
+    Color = 'color',
+    BlackWhite = 'blackWhite',
 }
 
 export interface ConfigContextState {

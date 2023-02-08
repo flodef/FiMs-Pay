@@ -106,7 +106,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                 [parsedTransactions, signatureStatuses] = await Promise.all([
                     connection.getParsedTransactions(signatures, {
                         maxSupportedTransactionVersion: 0,
-                      }),
+                    }),
                     connection.getSignatureStatuses(signatures, { searchTransactionHistory: true }),
                 ]);
             } catch (error) {

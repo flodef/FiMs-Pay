@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useRef } from 'react';
 import css from './TextAnimation.module.css';
-import classNames from "classnames";
-import { Rubik_Mono_One } from "@next/font/google";
+import classNames from 'classnames';
+import { Rubik_Mono_One } from '@next/font/google';
 
 const rubik = Rubik_Mono_One({
     subsets: ['latin'],

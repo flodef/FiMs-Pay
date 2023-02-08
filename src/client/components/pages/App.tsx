@@ -12,22 +12,38 @@ import { FullscreenProvider } from '../contexts/FullscreenProvider';
 import { PaymentProvider } from '../contexts/PaymentProvider';
 import { ThemeProvider } from '../contexts/ThemeProvider';
 import { TransactionsProvider } from '../contexts/TransactionsProvider';
-import { ABOUT, APP_TITLE, CURRENCY, IS_DEV, SHOW_SYMBOL, USE_HTTP, USE_LINK, USE_WEB_WALLET, DEFAULT_LANGUAGE, SHOW_MERCHANT_LIST, MAX_VALUE, GOOGLE_SPREADSHEET_ID, GOOGLE_API_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
+import {
+    ABOUT,
+    APP_TITLE,
+    CURRENCY,
+    IS_DEV,
+    SHOW_SYMBOL,
+    USE_HTTP,
+    USE_LINK,
+    USE_WEB_WALLET,
+    DEFAULT_LANGUAGE,
+    SHOW_MERCHANT_LIST,
+    MAX_VALUE,
+    GOOGLE_SPREADSHEET_ID,
+    GOOGLE_API_KEY,
+    IS_CUSTOMER_POS,
+    POS_USE_WALLET,
+} from '../../utils/env';
 import css from './App.module.css';
 import { ErrorProvider } from '../contexts/ErrorProvider';
 import { MerchantInfo } from '../sections/Merchant';
 import { MerchantCarousel } from '../sections/Carousel';
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
 import { IntlProvider, FormattedMessage } from 'react-intl';
-import { Digits } from "../../types";
-import { isMobileDevice } from "../../utils/mobile";
-import { convertMerchantData } from "../../utils/convertData";
-import { MerchantInfoMenu } from "../sections/MerchantInfoMenu";
-import { Header } from "../sections/Header";
-import { TextAnimation } from "../sections/TextAnimation";
-import { useNavigateWithQuery } from "../../hooks/useNavigateWithQuery";
-import { Inter } from "@next/font/google";
-import { SolanaPayLogo } from "../images/SolanaPayLogo";
+import { Digits } from '../../types';
+import { isMobileDevice } from '../../utils/mobile';
+import { convertMerchantData } from '../../utils/convertData';
+import { MerchantInfoMenu } from '../sections/MerchantInfoMenu';
+import { Header } from '../sections/Header';
+import { TextAnimation } from '../sections/TextAnimation';
+import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
+import { Inter } from '@next/font/google';
+import { SolanaPayLogo } from '../images/SolanaPayLogo';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -47,7 +63,7 @@ interface AppProps extends NextAppProps {
     };
 }
 
-const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<AppInitialProps>; } = ({
+const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<AppInitialProps> } = ({
     Component,
     host,
     query,
@@ -63,16 +79,16 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         () =>
             shouldConnectWallet
                 ? [
-                    new GlowWalletAdapter({ network }),
-                    new PhantomWalletAdapter(),
-                    new SolflareWalletAdapter({ network })
-                ]
+                      new GlowWalletAdapter({ network }),
+                      new PhantomWalletAdapter(),
+                      new SolflareWalletAdapter({ network }),
+                  ]
                 : [],
         [shouldConnectWallet, network]
     );
 
     // Set USE_LINK environment setting to use transaction requests instead of transfer requests.
-    const link = useMemo(() => USE_LINK ? new URL(`${baseURL}/api/`) : undefined, [baseURL]);
+    const link = useMemo(() => (USE_LINK ? new URL(`${baseURL}/api/`) : undefined), [baseURL]);
 
     const [label, setLabel] = useState('');
     const [recipient, setRecipient] = useState<PublicKey>();
@@ -81,38 +97,62 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const [location, setLocation] = useState('');
     const [id, setId] = useState(0);
 
-    const setInfo = useCallback((recipient: string, label: string, currency: string, maxValue: number, location: string) => {
-        setRecipient(new PublicKey(recipient ?? 0));
-        setLabel(label ?? APP_TITLE);
-        setCurrency(currency ?? CURRENCY);
-        setMaxValue(maxValue ?? MAX_VALUE);
-        setLocation(location);
-    }, []);
+    const setInfo = useCallback(
+        (recipient: string, label: string, currency: string, maxValue: number, location: string) => {
+            setRecipient(new PublicKey(recipient ?? 0));
+            setLabel(label ?? APP_TITLE);
+            setCurrency(currency ?? CURRENCY);
+            setMaxValue(maxValue ?? MAX_VALUE);
+            setLocation(location);
+        },
+        []
+    );
 
     const navigate = useNavigateWithQuery();
     const merchantInfoList = useRef<MerchantInfo[]>([]);
-    const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[]; }>();
-    const { id: idParam, message, recipient: recipientParam, label: labelParam, currency: currencyParam, maxValue: maxValueParam, location: locationParam } = query;
+    const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[] }>();
+    const {
+        id: idParam,
+        message,
+        recipient: recipientParam,
+        label: labelParam,
+        currency: currencyParam,
+        maxValue: maxValueParam,
+        location: locationParam,
+    } = query;
     useEffect(() => {
-        if ((recipientParam || !(IS_CUSTOMER_POS || !POS_USE_WALLET))
-            && (labelParam || currencyParam || maxValueParam)) {
-            setInfo(recipientParam as string, labelParam as string, currencyParam as string, maxValueParam as number, locationParam as string);
+        if (
+            (recipientParam || !(IS_CUSTOMER_POS || !POS_USE_WALLET)) &&
+            (labelParam || currencyParam || maxValueParam)
+        ) {
+            setInfo(
+                recipientParam as string,
+                labelParam as string,
+                currencyParam as string,
+                maxValueParam as number,
+                locationParam as string
+            );
         } else {
-            const dataURL = GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY ?
-                "https://sheets.googleapis.com/v4/spreadsheets/" + GOOGLE_SPREADSHEET_ID + "/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=" + GOOGLE_API_KEY : `${baseURL}/api/fetchMerchants`;
+            const dataURL =
+                GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY
+                    ? 'https://sheets.googleapis.com/v4/spreadsheets/' +
+                      GOOGLE_SPREADSHEET_ID +
+                      '/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=' +
+                      GOOGLE_API_KEY
+                    : `${baseURL}/api/fetchMerchants`;
 
             const a = (data: MerchantInfo[]) => {
                 merchantInfoList.current = data;
                 if (idParam) {
-                    const merchant = data.find(merchant => merchant.index === Number(idParam));
+                    const merchant = data.find((merchant) => merchant.index === Number(idParam));
                     if (merchant) {
                         const { address: recipient, company: label, currency, maxValue, location } = merchant;
                         setInfo(recipient, label, currency, maxValue, location);
                     } else {
-                        navigate();     // Go to home page
+                        navigate(); // Go to home page
                     }
                 } else if (data && data.length > 0) {
-                    const result = data.reduce<{ [key: string]: MerchantInfo[]; }>((resultArray, item) => {
+                    const result = data.reduce<{ [key: string]: MerchantInfo[] }>((resultArray, item) => {
                         const location = item.location;
                         if (!resultArray[location]) {
                             resultArray[location] = [];
@@ -132,8 +172,19 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
             } else {
                 fetch(dataURL).then(convertMerchantData).then(a);
             }
-        };
-    }, [baseURL, idParam, query, labelParam, currencyParam, maxValueParam, recipientParam, locationParam, setInfo, navigate]);
+        }
+    }, [
+        baseURL,
+        idParam,
+        query,
+        labelParam,
+        currencyParam,
+        maxValueParam,
+        recipientParam,
+        locationParam,
+        setInfo,
+        navigate,
+    ]);
 
     const router = useRouter();
     const reset = useCallback(() => {
@@ -157,8 +208,8 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
             if (!isLangInit.current) {
                 isLangInit.current = true;
                 fetch(`${baseURL}/api/fetchMessages?locale=${newLang}`)
-                    .then(response => response.json())
-                    .then(data => {
+                    .then((response) => response.json())
+                    .then((data) => {
                         setMessages(data);
                         setLanguage(newLang);
                     });
@@ -167,15 +218,14 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     }, [baseURL]);
 
     const endpoint = IS_DEV ? DEVNET_ENDPOINT : MAINNET_ENDPOINT;
-    const currencyDetail = CURRENCY_LIST[currency] ?? CURRENCY_LIST[CURRENCY] ?? CURRENCY_LIST["SOL"];
+    const currencyDetail = CURRENCY_LIST[currency] ?? CURRENCY_LIST[CURRENCY] ?? CURRENCY_LIST['SOL'];
     const { splToken: splToken, icon, decimals, minDecimals, symbol, multiplier } = currencyDetail;
-
 
     const [maxDecimals, setMaxDecimals] = useState<Digits>(2);
     useEffect(() => {
         if (messages.about) {
             const basePattern = '{value}';
-            const text = Number(1).toLocaleString(language, { style: "currency", currency: "EUR" });
+            const text = Number(1).toLocaleString(language, { style: 'currency', currency: 'EUR' });
             const onlyDecimal = text.replaceAll('1', '');
             const empty = onlyDecimal.replaceAll('0', '');
             const isCurrencyFirst = text[0] !== '1';
@@ -186,21 +236,27 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
             let displayCurrency;
             if (SHOW_SYMBOL) {
                 try {
-                    displayCurrency = Number(0).toLocaleString(language, { style: "currency", currency: symbol }).replaceAll('0', '').replaceAll(decimal, '').trim();
+                    displayCurrency = Number(0)
+                        .toLocaleString(language, { style: 'currency', currency: symbol })
+                        .replaceAll('0', '')
+                        .replaceAll(decimal, '')
+                        .trim();
                 } catch {
                     displayCurrency = symbol;
                 }
             } else {
                 displayCurrency = currency;
             }
-            displayCurrency = "<span>" + displayCurrency + "</span>";
+            displayCurrency = '<span>' + displayCurrency + '</span>';
 
-            messages.currencyPattern = isCurrencyFirst ? displayCurrency + currencySpace + basePattern : basePattern + currencySpace + displayCurrency;
+            messages.currencyPattern = isCurrencyFirst
+                ? displayCurrency + currencySpace + basePattern
+                : basePattern + currencySpace + displayCurrency;
         }
     }, [currency, symbol, language, messages]);
 
-    return (messages.about
-        ? <main className={className}>
+    return messages.about ? (
+        <main className={className}>
             <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
                 <ThemeProvider>
                     {label && recipient && currency && maxValue ? (
@@ -242,7 +298,9 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                     ) : SHOW_MERCHANT_LIST && merchants && Object.keys(merchants).length > 0 ? (
                         <div className={css.root}>
                             <Header />
-                            <div className={css.top}><FormattedMessage id="merchants" /></div>
+                            <div className={css.top}>
+                                <FormattedMessage id="merchants" />
+                            </div>
                             <div>
                                 {Object.entries(merchants).map(([location, merchant]) => (
                                     <div key={location}>
@@ -261,18 +319,19 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                         <div className={css.root}>
                             <Header />
                             <div className={css.logo}>
-                                {APP_TITLE === SOLANA_PAY
-                                    ? <SolanaPayLogo width={240} height={88} />
-                                    : <TextAnimation>{APP_TITLE}</TextAnimation>
-                                }
+                                {APP_TITLE === SOLANA_PAY ? (
+                                    <SolanaPayLogo width={240} height={88} />
+                                ) : (
+                                    <TextAnimation>{APP_TITLE}</TextAnimation>
+                                )}
                             </div>
                             <MerchantInfoMenu merchantInfoList={merchantInfoList.current} />
                         </div>
                     )}
                 </ThemeProvider>
-            </IntlProvider >
+            </IntlProvider>
         </main>
-        : null);
+    ) : null;
 };
 
 App.getInitialProps = async (appContext) => {

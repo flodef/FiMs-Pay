@@ -1,17 +1,17 @@
 @media (max-width: 767px) {
-  .root {
-      display: flex;
-      justify-content: space-between;
-  }
+    .root {
+        display: flex;
+        justify-content: space-between;
+    }
 }
 
 @media (min-width: 768px) {
-  .root {
-      position: sticky;
-      top: 0;
-  }
+    .root {
+        position: sticky;
+        top: 0;
+    }
 
-  :global(html.fullscreen) .root {
-      top: 64px;
-  }
+    :global(html.fullscreen) .root {
+        top: 64px;
+    }
 }

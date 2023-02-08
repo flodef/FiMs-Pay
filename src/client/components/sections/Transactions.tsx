@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import React, { FC, useMemo } from 'react';
-import { FormattedMessage, FormattedRelativeTime } from "react-intl";
+import { FormattedMessage, FormattedRelativeTime } from 'react-intl';
 import { useConfig } from '../../hooks/useConfig';
 import { Transaction, useTransactions } from '../../hooks/useTransactions';
 import { Amount } from './Amount';
@@ -12,7 +12,9 @@ export const Transactions: FC = () => {
 
     return (
         <div className={css.root}>
-            <div className={css.title}><FormattedMessage id="recentTransactions" /></div>
+            <div className={css.title}>
+                <FormattedMessage id="recentTransactions" />
+            </div>
             {transactions.map((transaction) => (
                 <Transaction key={transaction.signature} transaction={transaction} />
             ))}
@@ -20,7 +22,7 @@ export const Transactions: FC = () => {
     );
 };
 
-const Transaction: FC<{ transaction: Transaction; }> = ({ transaction }) => {
+const Transaction: FC<{ transaction: Transaction }> = ({ transaction }) => {
     const { icon } = useConfig();
 
     const amount = useMemo(() => new BigNumber(transaction.amount), [transaction.amount]);
@@ -39,8 +41,15 @@ const Transaction: FC<{ transaction: Transaction; }> = ({ transaction }) => {
                 <div className={css.signature}>{signature}</div>
             </div>
             <div className={css.right}>
-                <div className={css.time}><FormattedRelativeTime value={transaction.timestamp - Date.now() / 1000} updateIntervalInSeconds={1} /></div>
-                <div className={clsx(css.status, css[`status-${transaction.status}`])}><FormattedMessage id={transaction.status} /></div>
+                <div className={css.time}>
+                    <FormattedRelativeTime
+                        value={transaction.timestamp - Date.now() / 1000}
+                        updateIntervalInSeconds={1}
+                    />
+                </div>
+                <div className={clsx(css.status, css[`status-${transaction.status}`])}>
+                    <FormattedMessage id={transaction.status} />
+                </div>
             </div>
         </div>
     );

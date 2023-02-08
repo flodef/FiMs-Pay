@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import React, { useMemo } from 'react';
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage } from 'react-intl';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { IS_CUSTOMER_POS, PRIVATE_PAYMENT } from '../../utils/env';
 import { BackButton } from '../buttons/BackButton';
@@ -17,15 +17,15 @@ const PendingPage: NextPage = () => {
     const id = useMemo(() => {
         switch (status) {
             case PaymentStatus.Pending:
-                return "createTransaction";
+                return 'createTransaction';
             case PaymentStatus.Creating:
-                return "approveTransaction";
+                return 'approveTransaction';
             case PaymentStatus.Preparing:
-                return "prepareTransaction";
+                return 'prepareTransaction';
             case PaymentStatus.Sent:
-                return "sendTransaction";
+                return 'sendTransaction';
             case PaymentStatus.Confirmed:
-                return "verifyTransaction";
+                return 'verifyTransaction';
             default:
                 return null;
         }
@@ -34,19 +34,27 @@ const PendingPage: NextPage = () => {
     return (
         <div className={css.root}>
             <div className={css.header}>
-                <BackButton onClick={reset}><FormattedMessage id="cancel" /></BackButton>
+                <BackButton onClick={reset}>
+                    <FormattedMessage id="cancel" />
+                </BackButton>
             </div>
             <div className={css.main}>
                 <TransactionInfo />
-                {!IS_CUSTOMER_POS ? id ? (
-                    <div>
-                        <div className={css.code}>
-                            <QRCode />
+                {!IS_CUSTOMER_POS ? (
+                    id ? (
+                        <div>
+                            <div className={css.code}>
+                                <QRCode />
+                            </div>
+                            <div className={css.scan}>
+                                <FormattedMessage id="scanCode" />
+                            </div>
+                            <div className={css.confirm}>
+                                <FormattedMessage id="approveTransaction" />
+                            </div>
                         </div>
-                        <div className={css.scan}><FormattedMessage id="scanCode" /></div>
-                        <div className={css.confirm}><FormattedMessage id="approveTransaction" /></div>
-                    </div>
-                ) : null : (
+                    ) : null
+                ) : (
                     <div>
                         <div className={css.scan}></div>
                         {status !== PaymentStatus.Error ? (

@@ -7,8 +7,8 @@ import { NumPad } from '../sections/NumPad';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Summary } from '../sections/Summary';
 import css from './NewPage.module.css';
-import { useIsMobileSize } from "../../utils/mobile";
-import { TopBar } from "../sections/TopBar";
+import { useIsMobileSize } from '../../utils/mobile';
+import { TopBar } from '../sections/TopBar';
 
 const NewPage: NextPage = () => {
     const phone = useIsMobileSize() || IS_CUSTOMER_POS;
@@ -23,8 +23,8 @@ const NewPage: NextPage = () => {
                     <GenerateButton id={generateId} />
                 </div>
                 <PoweredBy />
-            </div >
-        </div >
+            </div>
+        </div>
     ) : (
         <div className={css.root}>
             <div className={css.main}>

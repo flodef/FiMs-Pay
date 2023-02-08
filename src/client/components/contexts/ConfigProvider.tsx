@@ -2,8 +2,8 @@ import { PublicKey } from '@solana/web3.js';
 import React, { FC, ReactElement, ReactNode, useState } from 'react';
 import { ConfigContext } from '../../hooks/useConfig';
 import { Confirmations, Digits } from '../../types';
-import { DEFAULT_THEME } from "../../utils/env";
-import { Multiplier } from "../../utils/multiplier";
+import { DEFAULT_THEME } from '../../utils/env';
+import { Multiplier } from '../../utils/multiplier';
 
 export interface ConfigProviderProps {
     children: ReactNode;
@@ -69,7 +69,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
                 shouldConnectWallet,
                 theme,
                 setTheme,
-                reset
+                reset,
             }}
         >
             {children}

@@ -7,9 +7,16 @@ import {
     TransferRequestURL,
     ValidateTransferError,
 } from '@solana/pay';
-import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
+import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { ConfirmedSignatureInfo, Keypair, LAMPORTS_PER_SOL, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
+import {
+    ConfirmedSignatureInfo,
+    Keypair,
+    LAMPORTS_PER_SOL,
+    PublicKey,
+    Transaction,
+    TransactionSignature,
+} from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
@@ -17,16 +24,23 @@ import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
-import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT, POS_USE_WALLET, USER_PASSWORD, FAUCET } from '../../utils/env';
-import { exitFullscreen, isFullscreen } from "../../utils/fullscreen";
+import {
+    IS_DEV,
+    IS_CUSTOMER_POS,
+    DEFAULT_WALLET,
+    AUTO_CONNECT,
+    POS_USE_WALLET,
+    USER_PASSWORD,
+    FAUCET,
+} from '../../utils/env';
+import { exitFullscreen, isFullscreen } from '../../utils/fullscreen';
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
-import { WalletName } from "@solana/wallet-adapter-base";
-import { isMobileDevice } from "../../utils/mobile";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { TOPUP_COST, ZERO } from "../../utils/constants";
-import { Elusiv } from "elusiv-sdk";
+import { WalletName } from '@solana/wallet-adapter-base';
+import { isMobileDevice } from '../../utils/mobile';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { TOPUP_COST, ZERO } from '../../utils/constants';
+import { Elusiv } from 'elusiv-sdk';
 import { validateTransfer } from '../../../server/core/validateTransfer';
-
 
 export interface PaymentProviderProps {
     children: ReactNode;
@@ -34,8 +48,18 @@ export interface PaymentProviderProps {
 
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
-    const { link, recipient: recipientParam, splToken, decimals, label, message, requiredConfirmations, shouldConnectWallet } = useConfig();
-    const { publicKey, sendTransaction, connect, disconnect, select, signMessage, signTransaction, wallet } = useWallet();
+    const {
+        link,
+        recipient: recipientParam,
+        splToken,
+        decimals,
+        label,
+        message,
+        requiredConfirmations,
+        shouldConnectWallet,
+    } = useConfig();
+    const { publicKey, sendTransaction, connect, disconnect, select, signMessage, signTransaction, wallet } =
+        useWallet();
     const { setVisible } = useWalletModal();
     const { processError } = useError();
 
@@ -50,7 +74,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [isTopUp, setIsTopUp] = useState(false);
     const navigate = useNavigateWithQuery();
     const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
-    const recipient = useMemo(() => IS_CUSTOMER_POS || !POS_USE_WALLET || !publicKey ? recipientParam : publicKey, [recipientParam, publicKey]);
+    const recipient = useMemo(
+        () => (IS_CUSTOMER_POS || !POS_USE_WALLET || !publicKey ? recipientParam : publicKey),
+        [recipientParam, publicKey]
+    );
 
     const elusiv = useRef<Elusiv>();
 
@@ -114,19 +141,21 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [link, recipient, amount, splToken, reference, label, message, memo]);
 
-    const hasSufficientBalance = useMemo(() =>
-        !IS_CUSTOMER_POS
-        || balance === undefined
-        || (balance.gt(ZERO)
-            && amount !== undefined
-            && balance.gte(amount)),
-        [balance, amount]);
-    const isPaidStatus = useMemo(() =>
-        status === PaymentStatus.Finalized
-        || status === PaymentStatus.Valid
-        || status === PaymentStatus.Invalid
-        || status === PaymentStatus.Error,
-        [status]);
+    const hasSufficientBalance = useMemo(
+        () =>
+            !IS_CUSTOMER_POS ||
+            balance === undefined ||
+            (balance.gt(ZERO) && amount !== undefined && balance.gte(amount)),
+        [balance, amount]
+    );
+    const isPaidStatus = useMemo(
+        () =>
+            status === PaymentStatus.Finalized ||
+            status === PaymentStatus.Valid ||
+            status === PaymentStatus.Invalid ||
+            status === PaymentStatus.Error,
+        [status]
+    );
 
     const reset = useCallback(() => {
         changeStatus(PaymentStatus.New);
@@ -136,15 +165,12 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         setReference(undefined);
         setSignature(undefined);
         sendError(undefined);
-        setTimeout(
-            () => navigate(PaymentStatus.New, true),
-            isPaidStatus ? 1500 : 0
-        );
+        setTimeout(() => navigate(PaymentStatus.New, true), isPaidStatus ? 1500 : 0);
     }, [navigate, changeStatus, sendError, isPaidStatus]);
 
     const generate = useCallback(() => {
         if (!((status === PaymentStatus.New || status === PaymentStatus.Error) && !reference)) return;
-        
+
         setReference(Keypair.generate().publicKey);
         changeStatus(PaymentStatus.Pending);
         navigate(PaymentStatus.Pending);
@@ -159,14 +185,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             const defaultWallet = DEFAULT_WALLET as WalletName;
             const a = AUTO_CONNECT
                 ? () => {
-                    try {
-                        connect()
-                            .catch(() =>
-                                setTimeout(() => select(defaultWallet), 100)
-                            )
-                    } catch { }
-                }
-                : () => { };
+                      try {
+                          connect().catch(() => setTimeout(() => select(defaultWallet), 100));
+                      } catch {}
+                  }
+                : () => {};
             if (!wallet) {
                 const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
 
@@ -187,8 +210,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             selectWallet();
         } else {
             disconnect()
-                .catch(() => { })
-                .then(elusiv.current = undefined);
+                .catch(() => {})
+                .then((elusiv.current = undefined));
         }
     }, [disconnect, publicKey, selectWallet]);
 
@@ -199,13 +222,14 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, []);
 
     const getElusiv = useCallback(async () => {
-        if (!(signMessage && publicKey)) throw new Error('Elusiv instance should be called only when wallet is initialized!');
+        if (!(signMessage && publicKey))
+            throw new Error('Elusiv instance should be called only when wallet is initialized!');
 
         if (!elusiv.current) {
             const seed = Elusiv.hashPw(publicKey.toString().slice(-5));
             const signedSeed = await signMessage(new TextEncoder().encode(seed));
             elusiv.current = await Elusiv.getElusivInstance(signedSeed, publicKey, connection);
-            
+
             updatePrivateBalance(elusiv.current);
         }
 
@@ -213,7 +237,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [connection, publicKey, signMessage, updatePrivateBalance]);
 
     const updatePublicBalance = useCallback(() => {
-        if (!(connection && publicKey)) { setBalance(undefined); return; }
+        if (!(connection && publicKey)) {
+            setBalance(undefined);
+            return;
+        }
         let changed = false;
 
         const run = async () => {
@@ -241,17 +268,20 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [connection, publicKey, splToken]);
 
     const updateBalance = useCallback(async () => {
-        if (!(connection && publicKey)) { setBalance(undefined); return; }
+        if (!(connection && publicKey)) {
+            setBalance(undefined);
+            return;
+        }
         let changed = false;
 
-        setBalance(undefined);  // Set the balance as 'loading balance'
+        setBalance(undefined); // Set the balance as 'loading balance'
         const run = async () => {
             try {
                 const elusiv = await getElusiv();
                 updatePrivateBalance(elusiv);
                 updatePublicBalance();
             } catch (error: any) {
-                setBalance(BigNumber(-1));    // Set the balance as 'balance loading error'
+                setBalance(BigNumber(-1)); // Set the balance as 'balance loading error'
             }
         };
         let timeout = setTimeout(run, 0);
@@ -266,7 +296,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         const topup = publicBalance.minus(TOPUP_COST); // Topup all the available balance - topup cost
         if (topup.gt(ZERO)) {
             setIsTopUp(true);
-            setBalance(undefined);  // Set the balance as 'loading balance'
+            setBalance(undefined); // Set the balance as 'loading balance'
             setAmount(topup.div(LAMPORTS_PER_SOL));
 
             generate();
@@ -286,29 +316,31 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         const run = async () => {
             try {
-                const token = 'LAMPORTS';               // TODO with UI
-    
+                const token = 'LAMPORTS'; // TODO with UI
+
                 if (!changed) {
                     console.log('Requesting topup of ' + amount + token);
                     const elusiv = await getElusiv();
                     const topupTx = await elusiv.buildTopUpTx(amount.times(LAMPORTS_PER_SOL).toNumber(), token);
                     changeStatus(PaymentStatus.Creating);
                     await signTransaction(topupTx.tx);
-        
+
                     console.log('Sending topup Tx ...');
                     changeStatus(PaymentStatus.Preparing);
                     const res = await elusiv.sendElusivTx(topupTx);
                     changeStatus(PaymentStatus.Sent);
-        
+
                     console.log(
-                        `Topup initiated: https://solscan.io/tx/${res.sig.signature}${{ IS_DEV } ? '?cluster=devnet' : ''}`
+                        `Topup initiated: https://solscan.io/tx/${res.sig.signature}${
+                            { IS_DEV } ? '?cluster=devnet' : ''
+                        }`
                     );
-        
+
                     // Wait for the topup to be confirmed (have your UI do something else here, this takes a little)
                     await res.isConfirmed;
                     console.log('Topup complete!');
                     changeStatus(PaymentStatus.Confirmed);
-                    
+
                     updateBalance();
                     setIsTopUp(false);
 
@@ -324,7 +356,20 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [isTopUp, signTransaction, topup, updateBalance, changeStatus, connection, getElusiv, publicKey, sendError, status, amount, reset]);
+    }, [
+        isTopUp,
+        signTransaction,
+        topup,
+        updateBalance,
+        changeStatus,
+        connection,
+        getElusiv,
+        publicKey,
+        sendError,
+        status,
+        amount,
+        reset,
+    ]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
@@ -340,7 +385,12 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
                 const amountLamports = amount.multipliedBy(LAMPORTS_PER_SOL);
                 const elusiv = await getElusiv();
-                const transaction = await elusiv.buildSendTx(amountLamports.toNumber(), recipient, 'LAMPORTS', reference ? reference[0] : undefined);
+                const transaction = await elusiv.buildSendTx(
+                    amountLamports.toNumber(),
+                    recipient,
+                    'LAMPORTS',
+                    reference ? reference[0] : undefined
+                );
                 const fee = transaction.getTotalFee().txFee / LAMPORTS_PER_SOL;
                 if (balance.minus(fee).lt(amount)) throw new Error('Insufficient private balance'); // TODO translate
 
@@ -349,7 +399,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     const res = await elusiv.sendElusivTx(transaction);
                     changeStatus(PaymentStatus.Sent);
                     console.log(
-                        `Transaction sent: https://solscan.io/tx/${res.sig.signature}${{ IS_DEV } ? '?cluster=devnet' : ''}`
+                        `Transaction sent: https://solscan.io/tx/${res.sig.signature}${
+                            { IS_DEV } ? '?cluster=devnet' : ''
+                        }`
                     );
                 }
             } catch (error) {
@@ -366,17 +418,29 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, shouldConnectWallet, publicKey, url, connection, sendTransaction, changeStatus, sendError, balance, getElusiv, isTopUp]);
+    }, [
+        status,
+        shouldConnectWallet,
+        publicKey,
+        url,
+        connection,
+        sendTransaction,
+        changeStatus,
+        sendError,
+        balance,
+        getElusiv,
+        isTopUp,
+    ]);
 
     // When the status is pending, poll for the transaction using the reference key
     useEffect(() => {
         if (
             !(
-                ((!IS_CUSTOMER_POS && status === PaymentStatus.Pending)
-                 || (IS_CUSTOMER_POS && status === PaymentStatus.Sent))
-                && reference
-                && !signature
-                && !isTopUp
+                ((!IS_CUSTOMER_POS && status === PaymentStatus.Pending) ||
+                    (IS_CUSTOMER_POS && status === PaymentStatus.Sent)) &&
+                reference &&
+                !signature &&
+                !isTopUp
             )
         )
             return;

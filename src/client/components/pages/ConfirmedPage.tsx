@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import React from 'react';
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage } from 'react-intl';
 import { usePayment } from '../../hooks/usePayment';
 import { BackButton } from '../buttons/BackButton';
 import { TransactionsLink } from '../buttons/TransactionsLink';
@@ -14,7 +14,7 @@ const ConfirmedPage: NextPage = () => {
 
     return (
         <div className={css.root}>
-             <div className={isPaidStatus ? css.header : css.headerHidden}>
+            <div className={isPaidStatus ? css.header : css.headerHidden}>
                 <BackButton onClick={reset}>
                     <FormattedMessage id="newPayment" />
                 </BackButton>
