@@ -22,7 +22,7 @@ export interface ConfigContextState {
     maxDecimals: Digits;
     maxValue: number;
     multiplier?: Multiplier;
-    currency: string;
+    currencyName: string;
     requiredConfirmations: Confirmations;
     id?: number;
     shouldConnectWallet: boolean;

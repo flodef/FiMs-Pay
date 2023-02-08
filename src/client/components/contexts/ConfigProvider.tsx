@@ -19,7 +19,7 @@ export interface ConfigProviderProps {
     maxDecimals: Digits;
     maxValue: number;
     multiplier?: Multiplier;
-    currency: string;
+    currencyName: string;
     requiredConfirmations?: Confirmations;
     id?: number;
     shouldConnectWallet?: boolean;
@@ -40,7 +40,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     maxDecimals = 2,
     maxValue,
     multiplier,
-    currency,
+    currencyName,
     requiredConfirmations = 1,
     id,
     shouldConnectWallet = false,
@@ -63,7 +63,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
                 maxDecimals,
                 maxValue,
                 multiplier,
-                currency,
+                currencyName,
                 requiredConfirmations,
                 id,
                 shouldConnectWallet,

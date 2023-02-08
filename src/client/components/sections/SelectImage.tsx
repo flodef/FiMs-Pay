@@ -10,20 +10,34 @@ export interface SelectImageProps {
     onValueChange: (value: string) => void;
     getData?: (item: any) => { key: string | number; value: string; text: string };
     getImage?: (value: string) => JSX.Element;
+    imageOnly?: boolean;
 }
 
 const getDefaultData = (item: string) => {
     return { key: item, value: item, text: item };
 };
 
-export const SelectImage: FC<SelectImageProps> = ({ id, options, value, onValueChange, getData, getImage }) => {
+export const SelectImage: FC<SelectImageProps> = ({
+    id,
+    options,
+    value,
+    onValueChange,
+    getData,
+    getImage,
+    imageOnly,
+}) => {
     if (options.length === 0) return null;
 
     getData ??= getDefaultData;
     const defaultValue = getData(options[0]).value;
     value ??= defaultValue;
 
-    return (
+    return options.length === 1 ? (
+        <div className={css.SelectedItem}>
+            {getImage ? getImage(options[0]) : null}
+            {!imageOnly ? getData(options[0]).text : null}
+        </div>
+    ) : (
         <Select.Root onValueChange={onValueChange} value={value} defaultValue={defaultValue}>
             <Select.Trigger className={css.SelectTrigger} aria-label={id}>
                 <Select.Value />
@@ -44,7 +58,7 @@ export const SelectImage: FC<SelectImageProps> = ({ id, options, value, onValueC
                                     <Select.ItemText>
                                         <div className={css.SelectedItem}>
                                             {getImage ? getImage(value) : null}
-                                            {text}
+                                            {!imageOnly ? text : null}
                                         </div>
                                     </Select.ItemText>
                                     <Select.ItemIndicator className={css.SelectItemIndicator}>

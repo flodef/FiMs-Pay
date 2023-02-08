@@ -8,7 +8,7 @@ import css from './Error.module.css';
 export const Error: FC = () => {
     const { status } = usePayment();
     const { errorMessage } = useError();
-    const { currency } = useConfig();
+    const { currencyName } = useConfig();
 
     const id = useMemo(() => {
         if (status === PaymentStatus.Error && errorMessage) {
@@ -32,7 +32,7 @@ export const Error: FC = () => {
 
     return (
         <div className={css.error}>
-            {id ? <FormattedMessage id={id} values={{ error: errorMessage, currency: currency }} /> : null}
+            {id ? <FormattedMessage id={id} values={{ error: errorMessage, currency: currencyName }} /> : null}
         </div>
     );
 };

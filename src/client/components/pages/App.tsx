@@ -218,8 +218,9 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     }, [baseURL]);
 
     const endpoint = IS_DEV ? DEVNET_ENDPOINT : MAINNET_ENDPOINT;
-    const currencyDetail = CURRENCY_LIST[currency] ?? CURRENCY_LIST[CURRENCY] ?? CURRENCY_LIST['SOL'];
-    const { splToken: splToken, icon, decimals, minDecimals, symbol, multiplier } = currencyDetail;
+    const keys = Object.keys(CURRENCY_LIST);
+    const currencyName = keys.includes(currency) ? currency : keys.includes(CURRENCY) ? CURRENCY : 'SOL';
+    const { splToken: splToken, icon, decimals, minDecimals, symbol, multiplier } = CURRENCY_LIST[currencyName];
 
     const [maxDecimals, setMaxDecimals] = useState<Digits>(2);
     useEffect(() => {
@@ -259,7 +260,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         <main className={className}>
             <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
                 <ThemeProvider>
-                    {label && recipient && currency && maxValue ? (
+                    {label && recipient && currencyName && maxValue ? (
                         <ErrorProvider>
                             <FullscreenProvider>
                                 <ConnectionProvider endpoint={endpoint}>
@@ -278,7 +279,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                                 maxDecimals={maxDecimals}
                                                 maxValue={maxValue}
                                                 multiplier={multiplier}
-                                                currency={currency}
+                                                currencyName={currencyName}
                                                 id={id}
                                                 shouldConnectWallet={shouldConnectWallet}
                                                 reset={reset}
