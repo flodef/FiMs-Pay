@@ -10,7 +10,6 @@ export enum PaymentStatus {
     Creating = 'creating',
     Preparing = 'preparing',
     Sent = 'sent',
-    Processed = 'processed',
     Confirmed = 'confirmed',
     Valid = 'valid',
     Invalid = 'invalid',

@@ -4,7 +4,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { TOPUP_COST, ZERO } from '../../utils/constants';
+import { TOPUP_COST, WITHDRAW_COST, ZERO } from '../../utils/constants';
 import { FAUCET, IS_CUSTOMER_POS, IS_DEV, PRIVATE_PAYMENT } from '../../utils/env';
 import { AlertDialogPopup, AlertType } from '../sections/AlertDialogPopup';
 import css from './GenerateButton.module.css';
@@ -77,11 +77,13 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                       ],
                       type: AlertType.Alert,
                   }
-                : action === State.Withdraw && PRIVATE_PAYMENT
+                : action === State.Withdraw && PRIVATE_PAYMENT && balance
                 ? {
                       title: 'Withdraw private fund to your wallet!',
                       description: [
-                          `This action will withdraw ALL OF YOUR PRIVATE FUND to your wallet.`,
+                          `This action will withdraw ALL OF YOUR PRIVATE FUND (${balance
+                              .minus(WITHDRAW_COST / LAMPORTS_PER_SOL)
+                              .toNumber()}) to your wallet.`,
                           ``,
                           `Do you still want to proceed?`,
                       ],
@@ -99,7 +101,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                       type: AlertType.Message,
                   }
                 : undefined,
-        [publicBalance, action, publicKey]
+        [publicBalance, action, publicKey, balance]
     );
 
     const handleClick = useCallback(() => {

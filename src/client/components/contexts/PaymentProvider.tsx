@@ -25,6 +25,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { TOPUP_COST, WITHDRAW_COST, ZERO } from '../../utils/constants';
 import { Elusiv, TokenType } from 'elusiv-sdk';
 import { validateTransfer } from '../../../server/core/validateTransfer';
+import { is } from 'date-fns/locale';
 
 export enum TxType {
     Send = 'send',
@@ -164,7 +165,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         changeStatus(PaymentStatus.Pending);
         navigate(PaymentStatus.Pending);
         if (IS_CUSTOMER_POS && isFullscreen()) {
-            exitFullscreen();
+            // exitFullscreen();
         }
     }, [status, reference, navigate, changeStatus]);
 
@@ -281,27 +282,26 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         };
     }, [getElusiv, connection, publicKey, updatePrivateBalance, updatePublicBalance]);
 
-    const topup = useCallback(async () => {
+    const generateElusivTx = useCallback(
+        (txType: TxType, amount: BigNumber) => {
+            if (amount.gt(ZERO)) {
+                setTxType(txType);
+                setAmount(amount.div(LAMPORTS_PER_SOL));
+                generate();
+            }
+        },
+        [generate]
+    );
+
+    const topup = useCallback(() => {
         const amount = publicBalance.minus(TOPUP_COST); // Topup all the available balance - topup cost
-        if (amount.gt(ZERO)) {
-            setTxType(TxType.TopUp);
-            setBalance(undefined); // Set the balance as 'loading balance'
-            setAmount(amount.div(LAMPORTS_PER_SOL));
+        generateElusivTx(TxType.TopUp, amount);
+    }, [publicBalance, generateElusivTx]);
 
-            generate();
-        }
-    }, [publicBalance, generate]);
-
-    const withdraw = useCallback(async () => {
-        const amount = balance ?? ZERO;
-        if (amount.gt(ZERO)) {
-            setTxType(TxType.Withdraw);
-            setBalance(undefined); // Set the balance as 'loading balance'
-            setAmount(amount);
-
-            generate();
-        }
-    }, [balance, generate]);
+    const withdraw = useCallback(() => {
+        const amount = (balance ?? ZERO).times(LAMPORTS_PER_SOL).minus(WITHDRAW_COST);
+        generateElusivTx(TxType.Withdraw, amount);
+    }, [balance, generateElusivTx]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
@@ -310,6 +310,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [status, recipient, publicKey, selectWallet, updateBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
+    const isTxCreated = useRef(false);
     useEffect(() => {
         if (
             !(
@@ -325,10 +326,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         const run = async () => {
             try {
-                const token = 'LAMPORTS'; // TODO with UI
+                if (!changed && !isTxCreated.current) {
+                    isTxCreated.current = true;
+                    const token = 'LAMPORTS'; // TODO with UI
 
-                if (!changed) {
-                    console.log('Requesting topup of ' + amount + token);
+                    console.log(`Requesting ${txType} of ${amount} ${token}`);
                     const elusiv = await getElusiv();
 
                     let elusivTx;
@@ -337,38 +339,38 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                         changeStatus(PaymentStatus.Creating);
                         await signTransaction(elusivTx.tx);
                     } else if (txType === TxType.Withdraw) {
-                        const elusivTx = await elusiv.buildWithdrawTx(
-                            amount.times(LAMPORTS_PER_SOL).minus(WITHDRAW_COST).toNumber(),
-                            token
-                        );
+                        elusivTx = await elusiv.buildWithdrawTx(amount.times(LAMPORTS_PER_SOL).toNumber(), token);
                         changeStatus(PaymentStatus.Creating);
-                        const fee = elusivTx.getTotalFee().txFee / LAMPORTS_PER_SOL;
-                        if (balance === undefined || balance?.minus(fee).lt(amount))
-                            throw new Error('Insufficient private balance'); // TODO translate
                     } else {
                         throw new Error('Unhandled Tx type!');
                     }
 
                     if (elusivTx) {
-                        console.log('Sending topup Tx ...');
+                        const fee = elusivTx.getTotalFee().txFee / LAMPORTS_PER_SOL;
+                        console.log(`Tx fee: ${fee}`);
+                        const currentBalance = txType === TxType.TopUp ? publicBalance : balance ?? ZERO;
+                        if (currentBalance.minus(fee).lt(amount)) throw new Error('Insufficient balance'); // TODO translate
+
+                        console.log(`Sending ${txType} Tx ...`);
                         changeStatus(PaymentStatus.Preparing);
                         const res = await elusiv.sendElusivTx(elusivTx);
                         changeStatus(PaymentStatus.Sent);
 
                         console.log(
-                            `Topup initiated: https://solscan.io/tx/${res.sig.signature}${
+                            `${txType} initiated: https://solscan.io/tx/${res.sig.signature}${
                                 { IS_DEV } ? '?cluster=devnet' : ''
                             }`
                         );
 
                         // Wait for the topup to be confirmed (have your UI do something else here, this takes a little)
                         await res.isConfirmed;
-                        console.log('Topup complete!');
+                        console.log(`${txType} complete!`);
                         navigate(PaymentStatus.Confirmed, true);
                         changeStatus(PaymentStatus.Finalized);
 
                         updateBalance();
                         setTxType(TxType.Send);
+                        isTxCreated.current = false;
                     }
                 }
             } catch (error: any) {
@@ -396,6 +398,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         navigate,
         balance,
         txType,
+        publicBalance,
     ]);
 
     // If there's a connected wallet, use it to sign and send the transaction

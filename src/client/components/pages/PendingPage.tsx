@@ -7,6 +7,7 @@ import { BackButton } from '../buttons/BackButton';
 import { GenerateButton } from '../buttons/GenerateButton';
 import { Error } from '../sections/Error';
 import { PoweredBy } from '../sections/PoweredBy';
+import { Progress } from '../sections/Progress';
 import { QRCode } from '../sections/QRCode';
 import { TransactionInfo } from '../sections/TransactionInfo';
 import css from './PendingPage.module.css';
@@ -14,26 +15,11 @@ import css from './PendingPage.module.css';
 const PendingPage: NextPage = () => {
     const { reset, status } = usePayment();
 
-    const id = useMemo(() => {
-        switch (status) {
-            case PaymentStatus.Pending:
-                return 'createTransaction';
-            case PaymentStatus.Creating:
-                return 'approveTransaction';
-            case PaymentStatus.Preparing:
-                return 'prepareTransaction';
-            case PaymentStatus.Sent:
-                return 'sendTransaction';
-            case PaymentStatus.Confirmed:
-                return 'verifyTransaction';
-            default:
-                return null;
-        }
-    }, [status]);
+    const isNewStatus = status === PaymentStatus.New;
 
     return (
         <div className={css.root}>
-            <div className={css.header}>
+            <div className={!isNewStatus ? css.header : css.headerHidden}>
                 <BackButton onClick={reset}>
                     <FormattedMessage id="cancel" />
                 </BackButton>
@@ -41,30 +27,26 @@ const PendingPage: NextPage = () => {
             <div className={css.main}>
                 <TransactionInfo />
                 {!IS_CUSTOMER_POS ? (
-                    id ? (
-                        <div>
-                            <div className={css.code}>
-                                <QRCode />
-                            </div>
-                            <div className={css.scan}>
-                                <FormattedMessage id="scanCode" />
-                            </div>
-                            <div className={css.confirm}>
-                                <FormattedMessage id="approveTransaction" />
-                            </div>
+                    <div>
+                        <div className={css.code}>
+                            <QRCode />
                         </div>
-                    ) : null
+                        <div className={css.scan}>
+                            <FormattedMessage id="scanCode" />
+                        </div>
+                        <div className={css.confirm}>
+                            <FormattedMessage id="approveTransaction" />
+                        </div>
+                    </div>
                 ) : (
                     <div>
-                        <div className={css.scan}></div>
-                        {status !== PaymentStatus.Error ? (
-                            <div className={css.confirm}>{id ? <FormattedMessage id={id} /> : null}</div>
-                        ) : (
+                        <Progress />
+                        {status === PaymentStatus.Error ? (
                             <div>
                                 <Error />
                                 <GenerateButton id="retry" />
                             </div>
-                        )}
+                        ) : null}
                     </div>
                 )}
             </div>

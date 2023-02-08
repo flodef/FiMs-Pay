@@ -24,7 +24,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
 
     const onClick = useCallback(() => {
         if (IS_CUSTOMER_POS && !isFullscreen()) {
-            requestFullscreen();
+            // requestFullscreen();
         }
         onInput(input);
     }, [onInput, input]);
