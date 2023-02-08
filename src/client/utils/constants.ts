@@ -14,6 +14,7 @@ export const NON_BREAKING_SPACE = '\u00a0';
 export const ZERO = new BigNumber(0);
 export const SOLANA_PAY = 'Solana Pay';
 export const TOPUP_COST = 1120000; //Top up cost in lamports (max transaction fees + account rent)
+export const WITHDRAW_COST = 120000; //Withdraw cost in lamports (max transaction fees)
 
 export const DEVNET_ENDPOINT = clusterApiUrl('devnet');
 export const MAINNET_ENDPOINT = process.env.NEXT_PUBLIC_CLUSTER_ENDPOINT || 'https://solana-mainnet.rpc.extrnode.com';

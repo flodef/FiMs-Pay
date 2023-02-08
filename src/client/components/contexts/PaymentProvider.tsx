@@ -1,6 +1,5 @@
 import {
     encodeURL,
-    fetchTransaction,
     findReference,
     FindReferenceError,
     parseURL,
@@ -9,14 +8,7 @@ import {
 } from '@solana/pay';
 import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import {
-    ConfirmedSignatureInfo,
-    Keypair,
-    LAMPORTS_PER_SOL,
-    PublicKey,
-    Transaction,
-    TransactionSignature,
-} from '@solana/web3.js';
+import { ConfirmedSignatureInfo, Keypair, LAMPORTS_PER_SOL, PublicKey, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
@@ -24,23 +16,21 @@ import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
-import {
-    IS_DEV,
-    IS_CUSTOMER_POS,
-    DEFAULT_WALLET,
-    AUTO_CONNECT,
-    POS_USE_WALLET,
-    USER_PASSWORD,
-    FAUCET,
-} from '../../utils/env';
+import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT, POS_USE_WALLET } from '../../utils/env';
 import { exitFullscreen, isFullscreen } from '../../utils/fullscreen';
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
 import { WalletName } from '@solana/wallet-adapter-base';
 import { isMobileDevice } from '../../utils/mobile';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { TOPUP_COST, ZERO } from '../../utils/constants';
-import { Elusiv } from 'elusiv-sdk';
+import { TOPUP_COST, WITHDRAW_COST, ZERO } from '../../utils/constants';
+import { Elusiv, TokenType } from 'elusiv-sdk';
 import { validateTransfer } from '../../../server/core/validateTransfer';
+
+export enum TxType {
+    Send = 'send',
+    TopUp = 'topup',
+    Withdraw = 'withdraw',
+}
 
 export interface PaymentProviderProps {
     children: ReactNode;
@@ -52,7 +42,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         link,
         recipient: recipientParam,
         splToken,
-        decimals,
         label,
         message,
         requiredConfirmations,
@@ -71,7 +60,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [signature, setSignature] = useState<TransactionSignature>();
     const [status, setStatus] = useState(PaymentStatus.New);
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
-    const [isTopUp, setIsTopUp] = useState(false);
+    const [txType, setTxType] = useState(TxType.Send);
     const navigate = useNavigateWithQuery();
     const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
     const recipient = useMemo(
@@ -293,15 +282,26 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [getElusiv, connection, publicKey, updatePrivateBalance, updatePublicBalance]);
 
     const topup = useCallback(async () => {
-        const topup = publicBalance.minus(TOPUP_COST); // Topup all the available balance - topup cost
-        if (topup.gt(ZERO)) {
-            setIsTopUp(true);
+        const amount = publicBalance.minus(TOPUP_COST); // Topup all the available balance - topup cost
+        if (amount.gt(ZERO)) {
+            setTxType(TxType.TopUp);
             setBalance(undefined); // Set the balance as 'loading balance'
-            setAmount(topup.div(LAMPORTS_PER_SOL));
+            setAmount(amount.div(LAMPORTS_PER_SOL));
 
             generate();
         }
     }, [publicBalance, generate]);
+
+    const withdraw = useCallback(async () => {
+        const amount = balance ?? ZERO;
+        if (amount.gt(ZERO)) {
+            setTxType(TxType.Withdraw);
+            setBalance(undefined); // Set the balance as 'loading balance'
+            setAmount(amount);
+
+            generate();
+        }
+    }, [balance, generate]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
@@ -311,7 +311,16 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
-        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && isTopUp && amount && signTransaction)) return;
+        if (
+            !(
+                IS_CUSTOMER_POS &&
+                status === PaymentStatus.Pending &&
+                txType !== TxType.Send &&
+                amount &&
+                signTransaction
+            )
+        )
+            return;
         let changed = false;
 
         const run = async () => {
@@ -321,30 +330,46 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 if (!changed) {
                     console.log('Requesting topup of ' + amount + token);
                     const elusiv = await getElusiv();
-                    const topupTx = await elusiv.buildTopUpTx(amount.times(LAMPORTS_PER_SOL).toNumber(), token);
-                    changeStatus(PaymentStatus.Creating);
-                    await signTransaction(topupTx.tx);
 
-                    console.log('Sending topup Tx ...');
-                    changeStatus(PaymentStatus.Preparing);
-                    const res = await elusiv.sendElusivTx(topupTx);
-                    changeStatus(PaymentStatus.Sent);
+                    let elusivTx;
+                    if (txType === TxType.TopUp) {
+                        elusivTx = await elusiv.buildTopUpTx(amount.times(LAMPORTS_PER_SOL).toNumber(), token);
+                        changeStatus(PaymentStatus.Creating);
+                        await signTransaction(elusivTx.tx);
+                    } else if (txType === TxType.Withdraw) {
+                        const elusivTx = await elusiv.buildWithdrawTx(
+                            amount.times(LAMPORTS_PER_SOL).minus(WITHDRAW_COST).toNumber(),
+                            token
+                        );
+                        changeStatus(PaymentStatus.Creating);
+                        const fee = elusivTx.getTotalFee().txFee / LAMPORTS_PER_SOL;
+                        if (balance === undefined || balance?.minus(fee).lt(amount))
+                            throw new Error('Insufficient private balance'); // TODO translate
+                    } else {
+                        throw new Error('Unhandled Tx type!');
+                    }
 
-                    console.log(
-                        `Topup initiated: https://solscan.io/tx/${res.sig.signature}${
-                            { IS_DEV } ? '?cluster=devnet' : ''
-                        }`
-                    );
+                    if (elusivTx) {
+                        console.log('Sending topup Tx ...');
+                        changeStatus(PaymentStatus.Preparing);
+                        const res = await elusiv.sendElusivTx(elusivTx);
+                        changeStatus(PaymentStatus.Sent);
 
-                    // Wait for the topup to be confirmed (have your UI do something else here, this takes a little)
-                    await res.isConfirmed;
-                    console.log('Topup complete!');
-                    changeStatus(PaymentStatus.Confirmed);
+                        console.log(
+                            `Topup initiated: https://solscan.io/tx/${res.sig.signature}${
+                                { IS_DEV } ? '?cluster=devnet' : ''
+                            }`
+                        );
 
-                    updateBalance();
-                    setIsTopUp(false);
+                        // Wait for the topup to be confirmed (have your UI do something else here, this takes a little)
+                        await res.isConfirmed;
+                        console.log('Topup complete!');
+                        navigate(PaymentStatus.Confirmed, true);
+                        changeStatus(PaymentStatus.Finalized);
 
-                    reset();
+                        updateBalance();
+                        setTxType(TxType.Send);
+                    }
                 }
             } catch (error: any) {
                 sendError(error);
@@ -357,7 +382,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             clearTimeout(timeout);
         };
     }, [
-        isTopUp,
         signTransaction,
         topup,
         updateBalance,
@@ -369,11 +393,15 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         status,
         amount,
         reset,
+        navigate,
+        balance,
+        txType,
     ]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
-        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && connection && publicKey && !isTopUp)) return;
+        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && connection && publicKey && txType === TxType.Send))
+            return;
         let changed = false;
 
         const run = async () => {
@@ -429,7 +457,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         sendError,
         balance,
         getElusiv,
-        isTopUp,
+        txType,
     ]);
 
     // When the status is pending, poll for the transaction using the reference key
@@ -440,7 +468,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     (IS_CUSTOMER_POS && status === PaymentStatus.Sent)) &&
                 reference &&
                 !signature &&
-                !isTopUp
+                txType === TxType.Send
             )
         )
             return;
@@ -469,11 +497,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearInterval(interval);
         };
-    }, [status, reference, signature, connection, navigate, changeStatus, sendError, isTopUp]);
+    }, [status, reference, signature, connection, navigate, changeStatus, sendError, txType]);
 
     // When the status is confirmed, validate the transaction against the provided params
     useEffect(() => {
-        if (!(status === PaymentStatus.Confirmed && signature && amount && !isTopUp)) return;
+        if (!(status === PaymentStatus.Confirmed && signature && amount && txType === TxType.Send)) return;
         let changed = false;
 
         const run = async () => {
@@ -508,7 +536,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, signature, amount, connection, recipient, splToken, reference, changeStatus, sendError, isTopUp]);
+    }, [status, signature, amount, connection, recipient, splToken, reference, changeStatus, sendError, txType]);
 
     // When the status is valid, poll for confirmations until the transaction is finalized
     useEffect(() => {
@@ -559,10 +587,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 url,
                 hasSufficientBalance,
                 isPaidStatus,
-                isTopUp,
+                txType,
                 reset,
                 generate,
                 topup,
+                withdraw,
                 updateBalance,
                 selectWallet,
                 connectWallet,

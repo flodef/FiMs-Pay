@@ -9,12 +9,13 @@ import { FAUCET, IS_CUSTOMER_POS, IS_DEV, PRIVATE_PAYMENT } from '../../utils/en
 import { AlertDialogPopup, AlertType } from '../sections/AlertDialogPopup';
 import css from './GenerateButton.module.css';
 
-enum state {
+enum State {
     Connecting = 'connecting',
     Connect = 'connect',
     Reload = 'reload',
     Supply = 'supply',
     Topup = 'topup',
+    Withdraw = 'withdraw',
 }
 
 export interface GenerateButtonProps {
@@ -32,6 +33,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         generate,
         selectWallet,
         topup,
+        withdraw,
     } = usePayment();
     const { publicKey, connecting } = useWallet();
     const { theme, recipient } = useConfig();
@@ -42,38 +44,50 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         () =>
             hasSufficientBalance
                 ? IS_CUSTOMER_POS && publicKey
-                    ? id
+                    ? PRIVATE_PAYMENT && balance?.gt(0) && amount?.lte(0)
+                        ? State.Withdraw
+                        : id
                     : connecting
-                    ? state.Connecting
-                    : state.Connect
-                : needRefresh || (balance !== undefined && balance.lt(ZERO))
-                ? state.Reload
+                    ? State.Connecting
+                    : State.Connect
+                : needRefresh || balance?.lt(0)
+                ? State.Reload
                 : PRIVATE_PAYMENT &&
                   balance !== undefined &&
                   amount !== undefined &&
                   publicBalance.minus(TOPUP_COST).div(LAMPORTS_PER_SOL).plus(balance).gte(amount)
-                ? state.Topup
-                : state.Supply,
+                ? State.Topup
+                : State.Supply,
         [connecting, hasSufficientBalance, id, needRefresh, publicKey, balance, publicBalance, amount]
     );
 
     const alert = useMemo(
         () =>
-            action === state.Topup && PRIVATE_PAYMENT
+            action === State.Topup && PRIVATE_PAYMENT
                 ? {
                       title: 'Your private wallet balance is empty!',
                       description: [
                           `You need to top it up with some SOL:`,
-                          `It's an automatic process but BE AWARE THAT MOST OF YOUR SOL (${publicBalance
+                          `It's an automatic process but BE AWARE THAT MOST OF YOUR FUND (${publicBalance
                               .minus(TOPUP_COST)
                               .div(LAMPORTS_PER_SOL)
                               .toNumber()}) will be transfered to this private wallet!`,
-                          `To keep some SOL in your public wallet, transfer them first to another account before toping up.`,
+                          `To keep some fund in your public wallet, transfer it first to another account before toping up.`,
                           `For privacy reason, it's recommended that you topup a different amount to your private wallet than the what you are going to pay!`,
                       ],
                       type: AlertType.Alert,
                   }
-                : action === state.Supply && IS_DEV
+                : action === State.Withdraw && PRIVATE_PAYMENT
+                ? {
+                      title: 'Withdraw private fund to your wallet!',
+                      description: [
+                          `This action will withdraw ALL OF YOUR PRIVATE FUND to your wallet.`,
+                          ``,
+                          `Do you still want to proceed?`,
+                      ],
+                      type: AlertType.Alert,
+                  }
+                : action === State.Supply && IS_DEV
                 ? {
                       title: 'Your public wallet balance is empty!',
                       description: [
@@ -93,26 +107,28 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             switch (action) {
                 case id:
                     return () => generate();
-                case state.Connect:
+                case State.Connect:
                     return () => selectWallet();
-                case state.Reload:
+                case State.Reload:
                     return () => {
                         updateBalance();
                         setNeedRefresh(false);
                     };
-                case state.Supply:
+                case State.Supply:
                     return () => {
                         window.open(FAUCET, '_blank');
                         setNeedRefresh(true);
                     };
-                case state.Topup:
+                case State.Topup:
                     return () => topup();
+                case State.Withdraw:
+                    return () => withdraw();
                 default:
                     return () => {};
             }
         };
         a()();
-    }, [generate, selectWallet, action, id, topup, updateBalance]);
+    }, [generate, selectWallet, action, id, topup, withdraw, updateBalance]);
 
     const button = useMemo(
         () => (
@@ -126,13 +142,27 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                         publicKey !== null &&
                         !connecting &&
                         hasSufficientBalance &&
-                        (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))
+                        (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)) &&
+                        PRIVATE_PAYMENT &&
+                        (balance === undefined || (balance !== undefined && balance.eq(ZERO)))) ||
+                    !PRIVATE_PAYMENT
                 }
             >
                 <FormattedMessage id={action} />
             </button>
         ),
-        [action, connecting, handleClick, hasSufficientBalance, isInvalidAmount, publicKey, status, theme, alert]
+        [
+            action,
+            connecting,
+            handleClick,
+            hasSufficientBalance,
+            isInvalidAmount,
+            publicKey,
+            status,
+            theme,
+            alert,
+            balance,
+        ]
     );
 
     return <AlertDialogPopup button={button} onClick={handleClick} alert={alert} />;

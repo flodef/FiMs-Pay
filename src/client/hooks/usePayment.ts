@@ -1,6 +1,7 @@
 import { PublicKey, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import { createContext, useContext, useMemo } from 'react';
+import { TxType } from '../components/contexts/PaymentProvider';
 import { Confirmations } from '../types';
 
 export enum PaymentStatus {
@@ -32,10 +33,11 @@ export interface PaymentContextState {
     url: URL;
     hasSufficientBalance: boolean;
     isPaidStatus: boolean;
-    isTopUp: boolean;
+    txType: TxType;
     reset(): void;
     generate(): void;
     topup(): void;
+    withdraw(): void;
     updateBalance(): void;
     selectWallet(): void;
     connectWallet(): void;
