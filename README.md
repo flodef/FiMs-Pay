@@ -1,12 +1,51 @@
-# Point of Sale
+![FiMs Pay](/public/FiMsPay-logo.png)
 
-This is an example of how you can use the `@solana/pay` JavaScript library to create a simple point of sale system.
+**FiMs Pay** is a fully customisable web app, that can be use as a Point Of Sale by a merchant, or directly as a Customer Payment app (with the option to pay privately).
+The app requires pre-registered merchants, but can also be used on-the-fly by directly entering one's merchant infos (shop's name, Solana wallet address, currency accepted and maximum value).
+It has many options available to configure the app to suit your needs.
 
-You can [check out the app](https://demo.fims.fi?currency=USDC&maxValue=99999.99&recipient=5uXKZWCYbaKwFMwu9BxMGEYowbhuG34qqYkg36hL5YvG&label=FiMs+Pay💕), inspired by Solana Pay's version. 
+Use the code as a reference, run it directly from FiMs website (see below) or build it yourself to start accepting decentralized payments in-person.
 
-You can also try a [more advanced & customised version](https://pos.fims.fi)
+## Advantages / Functionalities
 
-Use the code as a reference, or run it yourself to start accepting decentralized payments in-person.
+-   Usable all over the world, translated in many languages: English, Spanish, Portuguese, French, Japanese and Esperanto
+-   Accept a lot of currencies: agEUR, Euro, USDC, USDT, SOL and even BONK
+-   Send Private payments with [Elusiv](https://elusiv.io/)
+-   Fully responsive web app with themes: classic, color or black & white
+-   Register your shop's info for fast access or just test it immediately
+-   Choose your favorite RPC
+-   Compatible with Mobile Wallet Adapter and "Saga" mobile phone
+-   Use Transfer / Transaction Request via QR code
+-   Fully Configurable in a settings file or in a Google Spreadsheet (on the fly)
+-   Custom Faucet / Onramp link and about page / website
+
+And much more ...
+
+## Point of Sale
+
+This Point of Sale use the `@solana/pay` JavaScript library to create a simple point of sale system, yet usable in a shop!
+The merchant use the Point of Sale on its device (tablet / computer / phone) and set the amount to receive.
+The customer will then scan a QR code and validate the transaction on its phone.
+
+-   [Check out the app](https://demo.fims.fi?currency=USDC&maxValue=99999.99&recipient=5uXKZWCYbaKwFMwu9BxMGEYowbhuG34qqYkg36hL5YvG&label=FiMs+Pay💕), inspired by Solana's Proof of Concept version.
+-   Try a [customised version](https://pos.fims.fi)
+-   Watch a [real life video](https://www.youtube.com/watch?v=oBDJEQpiLws)
+
+## Customer Direct Payment
+
+If the merchant does not have a point of sale and just want to receive payments, it would have to redirect its customers to the customer direct payment web app on its mobile phone:
+
+-   Try paying directly [here](https://pay.fims.fi)
+-   Check out a [quick demo](https://www.youtube.com/shorts/tpYBaOLsnAo)
+-   Watch a [real life video](https://www.youtube.com/watch?v=uTertz4la2I)
+
+## Preview
+
+|                Responsive (PAY)                |                  Desktop (POS)                   |
+| :--------------------------------------------: | :----------------------------------------------: |
+| ![FiMs Pay Mobile](/public/FiMsPay-Mobile.png) | ![FiMs Pay Desktop](/public/FiMsPay-Desktop.png) |
+
+# Customising / Playing with the app
 
 ## Prerequisites
 
@@ -55,72 +94,88 @@ These instructions will get you a copy of the project up and running on your loc
 ### Clone the repository
 
 #### With Git
+
 ```shell
 git clone https://github.com/flodef/FiMs-Pay.git
 ```
 
 #### With Github CLI
+
 ```shell
 gh repo clone flodef/FiMs-Pay
 ```
 
 ### Install dependencies
+
 ```shell
-cd FiMs-Pay/examples/point-of-sale/
+cd FiMs-Pay/
 npm install
 ```
 
 ### Tweek the settings
+
 Make a copy of the setting example in order to set your own:
+
 ```shell
 cp .env.example .env.local
 ```
 
-To run the program in dev, change at least the setting and set it to ```NEXT_PUBLIC_IS_DEV=true```
+To run the program in dev, change at least the setting and set it to `NEXT_PUBLIC_IS_DEV=true`
 A complete list of the available settings is available at the end of the page.
 
 ### Start the local dev server
+
 ```shell
 npm run dev
 ```
 
 ### In a separate terminal, run a local SSL proxy
+
 ```shell
 npm run proxy
 ```
 
-### Open the point of sale app
+### Open the Point of Sale app
+
 ```shell
 open "https://localhost:3001"
 ```
+
 You may need to accept a locally signed SSL certificate to open the page.
 
-Alternatively, you can go straight to the point of sale, by adding at least one of the following info: 
+Alternatively, you can go straight to the point of sale, by adding at least one of the following info:
+
 -   a merchant address (recipient): should be a valid solana wallet address
 -   a store name (label): can be any name
 -   a currency (currency): should be one of the accepted currency (currently USDC, USDT, agEUR, EUR, SOL and BONK)
 -   a max value (maxValue): can be any number
-You can specify a parameter by adding it at the end of the web address.
+    You can specify a parameter by adding it at the end of the web address.
 
-> Between the web address and the first parameter, a `?` should be added.
-> 
-> Between a parameter and its value, a `=` should be added.
-> 
-> Between the two parameters, a `&` should be added.
-> 
-> Because space character is not allowed in a web address, replace all spaces by a `+`.
+---
 
-Example: 
+> **Notes**
+>
+> -   Between the web address and the first parameter, a `?` should be added.
+> -   Between a parameter and its value, a `=` should be added.
+> -   Between the two parameters, a `&` should be added.
+> -   Because space character is not allowed in a web address, replace all spaces by a `+`.
+
+---
+
+Example:
+
 ```shell
 open "https://localhost:3001?recipient=Your+Merchant+Address&label=Your+Store+Name&currency=BONK&maxValue=2"
 ```
 
 ## Accepting other SPL Token on Mainnet
+
 Find and download the SPL Token icon as a .svg
-Put the file in the [`client/images`](https://github.com/flodef/FiMs-Pay/blob/master/examples/point-of-sale/src/client/images) folder.
-Open the file as a text and copy the svg code to create a Function Component. 
-To do so, go into the [`client/components/images`](https://github.com/flodef/FiMs-Pay/blob/master/examples/point-of-sale/src/client/components/images) folder.
-If you don't feel inspired to create one on your own, just make a copy of ```SOLIcon.tsx```, rename it to your SPL Token name, and modify the following lines:
+Put the file in the [`client/images`](https://github.com/flodef/FiMs-Pay/blob/master/src/client/images) folder.
+Open the file as a text and copy the svg code to create a Function Component.
+To do so, go into the [`client/components/images`](https://github.com/flodef/FiMs-Pay/blob/master/src/client/components/images) folder.
+If you don't feel inspired to create one on your own, just make a copy of `SOLIcon.tsx`, rename it to your SPL Token name, and modify the following lines:
+
 ```tsx
 export const SOLIcon: FC<SVGProps<SVGSVGElement>> = ({ width = 32, height = 32 }) => {
     return (
@@ -133,56 +188,73 @@ export const SOLIcon: FC<SVGProps<SVGSVGElement>> = ({ width = 32, height = 32 }
             xmlnsXlink="http://www.w3.org/1999/xlink"
         >
 ```
-> Change ```SOLIcon``` to your SPL Token name (eg: BONKIcon for $BONK).
-> Replace the Function Component ```<svg></svg>``` by your own.  
-> Make sure the ```width``` and ```height``` are accepting JSX parameters (should be between brackets `{ }`).
+
+> Change `SOLIcon` to your SPL Token name (eg: BONKIcon for $BONK).
+> Replace the Function Component `<svg></svg>` by your own.  
+> Make sure the `width` and `height` are accepting JSX parameters (should be between brackets `{ }`).
 
 Find your token info on a Solana Explorer, for example [Solscan](https://solscan.io/):
--    Token name 
--    Token Symbol (the label written between parenthesis next to Token Name)
--    Token address
--    Decimals
 
-Add your token info in the [`client/utils/constants.ts`](https://github.com/flodef/FiMs-Pay/blob/master/examples/point-of-sale/src/client/utils/constants.ts) file:
+-   Token name
+-   Token Symbol (the label written between parenthesis next to Token Name)
+-   Token address
+-   Decimals
+
+Add your token info in the [`client/utils/constants.ts`](https://github.com/flodef/FiMs-Pay/blob/master/src/client/utils/constants.ts) file:
+
 1. Import your created Function Component Icon created in the previous step (replace 'TOKEN_NAME' by your Token name):
+
 ```tsx
 import { TOKEN_NAMEIcon } from '../components/images/TOKEN_NAMEIcon';
 ```
+
 2. Create a Public Key from the Token address:
+
 ```tsx
 const MAINNET_TOKEN_NAME_MINT = new PublicKey('Token_Address');
 ```
+
 3.  Add your token to the currency list:
+
 ```tsx
-export const CURRENCY_LIST: currencyType = process.env.NEXT_PUBLIC_IS_DEV === 'true'
-    ? {
-        SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
-        USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
-    }
-    : {
-        SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
-        //...
-        BONK: { splToken: MAINNET_BONK_MINT, icon: BONKIcon, decimals: 5, minDecimals: 2, symbol: 'BONK', multiplier: Multiplier.M }
-    };
+export const CURRENCY_LIST: currencyType =
+    process.env.NEXT_PUBLIC_IS_DEV === 'true'
+        ? {
+              SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
+              USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
+          }
+        : {
+              SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
+              //...
+              BONK: {
+                  splToken: MAINNET_BONK_MINT,
+                  icon: BONKIcon,
+                  decimals: 5,
+                  minDecimals: 2,
+                  symbol: 'BONK',
+                  multiplier: Multiplier.M,
+              },
+          };
 ```
 
 The parameters should be filled like this:
+
 -   splToken: the Public Key created in step 2,
 -   icon: the Icon imported in step 1,
 -   decimals: the decimals number retrieved on the Solana Explorer,
 -   minDecimals: the minimum number of decimals needed,
 -   symbol: the token symbol retrieved on the Solana Explorer,
--   multiplier: a multiplier in case the currency has a very small / high valuation price (for example, if 1 Million $BONK = $1, it can make sense to use a Million high multiplier to avoid typing too much 0. Reversely, if 1 $Bitcoin = $100 000, you can use a small multiplier like using Satoshi conversion). Multiplier is optional and can be found in the [`client/utils/multiplier.ts`](https://github.com/flodef/FiMs-Pay/blob/master/examples/point-of-sale/src/client/utils/multiplier.ts) file.
+-   multiplier: a multiplier in case the currency has a very small / high valuation price (for example, if 1 Million $BONK = $1, it can make sense to use a Million high multiplier to avoid typing too much 0. Reversely, if 1 $Bitcoin = $100 000, you can use a small multiplier like using Satoshi conversion). Multiplier is optional and can be found in the [`client/utils/multiplier.ts`](https://github.com/flodef/FiMs-Pay/blob/master/src/client/utils/multiplier.ts) file.
 
-Once done, you should see your new added token in the home page Token list. It also can be directly selected by adding the ```currency=TokenName``` parameter in the web address.
+Once done, you should see your new added token in the home page Token list. It also can be directly selected by adding the `currency=TokenName` parameter in the web address.
 
 ## Using Transaction Requests
 
 [Transaction Requests](../SPEC.md#specification-transaction-request) are a new feature in Solana Pay.
 
-In the settings file (.env.local), set ```NEXT_PUBLIC_USE_LINK=true```
+In the settings file (.env.local), set `NEXT_PUBLIC_USE_LINK=true`
 
-The generated QR codes in the app should now use transaction requests. To see what's going on and customize it, check out the [`server/api/index.ts`](https://github.com/flodef/FiMs-Pay/blob/master/examples/point-of-sale/src/server/api/index.ts) file.
+The generated QR codes in the app should now use transaction requests. To see what's going on and customize it, check out the [`server/api/index.ts`](https://github.com/flodef/FiMs-Pay/blob/master/src/server/api/index.ts) file.
 
 ## Deploying to Vercel
 
@@ -206,29 +278,35 @@ Import the forked repository from GitHub.
 
 ### 3. Configure project
 
-Choose `point-of-sale` as the root directory:
-
-![](./setup/3.Root_directory.png)
-
 Configure the project as follows:
 
-![](./setup/4.Configuration.png)
+![](./setup/3.Configuration.png)
 
-NOTE: At this step, you can set up manually any settings in `Environment Variables` that are in your `.env.local` file. 
-However, I would recommend to wait for the build to deploy and follow the next step...
+---
+
+> **Notes**
+> At this step, you can set up manually any settings in `Environment Variables` that are in your `.env.local` file.
+> However, I would recommend to wait for the build to deploy and follow the next step...
+
+---
 
 ### 4. Import your settings
 
 To import settings, go to `Settings` then `Environment Variables`.
 Settings in `.env.local` file can be imported one by one, or in one go.
-To copy one setting at the time, copy a setting line and paste it directly the `Key` text box (for example ```NEXT_PUBLIC_IS_DEV=true```). It will automatically copy the parameter properly.
+To copy one setting at the time, copy a setting line and paste it directly the `Key` text box (for example `NEXT_PUBLIC_IS_DEV=true`). It will automatically copy the parameter properly.
 If you want to import the whole `.env.local` file, imports all your settings in one go by clicking on `Import` then selecting the file and finally click on `Save`.
 
-![](./setup/5.Environment_Variables.png)
+![](./setup/4.Environment_Variables.png)
 
-NOTES: 
--   You can click `select custom branch` if you want your settings to only apply to a specific branch. `Production` is set to your master branch (the branch by defaults). 
--   Once a setting is changed, you'll have to `Redeploy` your project.
+---
+
+> **Notes**
+>
+> -   You can click `select custom branch` if you want your settings to only apply to a specific branch. `Production` is set to your master branch (the branch by defaults).
+> -   Once a setting is changed, you'll have to `Redeploy` your project.
+
+---
 
 ### 5. Deploy project
 
@@ -241,6 +319,7 @@ https://<YOUR DEPLOYMENT URL>
 ## Settings / Environment Variables
 
 Here is the list of all availables settings with their explanation and default value (if not set):
+
 -   NEXT_PUBLIC_CLUSTER_ENDPOINT=https://solana-mainnet.rpc.extrnode.com : The RPC address to the server that will execute all the request to the Solana network.
 -   RATE_LIMIT=10 : Number of RPC requests that can be sent during a specific interval (RATE_LIMIT_INTERVAL).
 -   RATE_LIMIT_INTERVAL=60 : Number of seconds to define the interval during which a number of requests can be sent (RATE_LIMIT).
@@ -259,11 +338,35 @@ Here is the list of all availables settings with their explanation and default v
 -   NEXT_PUBLIC_DEFAULT_WALLET : The default wallet to connect to (for example, if you know all of your customers are only using one wallet).
 -   NEXT_PUBLIC_APP_TITLE=FiMs Pay : The app default title, that will be displayed in the web page and use as default merchant label.
 -   NEXT_PUBLIC_DEFAULT_LANGUAGE=en : The app default language if the browser language is not found as a translated language (currently, english, esperanto, spanish, french, japanese and portuguese).
--   NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID : The Google Spreadsheet ID to load data from (if not specified, data will be loaded from the [`server/data`](https://github.com/flodef/FiMs-Pay/blob/master/examples/point-of-sale/src/server/data) folder).
+-   NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID : The Google Spreadsheet ID to load data from (if not specified, data will be loaded from the [`server/data`](https://github.com/flodef/FiMs-Pay/blob/master/src/server/data) folder).
 -   NEXT_PUBLIC_GOOGLE_API_KEY : The Google API key allowing to connect to a Spreadsheet.
 -   NEXT_PUBLIC_MERCHANT_IMAGE_PATH='/Img/Merchant/' : The path or Web address to where the merchant's logo is located
--   NEXT_PUBLIC_FAUCET=https://spl-token-faucet.com : A web address to a SOL / SPL Token faucet 
+-   NEXT_PUBLIC_FAUCET=https://spl-token-faucet.com : A web address to a SOL / SPL Token faucet
 -   NEXT_PUBLIC_ABOUT=https://solanapay.com/ : A web address to know more about the app / project
+-   NEXT_PUBLIC_PRIVATE_PAYMENT : Whether to use Private payments or not
+
+## Private Payments
+
+Private Payments are provided by Elusiv. Elusiv is a privacy solution using ZK technology with an off-chain “Warden Network” to create private transactions.
+You can read more about it on their website: https://elusiv.io/
+
+In order to use Elusiv ZK private payments, you'll be asked to sign a message with your Solana wallet.
+
+With Private Payments, you need to first **Top Up** your private funds from your wallet.
+In order to stay private and to avoid your payment being traced to your account, all your funds in your wallet will be transfered to your private balance.
+
+Once your private funds has enough balance, you can then proceed to your payment as usual (enter the amount and click "Pay").
+
+When your payment is complete, you can keep your private funds for further payments or withdraw all the left balance back to your wallet.
+
+---
+
+> **Notes**
+>
+> -   Currently only working in localhost because Elusiv Warden Network is based on HTTP requests which the browser blocks
+> -   Elusiv is only available on devnet currently - our app interacts with devnet
+
+---
 
 ## Merchants
 
@@ -278,7 +381,8 @@ Finally, create a shortcut to access it in one click.
 
 #### JSON file
 
-If you have multiple shops / multiple locations, you can simply edit the [`server/data/merchant.json`](https://github.com/flodef/FiMs-Pay/blob/master/examples/point-of-sale/src/server/data/merchant.json) file :
+If you have multiple shops / multiple locations, you can simply edit the [`server/data/merchant.json`](https://github.com/flodef/FiMs-Pay/blob/master/src/server/data/merchant.json) file :
+
 -   index : an unique id number to identify the merchant
 -   address : the Solana wallet address of the merchant
 -   company : the merchant's / shop's name
@@ -290,27 +394,34 @@ If you have multiple shops / multiple locations, you can simply edit the [`serve
 {
     "values": [
         ["index", "address", "company", "currency", "maxValue", "location"],
-        [2, "GZLPJYkR3diD8c8vpgb7sXHEH9sG1R9sWa3yPwaL9Peb", "Le pain d'Annette", "EUR", 300, "Saint-Nic"],
+        [2, "GZLPJYkR3diD8c8vpgb7sXHEH9sG1R9sWa3yPwaL9Peb", "Le pain d'Annette", "EUR", 300, "Saint-Nic"]
         // ...
     ]
 }
 ```
 
-NOTE: Don't delete the first row `["index", "address", "company", "currency", "maxValue", "location"],` as it's mandatory.
+---
+
+> **Notes**
+> Don't delete the first row `["index", "address", "company", "currency", "maxValue", "location"],` as it's mandatory.
+
+---
 
 #### Google Spreadsheet
 
 JSon file is pretty strait forward to edit. However, it's not flexible because everytime you want to add / delete / modify a merchant, you have to commit to github and deploy a new version of your project on Vercel.
-To avoid it, you can use an online spreadsheet containing all the merchant's information. Any modification will be live updated in the app. 
+To avoid it, you can use an online spreadsheet containing all the merchant's information. Any modification will be live updated in the app.
 
 1. Go to https://drive.google.com/ and create an account if you don't have one.
 2. Add a New spreadsheet: `+ New > Google Sheets > Blank Spreadsheet`
 3. Change the spreedsheet's sheet name from `Sheet1` to `merchant`
 4. Insert the merchant's info (first row is mandatory):
+
 ```
 index	address	company	currency	maxValue	location
 2	GZLPJYkR3diD8c8vpgb7sXHEH9sG1R9sWa3yPwaL9Peb	Le pain d'Annette	EUR	300	Saint-Nic
 ```
+
 5. Share the Spreadsheet by going to `File > Share > Share with others` then change the share settings from `Restricted` to `Anyone with the link` and click `Done`
 6. Copy the Spreadsheet GUID from the Spreadsheet web address (for example, in https://docs.google.com/spreadsheets/d/1uX6hJ3xa3ZuOzXrGYDR9XckoeAhjJXdAobZcs18VQw4/, the GUID is `1uX6hJ3xa3ZuOzXrGYDR9XckoeAhjJXdAobZcs18VQw4`) and Paste it in your `.env.local` settings file and / or in Vercel's Environment Variables under `NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID` (for example, `NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID=MY_SPREADSHEET_ID`).
 7. Go to https://console.cloud.google.com/
@@ -319,19 +430,24 @@ index	address	company	currency	maxValue	location
 10. Click on `+ CREATE CREDENTIALS` then `API Keys`
 11. Copy your new created API key and Paste it in your `.env.local` settings file and / or in Vercel's Environment Variables under `NEXT_PUBLIC_GOOGLE_API_KEY` (for example, `NEXT_PUBLIC_GOOGLE_API_KEY=MY_API_KEY`).
 
-NOTES: 
--   Never give your API Key to anybody untrusted as it can be used against you. 
--   To avoid this, you can restrict your key by clicking on it in the `APIs & Services` dashboard, then use Application Restrictions or API Restrictions (at least, tick `Google Sheets API`) then `Save`
--   You should also never commit it on Github in `.env.example` (`.env.local` file always stays on your device, and Vercel's Environment Variables are encrypted by default).
+---
+
+> **Notes**
+>
+> -   Never give your API Key to anybody untrusted as it can be used against you.
+> -   To avoid this, you can restrict your key by clicking on it in the `APIs & Services` dashboard, then use Application Restrictions or API Restrictions (at least, tick `Google Sheets API`) then `Save`
+> -   You should also never commit it on Github in `.env.example` (`.env.local` file always stays on your device, and Vercel's Environment Variables are encrypted by default).
+
+---
 
 ## Languages
 
 As of today, the app has been translated in english, esperanto, spanish, french, japanese and portuguese.
 That's already great, but we can do better...
 
-Please, feel free to add your own language in the [`locales`](https://github.com/flodef/FiMs-Pay/blob/master/examples/point-of-sale/locales) folder.
+Please, feel free to add your own language in the [`locales`](https://github.com/flodef/FiMs-Pay/blob/master/locales) folder.
 To do so, copy the `en` folder and rename it to your language own ISO 639-1 code [5].
-Then use the json format provided, where you need to translate the right text part (for example, ```"merchants": "List of Merchants"``` where `merchants` is the immuable id and `List of Merchants` is the translation).
+Then use the json format provided, where you need to translate the right text part (for example, `"merchants": "List of Merchants"` where `merchants` is the immuable id and `List of Merchants` is the translation).
 
 I would be very happy to receive your translated texts and add it to the project. In that case, kindly send a Pull Request ;-)
 
