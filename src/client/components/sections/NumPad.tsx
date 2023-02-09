@@ -45,7 +45,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
 };
 
 export const NumPad: FC = () => {
-    const { maxDecimals, maxValue, multiplier, theme, currency: currencyName } = useConfig();
+    const { maxDecimals, maxValue, multiplier, theme, currencyName } = useConfig();
     const { balance, hasSufficientBalance } = usePayment();
     const { publicKey } = useWallet();
     const phone = useIsMobileSize();

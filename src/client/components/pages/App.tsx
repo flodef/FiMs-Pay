@@ -279,7 +279,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                                 maxDecimals={maxDecimals}
                                                 maxValue={maxValue}
                                                 multiplier={multiplier}
-                                                currency={currencyName}
+                                                currencyName={currencyName}
                                                 id={id}
                                                 shouldConnectWallet={shouldConnectWallet}
                                                 reset={reset}
