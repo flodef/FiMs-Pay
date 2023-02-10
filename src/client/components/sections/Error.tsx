@@ -20,6 +20,8 @@ export const Error: FC = () => {
                     return e[0];
                 case 'CreateTransferError':
                     return e[1];
+                case 'SenderTokenAccountNotFoundError':
+                    return 'sender not found';
                 case 'Error':
                     return e[1].trim() === '429' ? 'NetworkBusyError' : 'UnknownError';
                 default:

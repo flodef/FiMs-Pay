@@ -6,7 +6,7 @@ import {
     parseURL,
     ValidateTransferError,
 } from '@solana/pay';
-import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token';
+import { getAccount, getAssociatedTokenAddress, TokenAccountNotFoundError } from '@solana/spl-token';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { ConfirmedSignatureInfo, Keypair, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
@@ -24,7 +24,6 @@ import { isMobileDevice } from '../../utils/mobile';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
-import { ZERO } from '../../utils/constants';
 
 export interface PaymentProviderProps {
     children: ReactNode;
@@ -122,9 +121,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     const hasSufficientBalance = useMemo(
         () =>
-            !IS_CUSTOMER_POS ||
-            balance === undefined ||
-            (balance.gt(ZERO) && amount !== undefined && balance.gte(amount)),
+            !IS_CUSTOMER_POS || balance === undefined || (balance.gt(0) && amount !== undefined && balance.gte(amount)),
         [balance, amount]
     );
     const isPaidStatus = useMemo(
@@ -212,6 +209,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
                 setBalance(BigNumber(amount / Math.pow(10, decimals)));
             } catch (error: any) {
+                sendError(
+                    error instanceof TokenAccountNotFoundError ? new Object('SenderTokenAccountNotFoundError') : error
+                );
                 setBalance(BigNumber(-1));
             }
         };
@@ -221,7 +221,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [connection, publicKey, splToken, decimals]);
+    }, [connection, publicKey, splToken, decimals, sendError]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {

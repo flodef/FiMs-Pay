@@ -6,12 +6,10 @@ import { EURIcon } from '../components/images/EURIcon';
 import { agEURIcon } from '../components/images/agEURIcon';
 import { BONKIcon } from '../components/images/BONKIcon';
 import { Digits } from '../types';
-import { Multiplier } from "./multiplier";
-import BigNumber from "bignumber.js";
+import { Multiplier } from './multiplier';
 
 export const MAX_CONFIRMATIONS = 32;
 export const NON_BREAKING_SPACE = '\u00a0';
-export const ZERO = new BigNumber(0);
 export const SOLANA_PAY = 'Solana Pay';
 
 export const DEVNET_ENDPOINT = clusterApiUrl('devnet');
@@ -29,26 +27,33 @@ const MAINNET_BONK_MINT = new PublicKey('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1p
 // Format
 // CURRENCY: [Mint address, icon tsx file, token decimals, min decimal, symbol, multiplier]
 interface currencyType {
-    [key: string]:
-    {
-        splToken: PublicKey | undefined,
-        icon: React.FC<React.SVGProps<SVGSVGElement>>,
-        decimals: Digits,
-        minDecimals: Digits,
-        symbol: string,
+    [key: string]: {
+        splToken: PublicKey | undefined;
+        icon: React.FC<React.SVGProps<SVGSVGElement>>;
+        decimals: Digits;
+        minDecimals: Digits;
+        symbol: string;
         multiplier?: Multiplier;
     };
 }
-export const CURRENCY_LIST: currencyType = process.env.NEXT_PUBLIC_IS_DEV === 'true'
-    ? {
-        SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
-        USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
-    }
-    : {
-        SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
-        EUR: { splToken: MAINNET_EUR_MINT, icon: EURIcon, decimals: 9, minDecimals: 2, symbol: 'EUR' },
-        agEUR: { splToken: MAINNET_AGEUR_MINT, icon: agEURIcon, decimals: 8, minDecimals: 2, symbol: 'EUR' },
-        USDC: { splToken: MAINNET_USDC_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
-        USDT: { splToken: MAINNET_USDT_MINT, icon: USDTIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
-        BONK: { splToken: MAINNET_BONK_MINT, icon: BONKIcon, decimals: 5, minDecimals: 2, symbol: 'BONK', multiplier: Multiplier.M }
-    };
+export const CURRENCY_LIST: currencyType =
+    process.env.NEXT_PUBLIC_IS_DEV === 'true'
+        ? {
+              SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
+              USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
+          }
+        : {
+              SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
+              EUR: { splToken: MAINNET_EUR_MINT, icon: EURIcon, decimals: 9, minDecimals: 2, symbol: 'EUR' },
+              agEUR: { splToken: MAINNET_AGEUR_MINT, icon: agEURIcon, decimals: 8, minDecimals: 2, symbol: 'EUR' },
+              USDC: { splToken: MAINNET_USDC_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
+              USDT: { splToken: MAINNET_USDT_MINT, icon: USDTIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
+              BONK: {
+                  splToken: MAINNET_BONK_MINT,
+                  icon: BONKIcon,
+                  decimals: 5,
+                  minDecimals: 2,
+                  symbol: 'BONK',
+                  multiplier: Multiplier.M,
+              },
+          };

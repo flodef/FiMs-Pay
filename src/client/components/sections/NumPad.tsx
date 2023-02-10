@@ -2,9 +2,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
-import { usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
-import { CURRENCY_LIST, ZERO } from '../../utils/constants';
+import { CURRENCY_LIST } from '../../utils/constants';
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { isFullscreen, requestFullscreen } from '../../utils/fullscreen';
 import { useIsMobileSize } from '../../utils/mobile';
@@ -13,6 +12,8 @@ import { BackspaceIcon } from '../images/BackspaceIcon';
 import { Amount } from './Amount';
 import css from './NumPad.module.css';
 import { SelectImage } from './SelectImage';
+import { Error } from './Error';
+import { usePayment } from '../../hooks/usePayment';
 
 interface NumPadInputButton {
     input: Digits | '.';
@@ -46,7 +47,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
 
 export const NumPad: FC = () => {
     const { maxDecimals, maxValue, multiplier, theme, currencyName } = useConfig();
-    const { balance, hasSufficientBalance } = usePayment();
+    const { balance, hasSufficientBalance, status } = usePayment();
     const { publicKey } = useWallet();
     const phone = useIsMobileSize();
 
@@ -73,7 +74,7 @@ export const NumPad: FC = () => {
         [setAmount, value, multiplier]
     );
 
-    const hasBalance = useMemo(() => balance !== undefined && balance.gte(ZERO), [balance]);
+    const hasBalance = useMemo(() => balance !== undefined && balance.gte(0), [balance]);
 
     const [currency, setCurrency] = useState(currencyName);
     const getCurrencyImage = (value: string) => React.createElement(CURRENCY_LIST[value].icon);
@@ -83,17 +84,17 @@ export const NumPad: FC = () => {
             {(phone || IS_CUSTOMER_POS) && publicKey ? (
                 <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined ? (
-                        balance.gt(ZERO) ? (
+                        balance.gt(0) ? (
                             <div>
                                 <FormattedMessage id="yourBalance" />
                                 :&nbsp;
                                 <Amount value={balance} />
                                 {!hasSufficientBalance ? <FormattedMessage id="insufficient" /> : null}
                             </div>
-                        ) : balance.lt(ZERO) ? (
-                            <FormattedMessage id="balanceLoadingError" />
-                        ) : (
+                        ) : balance.eq(0) ? (
                             <FormattedMessage id="emptyBalance" />
+                        ) : (
+                            <Error />
                         )
                     ) : (
                         <FormattedMessage id="balanceLoading" />

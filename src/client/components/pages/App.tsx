@@ -202,12 +202,19 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const [messages, setMessages] = useState<Record<string, string>>({});
     const isLangInit = useRef(false);
 
+    // TODO : translate error
     useEffect(() => {
         if (navigator) {
             const newLang = navigator.language;
             if (!isLangInit.current) {
                 isLangInit.current = true;
                 fetch(`${baseURL}/api/fetchMessages?locale=${newLang}`)
+                    .catch((error) => {
+                        throw new Error(
+                            error +
+                                '\nHave you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?'
+                        );
+                    })
                     .then((response) => response.json())
                     .then((data) => {
                         setMessages(data);
