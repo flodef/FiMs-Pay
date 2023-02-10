@@ -1,6 +1,6 @@
 import React, { FC, SVGProps } from 'react';
 
-export const EURIcon: FC<SVGProps<SVGSVGElement>> = ({ width = 32, height = 32 }) => {
+export const EURIcon: FC<SVGProps<SVGSVGElement>> = ({ width, height }) => {
     return (
         <svg width={width} height={height} xmlns="http://www.w3.org/2000/svg" viewBox="-89 -73 146 146">
             <path d="M-89-73h146v146H-89z" fill="#0f218b" />
