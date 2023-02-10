@@ -1,6 +1,6 @@
 import React, { FC, SVGProps } from 'react';
 
-export const agEURIcon: FC<SVGProps<SVGSVGElement>> = ({ width = 32, height = 32 }) => {
+export const agEURIcon: FC<SVGProps<SVGSVGElement>> = ({ width, height }) => {
     return (
         <svg width={width} height={height} viewBox="0 0 156 156" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

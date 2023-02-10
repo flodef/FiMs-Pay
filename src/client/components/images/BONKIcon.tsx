@@ -1,6 +1,6 @@
 import React, { FC, SVGProps } from 'react';
 
-export const BONKIcon: FC<SVGProps<SVGSVGElement>> = ({ width = 32, height = 32 }) => {
+export const BONKIcon: FC<SVGProps<SVGSVGElement>> = ({ width, height }) => {
     return (
         <svg
             width={width}
