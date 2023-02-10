@@ -38,15 +38,15 @@
     justify-content: center;
 }
 
-.input[type="checkbox"], 
-.inputBW[type="checkbox"],
-.inputColor[type="checkbox"] {
+.input[type='checkbox'],
+.inputBW[type='checkbox'],
+.inputColor[type='checkbox'] {
     position: absolute;
     opacity: 0;
     cursor: pointer;
     height: 80px;
     width: 80px;
-    margin:12px;
+    margin: 12px;
     z-index: 100;
 }
 
@@ -54,7 +54,7 @@
 .div,
 .buttonBW,
 .divBW,
-.divColor, 
+.divColor,
 .buttonColor {
     position: relative;
     height: 80px;
@@ -69,7 +69,7 @@
     font-weight: 700;
     line-height: 32px;
     transition: background-color 100ms ease-in-out;
-}  
+}
 .div,
 .button {
     border-radius: 50%;
@@ -83,25 +83,26 @@
     border-radius: 50% 0 50% 50%;
 }
 
-:global(html.light) .inputColor[type="checkbox"]:checked ~ div {
+:global(html.light) .inputColor[type='checkbox']:checked ~ div {
     color: var(--theme-light-numpad-button-color);
     text-shadow: 0 0 15px var(--theme-number-button-background), 0 0 25px var(--theme-number-button-background);
     animation: glow 3s linear 1;
 }
 
-:global(html.dark) .inputColor[type="checkbox"]:checked ~ div {
+:global(html.dark) .inputColor[type='checkbox']:checked ~ div {
     color: var(--theme-dark-numpad-button-color);
     text-shadow: 0 0 15px var(--theme-number-button-background), 0 0 25px var(--theme-number-button-background);
     animation: glow 3s linear 1;
 }
 
-:global(html.light) .inputBW[type="checkbox"]:checked ~ div {
+:global(html.light) .inputBW[type='checkbox']:checked ~ div {
     color: var(--theme-light-numpad-button-color);
-    text-shadow: 0 0 15px var(--theme-light-numpad-button-background), 0 0 25px var(--theme-light-numpad-button-background);
+    text-shadow: 0 0 15px var(--theme-light-numpad-button-background),
+        0 0 25px var(--theme-light-numpad-button-background);
     animation: glow 3s linear 1;
 }
 
-:global(html.dark) .inputBW[type="checkbox"]:checked ~ div {
+:global(html.dark) .inputBW[type='checkbox']:checked ~ div {
     color: var(--theme-dark-numpad-button-color);
     text-shadow: 0 0 15px var(--theme-light-dark-button-background), 0 0 25px var(--theme-dark-numpad-button-background);
     animation: glow 3s linear 1;

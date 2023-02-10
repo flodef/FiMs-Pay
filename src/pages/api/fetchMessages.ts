@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next';
 import fsPromises from 'fs/promises';
-import path from "path";
-import { DEFAULT_LANGUAGE } from "../../client/utils/env";
+import path from 'path';
+import { DEFAULT_LANGUAGE } from '../../client/utils/env';
 
 interface GetResponse {
     message: string;
@@ -11,7 +11,7 @@ const fetchMessages: NextApiHandler<GetResponse[] | undefined> = async (request,
     // If get request
     if (request.method === 'GET') {
         const { locale, namespace } = request.query;
-        const ns = namespace ?? "common";
+        const ns = namespace ?? 'common';
         if (!locale) throw new Error('missing locale');
         if (typeof locale !== 'string') throw new Error('invalid locale');
         if (typeof ns !== 'string') throw new Error('invalid namespace');

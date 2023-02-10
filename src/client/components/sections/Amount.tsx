@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import React, { FC, useMemo } from 'react';
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage } from 'react-intl';
 import { useConfig } from '../../hooks/useConfig';
 import { NON_BREAKING_SPACE } from '../../utils/constants';
 import css from './Amount.module.css';
@@ -26,8 +26,19 @@ export const Amount: FC<AmountProps> = ({ value, showZero }) => {
         }
     }, [value, minDecimals, showZero]);
 
-    return <span>{amount !== NON_BREAKING_SPACE ? <FormattedMessage id="currencyPattern" values={{
-        span: chunks => <span className={css.currency}>{chunks}</span>,
-        value: amount
-    }} /> : amount}</span>;
+    return (
+        <span>
+            {amount !== NON_BREAKING_SPACE ? (
+                <FormattedMessage
+                    id="currencyPattern"
+                    values={{
+                        span: (chunks) => <span className={css.currency}>{chunks}</span>,
+                        value: amount,
+                    }}
+                />
+            ) : (
+                amount
+            )}
+        </span>
+    );
 };

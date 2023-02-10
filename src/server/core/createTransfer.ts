@@ -5,7 +5,6 @@ import { LAMPORTS_PER_SOL, SystemProgram, Transaction, TransactionInstruction } 
 import BigNumber from 'bignumber.js';
 import { MEMO_PROGRAM_ID, SOL_DECIMALS, TEN } from './constants';
 
-
 /**
  * Thrown when a Solana Pay transfer transaction can't be created from the fields provided.
  */
