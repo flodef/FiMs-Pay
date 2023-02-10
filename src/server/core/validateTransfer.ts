@@ -8,12 +8,10 @@ import {
 import {
     ConfirmedTransactionMeta,
     Connection,
-    Finality,
     GetVersionedTransactionConfig,
     Message,
     SIGNATURE_LENGTH_IN_BYTES,
     TransactionInstruction,
-    TransactionResponse,
     TransactionSignature,
     VersionedTransactionResponse,
 } from '@solana/web3.js';
@@ -171,35 +169,40 @@ async function validateSPLTokenTransfer(
 
 const DEFAULT_SIGNATURE = Buffer.alloc(SIGNATURE_LENGTH_IN_BYTES).fill(0);
 
-function populate(message:Message, signatures:string[] = []) {
+function populate(message: Message, signatures: string[] = []) {
     const transaction = new Transaction();
     transaction.recentBlockhash = message.recentBlockhash;
 
     if (message.header.numRequiredSignatures > 0) {
-      transaction.feePayer = message.staticAccountKeys[0];
+        transaction.feePayer = message.staticAccountKeys[0];
     }
 
     signatures.forEach((signature, index) => {
-      const sigPubkeyPair = {
-        signature: signature == bs58.encode(DEFAULT_SIGNATURE) ? null : Buffer.from(bs58.decode(signature)),
-        publicKey: message.staticAccountKeys[index]
-      };
-      transaction.signatures.push(sigPubkeyPair);
-    });
-    message.compiledInstructions.forEach(instruction => {
-      const keys = instruction.accountKeyIndexes.map(account => {
-        const pubkey = message.staticAccountKeys[account];
-        return {
-          pubkey,
-          isSigner: transaction.signatures.some(keyObj => keyObj.publicKey && pubkey && keyObj.publicKey.toString() === pubkey.toString()) || message.isAccountSigner(account),
-          isWritable: message.isAccountWritable(account)
+        const sigPubkeyPair = {
+            signature: signature == bs58.encode(DEFAULT_SIGNATURE) ? null : Buffer.from(bs58.decode(signature)),
+            publicKey: message.staticAccountKeys[index],
         };
-      });
-      transaction.instructions.push(new TransactionInstruction({
-        keys,
-        programId: message.staticAccountKeys[instruction.programIdIndex],
-        data: Buffer.from(instruction.data)
-      }));
+        transaction.signatures.push(sigPubkeyPair);
+    });
+    message.compiledInstructions.forEach((instruction) => {
+        const keys = instruction.accountKeyIndexes.map((account) => {
+            const pubkey = message.staticAccountKeys[account];
+            return {
+                pubkey,
+                isSigner:
+                    transaction.signatures.some(
+                        (keyObj) => keyObj.publicKey && pubkey && keyObj.publicKey.toString() === pubkey.toString()
+                    ) || message.isAccountSigner(account),
+                isWritable: message.isAccountWritable(account),
+            };
+        });
+        transaction.instructions.push(
+            new TransactionInstruction({
+                keys,
+                programId: message.staticAccountKeys[instruction.programIdIndex],
+                data: Buffer.from(instruction.data),
+            })
+        );
     });
     // transaction._message = message;
     // transaction._json = transaction.toJSON();

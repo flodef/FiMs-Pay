@@ -2,8 +2,8 @@ import { PublicKey } from '@solana/web3.js';
 import React, { FC, ReactElement, ReactNode, useState } from 'react';
 import { ConfigContext } from '../../hooks/useConfig';
 import { Confirmations, Digits } from '../../types';
-import { DEFAULT_THEME } from "../../utils/env";
-import { Multiplier } from "../../utils/multiplier";
+import { DEFAULT_THEME } from '../../utils/env';
+import { Multiplier } from '../../utils/multiplier';
 
 export interface ConfigProviderProps {
     children: ReactNode;
@@ -19,7 +19,7 @@ export interface ConfigProviderProps {
     maxDecimals: Digits;
     maxValue: number;
     multiplier?: Multiplier;
-    currency: string;
+    currencyName: string;
     requiredConfirmations?: Confirmations;
     id?: number;
     shouldConnectWallet?: boolean;
@@ -40,7 +40,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     maxDecimals = 2,
     maxValue,
     multiplier,
-    currency,
+    currencyName,
     requiredConfirmations = 1,
     id,
     shouldConnectWallet = false,
@@ -63,13 +63,13 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
                 maxDecimals,
                 maxValue,
                 multiplier,
-                currency,
+                currencyName,
                 requiredConfirmations,
                 id,
                 shouldConnectWallet,
                 theme,
                 setTheme,
-                reset
+                reset,
             }}
         >
             {children}

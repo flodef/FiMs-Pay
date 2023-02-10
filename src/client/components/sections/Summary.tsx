@@ -1,9 +1,8 @@
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from '@solana/wallet-adapter-react';
 import React, { FC } from 'react';
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage } from 'react-intl';
 import { usePayment } from '../../hooks/usePayment';
-import { ZERO } from "../../utils/constants";
-import { IS_CUSTOMER_POS, POS_USE_WALLET } from "../../utils/env";
+import { IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { Amount } from './Amount';
 import css from './Summary.module.css';
 
@@ -13,26 +12,30 @@ export const Summary: FC = () => {
 
     return (
         <div className={css.root}>
-            {POS_USE_WALLET || IS_CUSTOMER_POS
-                ? <div>
+            {POS_USE_WALLET || IS_CUSTOMER_POS ? (
+                <div>
                     <div className={css.title}>
                         <FormattedMessage id="yourBalance" />
                     </div>
                     <div className={css.balance}>
-                        {publicKey
-                            ? balance !== undefined
-                                ? balance.gt(ZERO)
-                                    ? <Amount value={balance} />
-                                    : balance.lt(ZERO)
-                                        ? <FormattedMessage id="balanceLoadingError" />
-                                        : <FormattedMessage id="emptyBalance" />
-                                : <FormattedMessage id="balanceLoading" />
-                            : <FormattedMessage id="walletNotConnected" />
-                        }
+                        {publicKey ? (
+                            balance !== undefined ? (
+                                balance.gt(0) ? (
+                                    <Amount value={balance} />
+                                ) : balance.eq(0) ? (
+                                    <FormattedMessage id="emptyBalance" />
+                                ) : (
+                                    <FormattedMessage id="balanceLoadingError" />
+                                )
+                            ) : (
+                                <FormattedMessage id="balanceLoading" />
+                            )
+                        ) : (
+                            <FormattedMessage id="walletNotConnected" />
+                        )}
                     </div>
                 </div>
-                : null
-            }
+            ) : null}
             <div className={css.total}>
                 <div className={css.totalLeft}>
                     <FormattedMessage id="total" />
@@ -43,6 +46,6 @@ export const Summary: FC = () => {
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };

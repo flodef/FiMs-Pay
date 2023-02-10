@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { MouseEventHandler, useCallback, useState } from 'react';
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage } from 'react-intl';
 import { BackButton } from '../buttons/BackButton';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Transactions } from '../sections/Transactions';
@@ -18,18 +18,18 @@ const TransactionsPage: NextPage = () => {
         [router]
     );
 
-
     return (
         <div className={css.root}>
             <div className={css.header}>
-                <BackButton onClick={handleClick}><FormattedMessage id="back" /></BackButton>
+                <BackButton onClick={handleClick}>
+                    <FormattedMessage id="back" />
+                </BackButton>
             </div>
-            {!disabled
-                ? <div className={css.main}>
+            {!disabled ? (
+                <div className={css.main}>
                     <Transactions />
                 </div>
-                : null
-            }
+            ) : null}
             <PoweredBy />
         </div>
     );

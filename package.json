@@ -70,7 +70,7 @@
         "postcss-flexbugs-fixes": "^5.0.2",
         "postcss-nesting": "^11.0.1",
         "postcss-preset-env": "^8.0.1",
-        "prettier": "^2.8.3",
+        "prettier": "^2.8.4",
         "shx": "^0.3.4",
         "typescript": "^4.9.4",
         "yarn-upgrade-all": "^0.7.2"

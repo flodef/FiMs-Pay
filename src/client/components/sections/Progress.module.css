@@ -2,6 +2,7 @@
     width: 200px;
     height: 200px;
     position: relative;
+    margin: auto auto 24px auto;
 }
 
 .text {
@@ -9,6 +10,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-weight: 500;
+    font-weight: 600;
     font-size: 18px;
+    text-align: center;
 }

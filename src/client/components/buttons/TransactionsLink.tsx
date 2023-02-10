@@ -4,8 +4,8 @@ import { useLinkWithQuery } from '../../hooks/useLinkWithQuery';
 import { ActivityIcon } from '../images/ActivityIcon';
 import css from './TransactionsLink.module.css';
 import { IS_CUSTOMER_POS } from '../../utils/env';
-import { FormattedMessage } from "react-intl";
-import { useIsMobileSize } from "../../utils/mobile";
+import { FormattedMessage } from 'react-intl';
+import { useIsMobileSize } from '../../utils/mobile';
 
 export const TransactionsLink: FC = () => {
     const to = useLinkWithQuery('/transactions');

@@ -205,33 +205,33 @@ Add your token info in the [`client/utils/constants.ts`](https://github.com/flod
 1. Import your created Function Component Icon created in the previous step (replace 'TOKEN_NAME' by your Token name):
 
 ```tsx
-import { TOKEN_NAMEIcon } from "../components/images/TOKEN_NAMEIcon";
+import { TOKEN_NAMEIcon } from '../components/images/TOKEN_NAMEIcon';
 ```
 
 2. Create a Public Key from the Token address:
 
 ```tsx
-const MAINNET_TOKEN_NAME_MINT = new PublicKey("Token_Address");
+const MAINNET_TOKEN_NAME_MINT = new PublicKey('Token_Address');
 ```
 
 3.  Add your token to the currency list:
 
 ```tsx
 export const CURRENCY_LIST: currencyType =
-    process.env.NEXT_PUBLIC_IS_DEV === "true"
+    process.env.NEXT_PUBLIC_IS_DEV === 'true'
         ? {
-              SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: "◎" },
-              USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: "USD" },
+              SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
+              USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
           }
         : {
-              SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: "◎" },
+              SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
               //...
               BONK: {
                   splToken: MAINNET_BONK_MINT,
                   icon: BONKIcon,
                   decimals: 5,
                   minDecimals: 2,
-                  symbol: "BONK",
+                  symbol: 'BONK',
                   multiplier: Multiplier.M,
               },
           };

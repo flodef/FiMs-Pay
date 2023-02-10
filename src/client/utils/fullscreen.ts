@@ -30,7 +30,6 @@ export function isFullscreen(): boolean {
             document.webkitFullscreenElement ||
             document.mozFullScreenElement ||
             document.msFullscreenElement ||
-            document.fullscreen ||
             document.webkitIsFullScreen ||
             document.mozFullScreen
         )

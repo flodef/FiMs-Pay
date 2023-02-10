@@ -6,7 +6,7 @@ import {
     parseURL,
     ValidateTransferError,
 } from '@solana/pay';
-import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
+import { getAccount, getAssociatedTokenAddress, TokenAccountNotFoundError } from '@solana/spl-token';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { ConfirmedSignatureInfo, Keypair, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
@@ -17,14 +17,13 @@ import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
 import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT, POS_USE_WALLET } from '../../utils/env';
-import { exitFullscreen, isFullscreen } from "../../utils/fullscreen";
+import { exitFullscreen, isFullscreen } from '../../utils/fullscreen';
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
-import { WalletName } from "@solana/wallet-adapter-base";
-import { isMobileDevice } from "../../utils/mobile";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { createTransfer } from "../../../server/core/createTransfer";
+import { WalletName } from '@solana/wallet-adapter-base';
+import { isMobileDevice } from '../../utils/mobile';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
-import { ZERO } from "../../utils/constants";
 
 export interface PaymentProviderProps {
     children: ReactNode;
@@ -32,7 +31,16 @@ export interface PaymentProviderProps {
 
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
-    const { link, recipient: recipientParam, splToken, decimals, label, message, requiredConfirmations, shouldConnectWallet } = useConfig();
+    const {
+        link,
+        recipient: recipientParam,
+        splToken,
+        decimals,
+        label,
+        message,
+        requiredConfirmations,
+        shouldConnectWallet,
+    } = useConfig();
     const { publicKey, sendTransaction, connect, disconnect, select, wallet } = useWallet();
     const { setVisible } = useWalletModal();
     const { processError } = useError();
@@ -46,7 +54,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
     const navigate = useNavigateWithQuery();
     const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
-    const recipient = useMemo(() => IS_CUSTOMER_POS || !POS_USE_WALLET || !publicKey ? recipientParam : publicKey, [recipientParam, publicKey]);
+    const recipient = useMemo(
+        () => (IS_CUSTOMER_POS || !POS_USE_WALLET || !publicKey ? recipientParam : publicKey),
+        [recipientParam, publicKey]
+    );
 
     const changeStatus = useCallback((status: PaymentStatus) => {
         console.log(status);
@@ -108,20 +119,19 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [link, recipient, amount, splToken, reference, label, message, memo]);
 
-    const hasSufficientBalance = useMemo(() =>
-        !IS_CUSTOMER_POS
-        || balance === undefined
-        || (balance.gt(ZERO)
-            && amount !== undefined
-            && balance.gte(amount)),
-        [balance, amount]);
-    const isPaidStatus = useMemo(() =>
-        status === PaymentStatus.Finalized
-        || status === PaymentStatus.Valid
-        || status === PaymentStatus.Invalid
-        || status === PaymentStatus.Confirmed
-        || status === PaymentStatus.Error,
-        [status]);
+    const hasSufficientBalance = useMemo(
+        () =>
+            !IS_CUSTOMER_POS || balance === undefined || (balance.gt(0) && amount !== undefined && balance.gte(amount)),
+        [balance, amount]
+    );
+    const isPaidStatus = useMemo(
+        () =>
+            status === PaymentStatus.Finalized ||
+            status === PaymentStatus.Valid ||
+            status === PaymentStatus.Invalid ||
+            status === PaymentStatus.Error,
+        [status]
+    );
 
     const reset = useCallback(() => {
         changeStatus(PaymentStatus.New);
@@ -131,20 +141,17 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         setReference(undefined);
         setSignature(undefined);
         sendError(undefined);
-        setTimeout(
-            () => navigate(PaymentStatus.New, true),
-            isPaidStatus ? 1500 : 0
-        );
+        setTimeout(() => navigate(PaymentStatus.New, true), isPaidStatus ? 1500 : 0);
     }, [navigate, changeStatus, sendError, isPaidStatus]);
 
     const generate = useCallback(() => {
-        if ((status === PaymentStatus.New || status === PaymentStatus.Error) && !reference) {
-            setReference(Keypair.generate().publicKey);
-            changeStatus(PaymentStatus.Pending);
-            navigate(PaymentStatus.Pending);
-            if (IS_CUSTOMER_POS && isFullscreen()) {
-                exitFullscreen();
-            }
+        if (!((status === PaymentStatus.New || status === PaymentStatus.Error) && !reference)) return;
+
+        setReference(Keypair.generate().publicKey);
+        changeStatus(PaymentStatus.Pending);
+        navigate(PaymentStatus.Pending);
+        if (IS_CUSTOMER_POS && isFullscreen()) {
+            exitFullscreen();
         }
     }, [status, reference, navigate, changeStatus]);
 
@@ -154,13 +161,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             const defaultWallet = DEFAULT_WALLET as WalletName;
             const a = AUTO_CONNECT
                 ? () => {
-                    try {
-                        connect().catch(() =>
-                            setTimeout(() => select(defaultWallet), 100)
-                        );
-                    } catch { }
-                }
-                : () => { };
+                      try {
+                          connect().catch(() => setTimeout(() => select(defaultWallet), 100));
+                      } catch {}
+                  }
+                : () => {};
             if (!wallet) {
                 const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
 
@@ -180,12 +185,15 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         if (!publicKey) {
             selectWallet();
         } else {
-            disconnect().catch(() => { });
+            disconnect().catch(() => {});
         }
     }, [disconnect, publicKey, selectWallet]);
 
     const updateBalance = useCallback(() => {
-        if (!(connection && publicKey)) { setBalance(undefined); return; }
+        if (!(connection && publicKey)) {
+            setBalance(undefined);
+            return;
+        }
         let changed = false;
 
         const run = async () => {
@@ -201,6 +209,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
                 setBalance(BigNumber(amount / Math.pow(10, decimals)));
             } catch (error: any) {
+                sendError(
+                    error instanceof TokenAccountNotFoundError ? new Object('SenderTokenAccountNotFoundError') : error
+                );
                 setBalance(BigNumber(-1));
             }
         };
@@ -210,13 +221,14 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [connection, publicKey, splToken, decimals]);
+    }, [connection, publicKey, splToken, decimals, sendError]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
         if (!(status === PaymentStatus.New && recipient)) return;
-        selectWallet().then(updateBalance);
-    }, [status, recipient, selectWallet, updateBalance]);
+
+        updateBalance();
+    }, [status, recipient, updateBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
@@ -249,7 +261,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     const transactionHash = await sendTransaction(transaction, connection);
                     changeStatus(PaymentStatus.Sent);
                     console.log(
-                        `Transaction sent: https://solscan.io/tx/${transactionHash}${{ IS_DEV } ? '?cluster=devnet' : ''
+                        `Transaction sent: https://solscan.io/tx/${transactionHash}${
+                            { IS_DEV } ? '?cluster=devnet' : ''
                         }`
                     );
                 }
