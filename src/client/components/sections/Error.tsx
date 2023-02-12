@@ -19,6 +19,7 @@ export const Error: FC = () => {
                 case 'TokenAccountNotFoundError':
                     return e[0];
                 case 'CreateTransferError':
+                case 'ValidateTransferError':
                     return e[1];
                 case 'SenderTokenAccountNotFoundError':
                     return 'sender not found';
