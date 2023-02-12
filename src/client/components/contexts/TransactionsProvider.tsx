@@ -12,6 +12,7 @@ import BigNumber from 'bignumber.js';
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
+import { PaymentStatus } from '../../hooks/usePayment';
 import { Transaction, TransactionsContext } from '../../hooks/useTransactions';
 import { Confirmations } from '../../types';
 import { arraysEqual } from '../../utils/arraysEqual';
@@ -68,7 +69,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                 const confirmedSignatureInfos = await connection.getSignaturesForAddress(
                     associatedToken || recipient,
                     { limit: 10 },
-                    'confirmed'
+                    PaymentStatus.Confirmed
                 );
                 if (changed) return;
 
