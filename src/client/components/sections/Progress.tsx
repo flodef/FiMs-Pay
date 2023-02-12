@@ -20,8 +20,7 @@ export const Progress: FC = () => {
             case PaymentStatus.Confirmed:
                 return [4 / 6, 'verifyTransaction'];
             case PaymentStatus.Valid:
-                return [5 / 6, status];
-            // return progress >= 1 ? [1, status] : [progress, undefined];
+                return [5 / 6 + Math.max(progress, 1), status];
             case PaymentStatus.Finalized:
                 return [1, PaymentStatus.Valid];
             case PaymentStatus.Invalid:
@@ -30,13 +29,13 @@ export const Progress: FC = () => {
             default:
                 return [0, undefined];
         }
-    }, [status]);
+    }, [status, progress]);
 
     const interpolated = useMemo(() => interpolate(['#8752f3', '#5497d5', '#43b4ca', '#28e0b9', '#19fb9b']), []);
     const styles = useMemo(
         () =>
             buildStyles({
-                pathTransitionDuration: value === 1 ? 3 : 1.5,
+                pathTransitionDuration: value !== 0 ? 3 : 1.5,
                 pathColor:
                     status !== PaymentStatus.Invalid && status !== PaymentStatus.Error
                         ? interpolated(value)

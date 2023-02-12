@@ -147,9 +147,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const generate = useCallback(() => {
         if (!((status === PaymentStatus.New || status === PaymentStatus.Error) && !reference)) return;
 
-        setReference(Keypair.generate().publicKey);
-        changeStatus(PaymentStatus.Pending);
         navigate(PaymentStatus.Processing);
+        setReference(Keypair.generate().publicKey);
+        setTimeout(() => changeStatus(PaymentStatus.Pending), 500);
         if (IS_CUSTOMER_POS && isFullscreen()) {
             exitFullscreen();
         }
