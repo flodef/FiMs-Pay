@@ -10,23 +10,24 @@ import { PoweredBy } from '../sections/PoweredBy';
 import { Progress } from '../sections/Progress';
 import { QRCode } from '../sections/QRCode';
 import { TransactionInfo } from '../sections/TransactionInfo';
-import css from './PendingPage.module.css';
+import css from './ProcessingPage.module.css';
 
-const PendingPage: NextPage = () => {
-    const { reset, status } = usePayment();
+const ProcessingPage: NextPage = () => {
+    const { reset, status, isPaidStatus } = usePayment();
 
     const isNewStatus = status === PaymentStatus.New;
+    const isConfirmedStatus = status === PaymentStatus.Confirmed;
 
     return (
         <div className={css.root}>
             <div className={!isNewStatus ? css.header : css.headerHidden}>
                 <BackButton onClick={reset}>
-                    <FormattedMessage id="cancel" />
+                    <FormattedMessage id={isPaidStatus ? 'newPayment' : 'cancel'} />
                 </BackButton>
             </div>
             <div className={css.main}>
                 <TransactionInfo />
-                {!IS_CUSTOMER_POS ? (
+                {!IS_CUSTOMER_POS && !isPaidStatus && !isConfirmedStatus && !isNewStatus ? (
                     <div>
                         <div className={css.code}>
                             <QRCode />
@@ -55,7 +56,7 @@ const PendingPage: NextPage = () => {
     );
 };
 
-export default PendingPage;
+export default ProcessingPage;
 
 export function getServerSideProps() {
     // Required so getInitialProps re-runs on the server-side

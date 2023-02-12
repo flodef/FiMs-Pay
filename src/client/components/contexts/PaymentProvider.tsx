@@ -149,7 +149,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         setReference(Keypair.generate().publicKey);
         changeStatus(PaymentStatus.Pending);
-        navigate(PaymentStatus.Pending);
+        navigate(PaymentStatus.Processing);
         if (IS_CUSTOMER_POS && isFullscreen()) {
             exitFullscreen();
         }
@@ -304,7 +304,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     clearInterval(interval);
                     setSignature(signature.signature);
                     changeStatus(PaymentStatus.Confirmed);
-                    navigate(PaymentStatus.Confirmed, true);
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction signature yet, try again
@@ -348,7 +347,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
 
                 sendError(error);
-                changeStatus(PaymentStatus.Invalid);
             }
         };
         let timeout = setTimeout(run, 0);
