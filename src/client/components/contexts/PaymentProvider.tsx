@@ -210,7 +210,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 setBalance(BigNumber(amount / Math.pow(10, decimals)));
             } catch (error: any) {
                 sendError(
-                    error instanceof TokenAccountNotFoundError ? new Object('SenderTokenAccountNotFoundError') : error
+                    error.name === TokenAccountNotFoundError.name
+                        ? new Object('SenderTokenAccountNotFoundError')
+                        : error
                 );
                 setBalance(BigNumber(-1));
             }
@@ -307,7 +309,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction signature yet, try again
-                if (!(error instanceof FindReferenceError)) {
+                if (error.name !== FindReferenceError.name) {
                     sendError(error);
                 }
             }
@@ -338,7 +340,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction yet, try again
                 if (
-                    error instanceof ValidateTransferError &&
+                    error.name === ValidateTransferError.name &&
                     (error.message === 'not found' || error.message === 'missing meta')
                 ) {
                     console.warn(error);
