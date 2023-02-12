@@ -78,6 +78,8 @@ export async function validateTransfer(
     // Transfer instruction must be the last instruction
     const instruction = instructions.pop();
     if (!instruction) throw new ValidateTransferError('missing transfer instruction');
+    if (instruction.keys[0].pubkey === instruction.keys[1].pubkey)
+        throw new ValidateTransferError('sender is also recipient');
     const [preAmount, postAmount] = splToken
         ? await validateSPLTokenTransfer(instruction, message, meta, recipient, splToken, reference)
         : await validateSystemTransfer(instruction, message, meta, recipient, reference);

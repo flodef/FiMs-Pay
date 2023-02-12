@@ -170,7 +170,15 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
             if (merchantInfoList.current.length > 0) {
                 a(merchantInfoList.current);
             } else {
-                fetch(dataURL).then(convertMerchantData).then(a);
+                fetch(dataURL)
+                    .catch((error) => {
+                        throw new Error(
+                            error +
+                                '\nHave you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?'
+                        );
+                    })
+                    .then(convertMerchantData)
+                    .then(a);
             }
         }
     }, [
