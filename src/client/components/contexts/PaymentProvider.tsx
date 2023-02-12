@@ -168,7 +168,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 : () => {};
             // if (!wallet) {
             //     const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
-            if (!isMobileDevice() || !wallet) {
+            if (!isMobileDevice() && !wallet) {
                 setTimeout(() => {
                     select(defaultWallet);
                     a();
