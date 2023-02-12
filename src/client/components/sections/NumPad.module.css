@@ -1,7 +1,8 @@
-.text {
+.icon {
     text-align: center;
-    margin-top: 18px;
     float: left;
+    width: 64px;
+    height: 64px;
 }
 
 .bold,
