@@ -103,10 +103,11 @@ export const NumPad: FC = () => {
             ) : null}
             {!IS_CUSTOMER_POS || hasBalance ? (
                 <div>
-                    <div className={css.text}>
+                    <div className={css.icon}>
                         <SelectImage
                             id="currency"
                             value={currency}
+                            size={48}
                             onValueChange={setCurrency}
                             options={[currencyName]}
                             getImage={getCurrencyImage}
