@@ -166,11 +166,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                       } catch {}
                   }
                 : () => {};
-            if (!wallet) {
-                const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
-
+            // if (!wallet) {
+            //     const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
+            if (!isMobileDevice() || !wallet) {
                 setTimeout(() => {
-                    select(walletName);
+                    select(defaultWallet);
                     a();
                 }, 100);
             } else {
