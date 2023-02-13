@@ -4,21 +4,13 @@ import css from './BackButton.module.css';
 
 export interface BackButtonProps {
     children: ReactNode;
+    disabled?: boolean;
     onClick: HTMLAttributes<HTMLButtonElement>['onClick'];
 }
 
-export const BackButton: FC<BackButtonProps> = ({ children, onClick }) => {
-    const [disabled, setDisabled] = useState(false);
-    const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-        (event) => {
-            setDisabled(true);
-            if (onClick) onClick(event);
-        },
-        [onClick]
-    );
-
+export const BackButton: FC<BackButtonProps> = ({ children, disabled, onClick }) => {
     return (
-        <button className={css.button} type="button" onClick={handleClick} disabled={disabled}>
+        <button className={css.button} type="button" onClick={onClick} disabled={disabled}>
             <BackIcon />
             {children}
         </button>

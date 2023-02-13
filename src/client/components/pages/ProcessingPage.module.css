@@ -4,13 +4,9 @@
     flex-direction: column;
 }
 
-.header,
-.headerHHidden {
+.header {
     display: flex;
     justify-content: space-between;
-}
-.headerHHidden {
-    visibility: hidden;
 }
 
 @media (min-width: 768px) {
