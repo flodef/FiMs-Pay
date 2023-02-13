@@ -81,6 +81,8 @@
     "recipient not initialized": "Le porte-monnaie de ce commerçant a besoin d'être initialisé !",
     "recipient frozen": "Le porte-monnaie de ce commerçant est gelé, probablement dû à une fraude !",
     "insufficient funds": "Le montant est supérieur à vos fonds !",
+    "Failed to fetch": "Échec de récupération des données",
+    "RPCError": "Le serveur de connexion a renvoyé une erreur",
     "CreateTransferError": "Erreur de transfert !",
     "NetworkBusyError": "Le réseau est momentanément saturé, merci de réessayer !",
     "UnknownError": "Erreur inconnue : {error}"

@@ -81,6 +81,8 @@
     "recipient not initialized": "This merchant's wallet needs to be initialized!",
     "recipient frozen": "This merchant's wallet is frozen, possibly due to fraud!",
     "insufficient funds": "The amount is more than your funds!",
+    "Failed to fetch": "Failed to fetch data",
+    "RPCError": "Connection server returned an error",
     "CreateTransferError": "Transfer error!",
     "NetworkBusyError": "The network is temporarily busy, please try again!",
     "UnknownError": "Unknown error: {error}"

@@ -81,6 +81,8 @@
     "recipient not initialized": "¡La billetera de este comerciante debe inicializarse!",
     "recipient frozen": "¡La billetera de este comerciante está congelada, posiblemente debido a un fraude!",
     "insufficient funds": "¡La cantidad es más que tus fondos!",
+    "Failed to fetch": "Error al obtener datos",
+    "RPCError": "El servidor de conexión devolvió un error",
     "CreateTransferError": "¡Error de transferencia!",
     "NetworkBusyError": "La red está temporalmente ocupada, ¡inténtalo de nuevo!",
     "UnknownError": "Error desconocido: {error}"

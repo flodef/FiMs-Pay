@@ -81,6 +81,8 @@
     "recipient not initialized": "La monujo de ĉi tiu komercisto devas esti pravigita!",
     "recipient frozen": "La monujo de ĉi tiu komercisto estas frostigita, eble pro fraŭdo!",
     "insufficient funds": "La kvanto estas pli ol viaj monrimedoj!",
+    "Failed to fetch": "Malsukcesis alporti datumojn",
+    "RPCError": "Konektoservilo redonis eraron",
     "CreateTransferError": "Transdona eraro!",
     "NetworkBusyError": "La reto estas provizore okupata, bonvolu provi denove!",
     "UnknownError": "Nekonata eraro: {error}"

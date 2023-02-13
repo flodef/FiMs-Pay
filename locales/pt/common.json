@@ -81,6 +81,8 @@
     "recipient not initialized": "A carteira deste vendedor precisa ser inicializada!",
     "recipient frozen": "A carteira deste vendedor está congelada, possivelmente devido a fraude!",
     "insufficient funds": "O valor é maior que seus fundos!",
+    "Failed to fetch": "Falha ao buscar dados",
+    "RPCError": "O servidor de conexão retornou um erro",
     "CreateTransferError": "Erro de transferência!",
     "NetworkBusyError": "A rede está temporariamente ocupada, tente novamente!",
     "UnknownError": "Erro desconhecido: {error}"
