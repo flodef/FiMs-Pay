@@ -1,5 +1,5 @@
 import { useWallet } from '@solana/wallet-adapter-react';
-import React, { FC, MouseEventHandler, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
@@ -19,7 +19,7 @@ export interface GenerateButtonProps {
 }
 
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
-    const { amount, status, hasSufficientBalance, generate, updateBalance, connectWallet } = usePayment();
+    const { amount, status, hasSufficientBalance, balance, generate, updateBalance, connectWallet } = usePayment();
     const { publicKey, connecting } = useWallet();
     const { theme } = useConfig();
 
@@ -30,14 +30,18 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         () =>
             hasSufficientBalance
                 ? publicKey || !(POS_USE_WALLET || IS_CUSTOMER_POS)
-                    ? id
-                    : connecting
-                    ? State.Connecting
+                    ? connecting
+                        ? State.Connecting
+                        : id
                     : State.Connect
-                : needRefresh
-                ? State.Reload
-                : State.Supply,
-        [connecting, hasSufficientBalance, id, needRefresh, publicKey]
+                : needRefresh || balance === undefined
+                ? publicKey
+                    ? State.Reload
+                    : State.Connect
+                : hasSufficientBalance
+                ? State.Supply
+                : null,
+        [connecting, hasSufficientBalance, id, needRefresh, balance, publicKey]
     );
 
     const alert = useMemo(
@@ -82,23 +86,26 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     }, [generate, connectWallet, action, id, updateBalance]);
 
     const button = useMemo(
-        () => (
-            <button
-                className={theme === Theme.Color ? css.rootColor : theme === Theme.BlackWhite ? css.rootBW : css.root}
-                type="button"
-                onClick={!alert ? handleClick : undefined}
-                disabled={
-                    (!IS_CUSTOMER_POS && isInvalidAmount) ||
-                    (IS_CUSTOMER_POS &&
-                        publicKey !== null &&
-                        !connecting &&
-                        hasSufficientBalance &&
-                        (isInvalidAmount || (status !== PaymentStatus.New && status !== PaymentStatus.Error)))
-                }
-            >
-                <FormattedMessage id={action} />
-            </button>
-        ),
+        () =>
+            action ? (
+                <button
+                    className={
+                        theme === Theme.Color ? css.rootColor : theme === Theme.BlackWhite ? css.rootBW : css.root
+                    }
+                    type="button"
+                    onClick={!alert ? handleClick : undefined}
+                    disabled={
+                        (!IS_CUSTOMER_POS && isInvalidAmount) ||
+                        (IS_CUSTOMER_POS &&
+                            publicKey !== null &&
+                            !connecting &&
+                            hasSufficientBalance &&
+                            (isInvalidAmount || status !== PaymentStatus.New))
+                    }
+                >
+                    <FormattedMessage id={action} />
+                </button>
+            ) : null,
         [action, connecting, handleClick, hasSufficientBalance, isInvalidAmount, publicKey, status, theme, alert]
     );
 

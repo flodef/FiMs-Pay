@@ -6,14 +6,14 @@ import { Digits } from '../../types';
 import { CURRENCY_LIST } from '../../utils/constants';
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { isFullscreen, requestFullscreen } from '../../utils/fullscreen';
-import { useIsMobileSize } from '../../utils/mobile';
+import { isMobileDevice, useIsMobileSize } from '../../utils/mobile';
 import { getMultiplierInfo } from '../../utils/multiplier';
 import { BackspaceIcon } from '../images/BackspaceIcon';
 import { Amount } from './Amount';
 import css from './NumPad.module.css';
 import { SelectImage } from './SelectImage';
 import { Error } from './Error';
-import { usePayment } from '../../hooks/usePayment';
+import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 
 interface NumPadInputButton {
     input: Digits | '.';
@@ -24,7 +24,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
     const { theme } = useConfig();
 
     const onClick = useCallback(() => {
-        if (IS_CUSTOMER_POS && !isFullscreen()) {
+        if (IS_CUSTOMER_POS && !isFullscreen() && isMobileDevice()) {
             requestFullscreen();
         }
         onInput(input);
@@ -94,12 +94,12 @@ export const NumPad: FC = () => {
                         ) : balance.eq(0) ? (
                             <FormattedMessage id="emptyBalance" />
                         ) : null
-                    ) : (
+                    ) : status !== PaymentStatus.Error ? (
                         <FormattedMessage id="balanceLoading" />
-                    )}
+                    ) : null}
                 </div>
             ) : null}
-            {!IS_CUSTOMER_POS || hasBalance ? (
+            {!IS_CUSTOMER_POS || (hasBalance && publicKey) ? (
                 <div>
                     <div className={css.icon}>
                         <SelectImage

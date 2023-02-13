@@ -17,7 +17,7 @@ export const Error: FC = () => {
 
     const id = useMemo(() => {
         if (status === PaymentStatus.Error && errorMessage) {
-            const e = errorMessage.split(': ').slice(-2);
+            const e = errorMessage.split(': ');
             switch (e[0]) {
                 case WalletSignTransactionError.name:
                 case WalletSendTransactionError.name:
@@ -27,10 +27,15 @@ export const Error: FC = () => {
                 case ValidateTransferError.name:
                 case PaymentError.name:
                 case TypeError.name:
-                case 'TransactionSimulationFailed': //TODO : transaction waited too long
                     return e[1];
                 case Error.name:
-                    return e[1].trim() === '429' ? 'NetworkBusyError' : 'UnknownError';
+                    return e[1].trim() === '429'
+                        ? 'NetworkBusyError'
+                        : e[2].trim() === TypeError.name
+                        ? e[3]
+                        : e[3].trim() === '401'
+                        ? 'RPCError'
+                        : 'UnknownError';
                 default:
                     return 'UnknownError';
             }

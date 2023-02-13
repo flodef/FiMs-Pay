@@ -10,7 +10,7 @@ import { getAccount, getAssociatedTokenAddress, TokenAccountNotFoundError } from
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { ConfirmedSignatureInfo, Keypair, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
@@ -49,7 +49,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { setVisible } = useWalletModal();
     const { processError } = useError();
 
-    const [connected, setConnected] = useState<boolean | undefined>();
     const [balance, setBalance] = useState<BigNumber>();
     const [amount, setAmount] = useState<BigNumber>();
     const [memo, setMemo] = useState<string>();
@@ -125,8 +124,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     const hasSufficientBalance = useMemo(
         () =>
-            !IS_CUSTOMER_POS || balance === undefined || (balance.gt(0) && amount !== undefined && balance.gte(amount)),
-        [balance, amount]
+            status !== PaymentStatus.Error &&
+            (!IS_CUSTOMER_POS ||
+                balance === undefined ||
+                (balance.gt(0) && amount !== undefined && balance.gte(amount))),
+        [balance, amount, status]
     );
     const isPaidStatus = useMemo(
         () =>
@@ -155,13 +157,13 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         navigate(PaymentStatus.Processing);
         setReference(Keypair.generate().publicKey);
         setTimeout(() => setStatus(PaymentStatus.Pending), 800);
-        if (IS_CUSTOMER_POS && isFullscreen()) {
+        if (IS_CUSTOMER_POS && isFullscreen() && isMobileDevice()) {
             exitFullscreen();
         }
     }, [status, reference, navigate, setStatus]);
 
     const selectWallet = useCallback(async () => {
-        if (connected) return;
+        if (publicKey) return;
         if (DEFAULT_WALLET) {
             const defaultWallet = DEFAULT_WALLET as WalletName;
             const a = AUTO_CONNECT
@@ -183,21 +185,19 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         } else {
             setVisible(true);
         }
-    }, [connect, select, wallet, setVisible, connected]);
+    }, [connect, select, wallet, setVisible, publicKey]);
 
     const connectWallet = useCallback(async () => {
-        if (!connected) {
-            setStatus(PaymentStatus.New);
-            selectWallet().then(() => setConnected(true));
+        setStatus(PaymentStatus.New);
+        if (!publicKey) {
+            selectWallet();
         } else {
-            disconnect()
-                .catch(() => {})
-                .then(() => setConnected(false));
+            disconnect().catch(() => {});
         }
-    }, [disconnect, connected, selectWallet]);
+    }, [disconnect, publicKey, selectWallet]);
 
     const updateBalance = useCallback(async () => {
-        if (!(connection && publicKey && (connected || connected === undefined) && balance === undefined)) return;
+        if (!(connection && publicKey && balance === undefined)) return;
 
         try {
             if (recipient.toString() === publicKey.toString()) {
@@ -205,7 +205,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 throw new PaymentError('sender is also recipient');
             }
 
-            setBalance(BigNumber(0));
+            setStatus(PaymentStatus.New);
+            setBalance(BigNumber(-1));
 
             let amount = 0;
             if (splToken) {
@@ -221,19 +222,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             sendError(
                 compareError(error, new TokenAccountNotFoundError()) ? new PaymentError('sender not found') : error
             );
+            setBalance(undefined);
         }
-    }, [
-        connection,
-        publicKey,
-        connected,
-        splToken,
-        decimals,
-        recipient,
-        balance,
-        sendError,
-        compareError,
-        connectWallet,
-    ]);
+    }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareError, connectWallet]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
