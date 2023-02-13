@@ -25,7 +25,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
 
-class PaymentError extends Error {
+export class PaymentError extends Error {
     name = 'PaymentError';
 }
 
@@ -49,7 +49,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { setVisible } = useWalletModal();
     const { processError } = useError();
 
-    const [connected, setConnected] = useState(false);
+    const [connected, setConnected] = useState<boolean | undefined>();
     const [balance, setBalance] = useState<BigNumber>();
     const [amount, setAmount] = useState<BigNumber>();
     const [memo, setMemo] = useState<string>();
@@ -197,7 +197,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [disconnect, connected, selectWallet]);
 
     const updateBalance = useCallback(async () => {
-        if (!(connection && publicKey && connected && balance === undefined)) return;
+        if (!(connection && publicKey && (connected || connected === undefined) && balance === undefined)) return;
 
         try {
             if (recipient.toString() === publicKey.toString()) {
@@ -237,10 +237,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
-        if (!(status === PaymentStatus.New && publicKey && balance === undefined)) return;
+        if (!(status === PaymentStatus.New)) return;
 
         updateBalance();
-    }, [status, publicKey, balance, updateBalance]);
+    }, [status, updateBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
