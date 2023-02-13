@@ -237,10 +237,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
-        if (!(status === PaymentStatus.New && recipient && balance === undefined)) return;
+        if (!(status === PaymentStatus.New && publicKey && balance === undefined)) return;
 
         updateBalance();
-    }, [status, recipient, balance, updateBalance]);
+    }, [status, publicKey, balance, updateBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
