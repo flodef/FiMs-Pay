@@ -19,7 +19,7 @@ export interface GenerateButtonProps {
 }
 
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
-    const { amount, status, hasSufficientBalance, generate, updateBalance, selectWallet } = usePayment();
+    const { amount, status, hasSufficientBalance, generate, updateBalance, connectWallet } = usePayment();
     const { publicKey, connecting } = useWallet();
     const { theme } = useConfig();
 
@@ -63,7 +63,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 case id:
                     return () => generate();
                 case 'connect':
-                    return () => selectWallet();
+                    return () => connectWallet();
                 case 'reload':
                     return () => {
                         updateBalance();
@@ -79,7 +79,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             }
         };
         a()();
-    }, [generate, selectWallet, action, id, updateBalance]);
+    }, [generate, connectWallet, action, id, updateBalance]);
 
     const button = useMemo(
         () => (

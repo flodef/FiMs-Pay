@@ -93,9 +93,7 @@ export const NumPad: FC = () => {
                             </div>
                         ) : balance.eq(0) ? (
                             <FormattedMessage id="emptyBalance" />
-                        ) : (
-                            <Error />
-                        )
+                        ) : null
                     ) : (
                         <FormattedMessage id="balanceLoading" />
                     )}
@@ -154,6 +152,7 @@ export const NumPad: FC = () => {
                     </div>
                 </div>
             ) : null}
+            <Error />
         </div>
     );
 };

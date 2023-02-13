@@ -25,6 +25,10 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
 
+class PaymentError extends Error {
+    name = 'PaymentError';
+}
+
 export interface PaymentProviderProps {
     children: ReactNode;
 }
@@ -45,6 +49,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { setVisible } = useWalletModal();
     const { processError } = useError();
 
+    const [connected, setConnected] = useState(false);
     const [balance, setBalance] = useState<BigNumber>();
     const [amount, setAmount] = useState<BigNumber>();
     const [memo, setMemo] = useState<string>();
@@ -59,20 +64,15 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         [recipientParam, publicKey]
     );
 
-    const changeStatus = useCallback((status: PaymentStatus) => {
-        console.log(status);
-        setStatus(status);
-    }, []);
-
     const sendError = useCallback(
         (error?: object) => {
             if (error) {
-                changeStatus(PaymentStatus.Error);
+                setStatus(PaymentStatus.Error);
                 setReference(undefined);
             }
             processError(error);
         },
-        [changeStatus, processError]
+        [setStatus, processError]
     );
 
     const url = useMemo(() => {
@@ -134,29 +134,30 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     );
 
     const reset = useCallback(() => {
-        changeStatus(PaymentStatus.New);
+        setStatus(PaymentStatus.New);
         setConfirmations(0);
+        setBalance(undefined);
         setAmount(undefined);
         setMemo(undefined);
         setReference(undefined);
         setSignature(undefined);
         sendError(undefined);
         setTimeout(() => navigate(PaymentStatus.New, true), isPaidStatus ? 1500 : 0);
-    }, [navigate, changeStatus, sendError, isPaidStatus]);
+    }, [navigate, setStatus, sendError, isPaidStatus]);
 
     const generate = useCallback(() => {
         if (!((status === PaymentStatus.New || status === PaymentStatus.Error) && !reference)) return;
 
         navigate(PaymentStatus.Processing);
         setReference(Keypair.generate().publicKey);
-        setTimeout(() => changeStatus(PaymentStatus.Pending), 500);
+        setTimeout(() => setStatus(PaymentStatus.Pending), 800);
         if (IS_CUSTOMER_POS && isFullscreen()) {
             exitFullscreen();
         }
-    }, [status, reference, navigate, changeStatus]);
+    }, [status, reference, navigate, setStatus]);
 
     const selectWallet = useCallback(async () => {
-        if (publicKey) return;
+        if (connected) return;
         if (DEFAULT_WALLET) {
             const defaultWallet = DEFAULT_WALLET as WalletName;
             const a = AUTO_CONNECT
@@ -166,11 +167,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                       } catch {}
                   }
                 : () => {};
-            // if (!wallet) {
-            //     const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
-            if (!isMobileDevice() && !wallet) {
+            if (!wallet) {
+                const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
                 setTimeout(() => {
-                    select(defaultWallet);
+                    select(walletName);
                     a();
                 }, 100);
             } else {
@@ -179,58 +179,49 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         } else {
             setVisible(true);
         }
-    }, [connect, select, wallet, setVisible, publicKey]);
+    }, [connect, select, wallet, setVisible, connected]);
 
     const connectWallet = useCallback(async () => {
-        if (!publicKey) {
-            selectWallet();
+        if (!connected) {
+            setStatus(PaymentStatus.New);
+            selectWallet().then(() => setConnected(true));
         } else {
-            disconnect().catch(() => {});
+            disconnect()
+                .catch(() => {})
+                .then(() => setConnected(false));
         }
-    }, [disconnect, publicKey, selectWallet]);
+    }, [disconnect, connected, selectWallet]);
 
-    const updateBalance = useCallback(() => {
-        if (!(connection && publicKey)) {
-            setBalance(undefined);
-            return;
-        }
-        let changed = false;
+    const updateBalance = useCallback(async () => {
+        if (!(connection && publicKey && connected && balance === undefined)) return;
 
-        const run = async () => {
-            try {
-                let amount = 0;
-                if (splToken) {
-                    const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
-                    const senderAccount = await getAccount(connection, senderATA);
-                    amount = Number(senderAccount.amount);
-                } else {
-                    const senderInfo = await connection.getAccountInfo(publicKey);
-                    amount = senderInfo ? senderInfo.lamports : 0;
-                }
-                setBalance(BigNumber(amount / Math.pow(10, decimals)));
-            } catch (error: any) {
-                sendError(
-                    error.name === TokenAccountNotFoundError.name
-                        ? new Object('SenderTokenAccountNotFoundError')
-                        : error
-                );
-                setBalance(BigNumber(-1));
+        try {
+            if (recipient.toString() === publicKey.toString()) {
+                connectWallet();
+                throw new PaymentError('sender is also recipient');
             }
-        };
-        let timeout = setTimeout(run, 0);
 
-        return () => {
-            changed = true;
-            clearTimeout(timeout);
-        };
-    }, [connection, publicKey, splToken, decimals, sendError]);
+            let amount = 0;
+            if (splToken) {
+                const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
+                const senderAccount = await getAccount(connection, senderATA);
+                amount = Number(senderAccount.amount);
+            } else {
+                const senderInfo = await connection.getAccountInfo(publicKey);
+                amount = senderInfo ? senderInfo.lamports : 0;
+            }
+            setBalance(BigNumber(amount / Math.pow(10, decimals)));
+        } catch (error: any) {
+            sendError(error.name === TokenAccountNotFoundError.name ? new PaymentError('sender not found') : error);
+        }
+    }, [connection, publicKey, connected, splToken, decimals, recipient, balance, sendError, connectWallet]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
-        if (!(status === PaymentStatus.New && recipient)) return;
+        if (!(status === PaymentStatus.New && recipient && balance === undefined)) return;
 
         updateBalance();
-    }, [status, recipient, updateBalance]);
+    }, [status, recipient, balance, updateBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
@@ -259,13 +250,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
 
                 if (!changed) {
-                    changeStatus(PaymentStatus.Creating);
+                    setStatus(PaymentStatus.Creating);
                     const transactionHash = await sendTransaction(transaction, connection);
-                    changeStatus(PaymentStatus.Sent);
+                    setStatus(PaymentStatus.Sent);
                     console.log(
-                        `Transaction sent: https://solscan.io/tx/${transactionHash}${
-                            { IS_DEV } ? '?cluster=devnet' : ''
-                        }`
+                        `Transaction sent: https://solscan.io/tx/${transactionHash}${IS_DEV ? '?cluster=devnet' : ''}`
                     );
                 }
             } catch (error) {
@@ -282,7 +271,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, shouldConnectWallet, publicKey, url, connection, sendTransaction, changeStatus, sendError]);
+    }, [status, shouldConnectWallet, publicKey, url, connection, sendTransaction, setStatus, sendError]);
 
     // When the status is pending, poll for the transaction using the reference key
     useEffect(() => {
@@ -305,7 +294,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 if (!changed) {
                     clearInterval(interval);
                     setSignature(signature.signature);
-                    changeStatus(PaymentStatus.Confirmed);
+                    setStatus(PaymentStatus.Confirmed);
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction signature yet, try again
@@ -319,7 +308,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearInterval(interval);
         };
-    }, [status, reference, signature, connection, navigate, changeStatus, sendError]);
+    }, [status, reference, signature, connection, navigate, setStatus, sendError]);
 
     // When the status is confirmed, validate the transaction against the provided params
     useEffect(() => {
@@ -335,7 +324,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     { maxSupportedTransactionVersion: 0 }
                 );
                 if (!changed) {
-                    changeStatus(PaymentStatus.Valid);
+                    setStatus(PaymentStatus.Valid);
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction yet, try again
@@ -357,7 +346,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, signature, amount, connection, recipient, splToken, reference, changeStatus, sendError]);
+    }, [status, signature, amount, connection, recipient, splToken, reference, setStatus, sendError]);
 
     // When the status is valid, poll for confirmations until the transaction is finalized
     useEffect(() => {
@@ -377,7 +366,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
                     if (confirmations >= requiredConfirmations || status.confirmationStatus === 'finalized') {
                         clearInterval(interval);
-                        changeStatus(PaymentStatus.Finalized);
+                        setStatus(PaymentStatus.Finalized);
                     }
                 }
             } catch (error: any) {
@@ -389,7 +378,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearInterval(interval);
         };
-    }, [status, signature, connection, requiredConfirmations, changeStatus, sendError]);
+    }, [status, signature, connection, requiredConfirmations, setStatus, sendError]);
 
     return (
         <PaymentContext.Provider

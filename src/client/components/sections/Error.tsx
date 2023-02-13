@@ -12,7 +12,7 @@ export const Error: FC = () => {
 
     const id = useMemo(() => {
         if (status === PaymentStatus.Error && errorMessage) {
-            const e = errorMessage.split(': ');
+            const e = errorMessage.split(': ').slice(-2);
             switch (e[0]) {
                 case 'WalletSignTransactionError':
                 case 'WalletSendTransactionError':
@@ -20,9 +20,9 @@ export const Error: FC = () => {
                     return e[0];
                 case 'CreateTransferError':
                 case 'ValidateTransferError':
+                case 'PaymentError':
+                case 'TypeError':
                     return e[1];
-                case 'SenderTokenAccountNotFoundError':
-                    return 'sender not found';
                 case 'Error':
                     return e[1].trim() === '429' ? 'NetworkBusyError' : 'UnknownError';
                 default:
@@ -33,9 +33,9 @@ export const Error: FC = () => {
         }
     }, [errorMessage, status]);
 
-    return (
+    return id ? (
         <div className={css.error}>
-            {id ? <FormattedMessage id={id} values={{ error: errorMessage, currency: currencyName }} /> : null}
+            <FormattedMessage id={id} values={{ error: errorMessage, currency: currencyName }} />
         </div>
-    );
+    ) : null;
 };
