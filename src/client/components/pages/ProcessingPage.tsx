@@ -20,9 +20,9 @@ const ProcessingPage: NextPage = () => {
 
     return (
         <div className={css.root}>
-            <div className={!isNewStatus ? css.header : css.headerHidden}>
+            <div className={isPaidStatus ? css.header : css.headerHidden}>
                 <BackButton onClick={reset}>
-                    <FormattedMessage id={isPaidStatus ? 'newPayment' : 'cancel'} />
+                    <FormattedMessage id="newPayment" />
                 </BackButton>
             </div>
             <div className={css.main}>
