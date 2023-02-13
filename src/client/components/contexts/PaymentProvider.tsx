@@ -65,7 +65,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     );
 
     const sendError = useCallback(
-        (error?: object) => {
+        (error?: Error) => {
             if (error) {
                 setStatus(PaymentStatus.Error);
                 setReference(undefined);
@@ -74,6 +74,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         },
         [setStatus, processError]
     );
+
+    const compareError = useCallback((error: Error, type: Error) => {
+        return error.name === type.name || error.name === type.toString();
+    }, []);
 
     const url = useMemo(() => {
         if (link) {
@@ -201,6 +205,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 throw new PaymentError('sender is also recipient');
             }
 
+            setBalance(BigNumber(0));
+
             let amount = 0;
             if (splToken) {
                 const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
@@ -212,9 +218,22 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             }
             setBalance(BigNumber(amount / Math.pow(10, decimals)));
         } catch (error: any) {
-            sendError(error.name === TokenAccountNotFoundError.name ? new PaymentError('sender not found') : error);
+            sendError(
+                compareError(error, new TokenAccountNotFoundError()) ? new PaymentError('sender not found') : error
+            );
         }
-    }, [connection, publicKey, connected, splToken, decimals, recipient, balance, sendError, connectWallet]);
+    }, [
+        connection,
+        publicKey,
+        connected,
+        splToken,
+        decimals,
+        recipient,
+        balance,
+        sendError,
+        compareError,
+        connectWallet,
+    ]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
@@ -257,9 +276,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                         `Transaction sent: https://solscan.io/tx/${transactionHash}${IS_DEV ? '?cluster=devnet' : ''}`
                     );
                 }
-            } catch (error) {
+            } catch (error: any) {
                 // If the transaction is declined or fails, try again
-                sendError(error as object);
+                sendError(error);
                 if (!IS_CUSTOMER_POS) {
                     timeout = setTimeout(run, 5000);
                 }
@@ -298,7 +317,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction signature yet, try again
-                if (error.name !== FindReferenceError.name) {
+                if (!compareError(error, new FindReferenceError())) {
                     sendError(error);
                 }
             }
@@ -308,7 +327,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearInterval(interval);
         };
-    }, [status, reference, signature, connection, navigate, setStatus, sendError]);
+    }, [status, reference, signature, connection, navigate, setStatus, sendError, compareError]);
 
     // When the status is confirmed, validate the transaction against the provided params
     useEffect(() => {
@@ -329,7 +348,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction yet, try again
                 if (
-                    error.name === ValidateTransferError.name &&
+                    compareError(error, new ValidateTransferError()) &&
                     (error.message === 'not found' || error.message === 'missing meta')
                 ) {
                     console.warn(error);
@@ -346,7 +365,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, signature, amount, connection, recipient, splToken, reference, setStatus, sendError]);
+    }, [status, signature, amount, connection, recipient, splToken, reference, setStatus, sendError, compareError]);
 
     // When the status is valid, poll for confirmations until the transaction is finalized
     useEffect(() => {
