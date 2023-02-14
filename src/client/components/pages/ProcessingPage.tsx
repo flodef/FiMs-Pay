@@ -1,11 +1,11 @@
 import { NextPage } from 'next';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { BackButton } from '../buttons/BackButton';
 import { GenerateButton } from '../buttons/GenerateButton';
-import { Error } from '../sections/Error';
+import { ErrorMessage } from '../sections/ErrorMessage';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Progress } from '../sections/Progress';
 import { QRCode } from '../sections/QRCode';
@@ -44,7 +44,7 @@ const ProcessingPage: NextPage = () => {
                         <Progress />
                         {status === PaymentStatus.Error ? (
                             <div>
-                                <Error />
+                                <ErrorMessage />
                                 <GenerateButton id="retry" />
                             </div>
                         ) : null}

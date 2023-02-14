@@ -12,7 +12,7 @@ import { BackspaceIcon } from '../images/BackspaceIcon';
 import { Amount } from './Amount';
 import css from './NumPad.module.css';
 import { SelectImage } from './SelectImage';
-import { Error } from './Error';
+import { ErrorMessage } from './ErrorMessage';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 
 interface NumPadInputButton {
@@ -152,7 +152,7 @@ export const NumPad: FC = () => {
                     </div>
                 </div>
             ) : null}
-            <Error />
+            <ErrorMessage />
         </div>
     );
 };

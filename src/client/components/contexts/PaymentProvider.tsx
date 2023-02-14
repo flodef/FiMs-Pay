@@ -75,7 +75,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     );
 
     const compareError = useCallback((error: Error, type: Error) => {
-        return error.name === type.name || error.name === type.toString();
+        return error.name === type.name;
     }, []);
 
     const url = useMemo(() => {

@@ -8,9 +8,9 @@ import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { PaymentError } from '../contexts/PaymentProvider';
-import css from './Error.module.css';
+import css from './ErrorMessage.module.css';
 
-export const Error: FC = () => {
+export const ErrorMessage: FC = () => {
     const { status } = usePayment();
     const { errorMessage } = useError();
     const { currencyName } = useConfig();
@@ -18,17 +18,18 @@ export const Error: FC = () => {
     const id = useMemo(() => {
         if (status === PaymentStatus.Error && errorMessage) {
             const e = errorMessage.split(': ');
+            console.log(WalletSignTransactionError);
             switch (e[0]) {
-                case WalletSignTransactionError.name:
-                case WalletSendTransactionError.name:
-                case TokenAccountNotFoundError.name:
+                case new WalletSignTransactionError().name:
+                case new WalletSendTransactionError().name:
+                case new TokenAccountNotFoundError().name:
                     return e[0];
-                case CreateTransferError.name:
-                case ValidateTransferError.name:
-                case PaymentError.name:
-                case TypeError.name:
+                case new CreateTransferError().name:
+                case new ValidateTransferError().name:
+                case new PaymentError().name:
+                case new TypeError().name:
                     return e[1];
-                case Error.name:
+                case new Error().name:
                     return e[1].trim() === '429'
                         ? 'NetworkBusyError'
                         : e[2].trim() === TypeError.name

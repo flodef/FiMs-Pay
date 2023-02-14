@@ -40,8 +40,10 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     : State.Connect
                 : hasSufficientBalance
                 ? State.Supply
+                : status === PaymentStatus.Error
+                ? id
                 : null,
-        [connecting, hasSufficientBalance, id, needRefresh, balance, publicKey]
+        [connecting, hasSufficientBalance, id, needRefresh, balance, publicKey, status]
     );
 
     const alert = useMemo(
