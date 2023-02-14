@@ -6,13 +6,13 @@ export interface ErrorProviderProps {
 }
 
 export const ErrorProvider: FC<ErrorProviderProps> = ({ children }) => {
-    const [errorMessage, setErrorMessage] = useState<string>();
-    const processError = useCallback((error?: object) => {
+    const [error, setError] = useState<Error>();
+    const processError = useCallback((error?: Error) => {
         if (error) {
             console.error(error);
         }
-        setErrorMessage(error ? error.toString() : undefined);
+        setError(error);
     }, []);
 
-    return <ErrorContext.Provider value={{ errorMessage, processError }}>{children}</ErrorContext.Provider>;
+    return <ErrorContext.Provider value={{ error, processError }}>{children}</ErrorContext.Provider>;
 };

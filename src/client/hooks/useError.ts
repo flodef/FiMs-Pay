@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 
 export interface ErrorContextState {
-    errorMessage?: string;
+    error: Error | undefined;
     processError(error?: object): void;
 }
 
