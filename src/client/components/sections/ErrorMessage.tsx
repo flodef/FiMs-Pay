@@ -18,7 +18,6 @@ export const ErrorMessage: FC = () => {
     const unknownError = 'UnknownError';
     const id = useMemo(() => {
         if (status === PaymentStatus.Error && error) {
-            console.log(WalletSignTransactionError);
             switch (error.name) {
                 case new WalletSignTransactionError().name:
                 case new WalletSendTransactionError().name:
