@@ -1,4 +1,0 @@
-https://pay.fims.fi/new
-https://pay.fims.fi/processing
-https://pay.fims.fi/transactions
-
