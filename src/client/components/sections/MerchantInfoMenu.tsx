@@ -7,11 +7,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { CURRENCY_LIST } from '../../utils/constants';
 import { IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { merchantImageSrc, MerchantInfo } from './Merchant';
-import { createURLWithParams } from '../../utils/createURLWithQuery';
-import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { SelectImage } from './SelectImage';
 import Image from 'next/image';
-import { PaymentStatus } from '../../hooks/usePayment';
+import { useNavigateToMerchant } from '../../utils/merchant';
 
 export interface MerchantInfoMenuProps {
     merchantInfoList: MerchantInfo[];
@@ -23,10 +21,6 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
     const myShopName = useTranslate('myShopName');
     const maximumReceivableValue = useTranslate('maximumReceivableValue');
 
-    const labelRef = React.createRef<HTMLInputElement>();
-    const recipientRef = React.createRef<HTMLInputElement>();
-    const maxValueRef = React.createRef<HTMLInputElement>();
-
     const [index, setIndex] = useState(merchantInfoList.length > 0 ? merchantInfoList[0].index.toString() : '');
     const [currency, setCurrency] = useState(
         Object.keys(CURRENCY_LIST).length > 0 ? Object.keys(CURRENCY_LIST)[0] : ''
@@ -35,47 +29,28 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
     const [recipient, setRecipient] = useState('');
     const [maxValue, setMaxValue] = useState('');
 
-    const navigate = useNavigateWithQuery();
+    const navigate = useNavigateToMerchant();
     const handleClick = useCallback(
         (event: MouseEvent) => {
-            const urlParams = new URLSearchParams();
-            const a = (ref: React.RefObject<HTMLInputElement>) => {
-                const element = ref.current;
-                if (element) {
-                    const pattern = element.pattern;
-                    const value = element.value;
-                    const isValid = pattern ? new RegExp(pattern).test(value) : true;
-                    if (isValid) {
-                        if (value) {
-                            b(element.id, value);
-                        }
-                    } else {
-                        element.focus();
-                    }
-                    return isValid;
-                } else {
-                    return true;
-                }
-            };
-            const b = (id: string, value: string) => {
-                urlParams.append(id, value);
-                return true;
-            };
-
-            const go =
+            const merchant =
                 event.currentTarget.id === 'selectMerchant'
-                    ? b('id', index)
+                    ? merchantInfoList.find((x) => x.index === Number(index))
                     : event.currentTarget.id === 'unregisteredMerchant'
-                    ? a(labelRef) && a(recipientRef) && a(maxValueRef) && b('currency', currency)
+                    ? ({
+                          index: 0,
+                          address: recipient,
+                          company: label,
+                          currency,
+                          maxValue: Number(maxValue),
+                      } as MerchantInfo)
                     : undefined;
-            if (go) {
-                const url = createURLWithParams(PaymentStatus.New, urlParams);
-                navigate(url.toString());
-            } else if (go === undefined) {
+            if (merchant) {
+                navigate(merchant);
+            } else if (merchant === undefined) {
                 throw new Error('Unhandled button click');
             }
         },
-        [labelRef, maxValueRef, recipientRef, index, currency, navigate]
+        [label, maxValue, recipient, index, currency, navigate, merchantInfoList]
     );
 
     const onInput = useCallback<React.FormEventHandler<HTMLInputElement>>((event) => {
@@ -163,7 +138,6 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                     id="label"
                                     value={label}
                                     onInput={onInput}
-                                    ref={labelRef}
                                     placeholder={myShopName}
                                     pattern=".{0,50}"
                                 />
@@ -178,7 +152,6 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                         id="recipient"
                                         value={recipient}
                                         onInput={onInput}
-                                        ref={recipientRef}
                                         placeholder={myShopWalletAddress}
                                         pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$"
                                     />
@@ -205,7 +178,6 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                     id="maxValue"
                                     value={maxValue}
                                     onInput={onInput}
-                                    ref={maxValueRef}
                                     placeholder={maximumReceivableValue}
                                     pattern="^$|^[1-9]\d{0,4}(\.\d{1,2})?\s*$"
                                 />

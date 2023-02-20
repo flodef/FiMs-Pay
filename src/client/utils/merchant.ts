@@ -1,4 +1,9 @@
+import { useRouter } from 'next/router';
+import { useCallback } from 'react';
 import { MerchantInfo } from '../components/sections/Merchant';
+import { useNavigateWithQuery } from '../hooks/useNavigateWithQuery';
+import { PaymentStatus } from '../hooks/usePayment';
+import { createURLWithParams } from './createURLWithQuery';
 
 export async function convertMerchantData(response: Response) {
     return response.json().then((data: { values: (string | number)[][]; error: { message: string } }) => {
@@ -23,4 +28,23 @@ export async function convertMerchantData(response: Response) {
                 return merchantInfo;
             });
     });
+}
+
+export function useNavigateToMerchant() {
+    const router = useRouter();
+
+    return useCallback(
+        (merchant: MerchantInfo) => {
+            const { index: id, address: recipient, company: label, currency, maxValue } = merchant;
+            const urlParams = new URLSearchParams();
+            urlParams.append('id', id.toString());
+            urlParams.append('label', label.toString());
+            urlParams.append('recipient', recipient.toString());
+            urlParams.append('currency', currency.toString());
+            urlParams.append('maxValue', maxValue.toString());
+            const url = createURLWithParams(PaymentStatus.New, urlParams);
+            router.push(url);
+        },
+        [router]
+    );
 }

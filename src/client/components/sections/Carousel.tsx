@@ -6,6 +6,7 @@ import css from './Carousel.module.css';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { createURLWithParams } from '../../utils/createURLWithQuery';
 import { PaymentStatus } from '../../hooks/usePayment';
+import { useNavigateToMerchant } from '../../utils/merchant';
 
 export interface MerchantsProps {
     merchants: MerchantInfo[];
@@ -14,21 +15,7 @@ export interface MerchantsProps {
 }
 
 export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => {
-    const navigate = useNavigateWithQuery();
-    const onClickItem = useCallback(
-        (index: number) => {
-            const { index: id, address: recipient, company: label, currency, maxValue } = merchants[index];
-            const urlParams = new URLSearchParams();
-            urlParams.append('id', id.toString());
-            urlParams.append('label', label.toString());
-            urlParams.append('recipient', recipient.toString());
-            urlParams.append('currency', currency.toString());
-            urlParams.append('maxValue', maxValue.toString());
-            const url = createURLWithParams(PaymentStatus.New, urlParams);
-            navigate(url.toString());
-        },
-        [merchants, navigate]
-    );
+    const navigate = useNavigateToMerchant();
     const selectedItem = id && merchants.length > 0 ? parseInt(id.toString()) - merchants[0].index : 0;
 
     return (
@@ -37,7 +24,7 @@ export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => 
             infiniteLoop={true}
             showThumbs={false}
             statusFormatter={(c, t) => c + ' / ' + t}
-            onClickItem={onClickItem}
+            onClickItem={(index) => navigate(merchants[index])}
             selectedItem={selectedItem}
         >
             {merchants.map((merchant) => (
