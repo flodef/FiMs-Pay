@@ -1,0 +1,134 @@
+.root {
+    min-height: 50vh;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.top {
+    text-align: center;
+    font-size: 24px;
+    padding: 24px;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+:global(html.light) .top {
+    background: var(--theme-light-background);
+}
+
+:global(html.dark) .top {
+    background: var(--theme-dark-background);
+}
+
+.bottom {
+    text-align: center;
+    padding: 24px;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+:global(html.light) .bottom {
+    background: var(--theme-light-background);
+}
+
+:global(html.dark) .bottom {
+    background: var(--theme-dark-background);
+}
+
+.location {
+    text-align: center;
+    font-size: 20px;
+    margin: 24px;
+}
+
+:global(html.light) .link {
+    color: var(--theme-light-color);
+}
+
+:global(html.dark) .link {
+    color: var(--theme-dark-color);
+}
+
+.logo,
+.logo::after {
+    animation-delay: var(--animation-delay, 0s);
+    animation-iteration-count: var(--iterations, 1);
+    animation-duration: var(--duration, 1500ms);
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.logo {
+    --animation-delay: var(--delay, 0);
+    --animation-duration: var(--duration, 0ms);
+    --animation-iterations: var(--iterations, 1);
+    position: relative;
+    font-size: 80px;
+    animation-name: clipText;
+    white-space: nowrap;
+    cursor: default;
+    line-height: initial;
+
+    &::after {
+        content: '';
+        position: absolute;
+        z-index: 999;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        pointer-events: none;
+        animation-name: textRevealer;
+    }
+}
+:global(html.light) .logo {
+    color: var(--theme-light-color);
+    &::after {
+        background: var(--theme-light-background);
+    }
+}
+:global(html.dark) .logo {
+    color: var(--theme-dark-color);
+    &::after {
+        background: var(--theme-dark-background);
+    }
+}
+
+@keyframes clipText {
+    from {
+        clip-path: inset(0 100% 0 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes textRevealer {
+    0%,
+    50% {
+        transform-origin: 0 50%;
+    }
+
+    60%,
+    100% {
+        transform-origin: 100% 50%;
+    }
+
+    60% {
+        transform: scaleX(1);
+    }
+
+    100% {
+        transform: scaleX(0);
+    }
+}

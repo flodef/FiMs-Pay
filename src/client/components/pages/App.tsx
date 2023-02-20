@@ -6,14 +6,13 @@ import { PublicKey } from '@solana/web3.js';
 import { AppContext, AppProps as NextAppProps, default as NextApp } from 'next/app';
 import { AppInitialProps } from 'next/dist/shared/lib/utils';
 import React, { useState, useEffect, FC, useCallback, useMemo, useRef } from 'react';
-import { CURRENCY_LIST, DEVNET_ENDPOINT, MAINNET_ENDPOINT, SOLANA_PAY } from '../../utils/constants';
+import { CURRENCY_LIST, DEVNET_ENDPOINT, MAINNET_ENDPOINT } from '../../utils/constants';
 import { ConfigProvider } from '../contexts/ConfigProvider';
 import { FullscreenProvider } from '../contexts/FullscreenProvider';
 import { PaymentProvider } from '../contexts/PaymentProvider';
 import { ThemeProvider } from '../contexts/ThemeProvider';
 import { TransactionsProvider } from '../contexts/TransactionsProvider';
 import {
-    ABOUT,
     APP_TITLE,
     CURRENCY,
     IS_DEV,
@@ -22,28 +21,24 @@ import {
     USE_LINK,
     USE_WEB_WALLET,
     DEFAULT_LANGUAGE,
-    SHOW_MERCHANT_LIST,
     MAX_VALUE,
-    GOOGLE_SPREADSHEET_ID,
-    GOOGLE_API_KEY,
     IS_CUSTOMER_POS,
     POS_USE_WALLET,
+    GOOGLE_SPREADSHEET_ID,
+    GOOGLE_API_KEY,
 } from '../../utils/env';
 import css from './App.module.css';
 import { ErrorProvider } from '../contexts/ErrorProvider';
-import { MerchantInfo } from '../sections/Merchant';
-import { MerchantCarousel } from '../sections/Carousel';
 import { useRouter } from 'next/router';
-import { IntlProvider, FormattedMessage } from 'react-intl';
+import { IntlProvider } from 'react-intl';
 import { Digits } from '../../types';
 import { isMobileDevice } from '../../utils/mobile';
-import { convertMerchantData } from '../../utils/convertData';
-import { MerchantInfoMenu } from '../sections/MerchantInfoMenu';
 import { Header } from '../sections/Header';
-import { TextAnimation } from '../sections/TextAnimation';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { Inter } from '@next/font/google';
-import { SolanaPayLogo } from '../images/SolanaPayLogo';
+import MerchantsPage from './MerchantsPage';
+import { MerchantInfo } from '../sections/Merchant';
+import { convertMerchantData } from '../../utils/merchant';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -97,19 +92,16 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const [location, setLocation] = useState('');
     const [id, setId] = useState(0);
 
-    const setInfo = useCallback(
-        (recipient: string, label: string, currency: string, maxValue: number, location: string) => {
-            setRecipient(new PublicKey(recipient ?? 0));
-            setLabel(label ?? APP_TITLE);
-            setCurrency(currency ?? CURRENCY);
-            setMaxValue(maxValue ?? MAX_VALUE);
-            setLocation(location);
-        },
-        []
-    );
+    const setInfo = useCallback((merchant: MerchantInfo) => {
+        setRecipient(new PublicKey(merchant.address ?? 0));
+        setLabel(merchant.company ?? APP_TITLE);
+        setCurrency(merchant.currency ?? CURRENCY);
+        setMaxValue(merchant.maxValue ?? MAX_VALUE);
+        setLocation(merchant.location);
+    }, []);
 
     const navigate = useNavigateWithQuery();
-    const merchantInfoList = useRef<MerchantInfo[]>([]);
+    const merchantInfoList = useRef<MerchantInfo[]>();
     const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[] }>();
     const {
         id: idParam,
@@ -121,17 +113,14 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         location: locationParam,
     } = query;
     useEffect(() => {
-        if (
-            (recipientParam || !(IS_CUSTOMER_POS || !POS_USE_WALLET)) &&
-            (labelParam || currencyParam || maxValueParam)
-        ) {
-            setInfo(
-                recipientParam as string,
-                labelParam as string,
-                currencyParam as string,
-                maxValueParam as number,
-                locationParam as string
-            );
+        if (recipientParam || !(IS_CUSTOMER_POS || !POS_USE_WALLET)) {
+            setInfo({
+                address: recipientParam,
+                company: labelParam,
+                currency: currencyParam,
+                maxValue: maxValueParam,
+                location: locationParam,
+            } as MerchantInfo);
         } else {
             const dataURL =
                 GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY
@@ -146,30 +135,15 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                 if (idParam) {
                     const merchant = data.find((merchant) => merchant.index === Number(idParam));
                     if (merchant) {
-                        const { address: recipient, company: label, currency, maxValue, location } = merchant;
-                        setInfo(recipient, label, currency, maxValue, location);
-                    } else {
-                        navigate(); // Go to home page
+                        setInfo(merchant);
                     }
-                } else if (data && data.length > 0) {
-                    const result = data.reduce<{ [key: string]: MerchantInfo[] }>((resultArray, item) => {
-                        const location = item.location;
-                        if (!resultArray[location]) {
-                            resultArray[location] = [];
-                        }
-                        resultArray[location].push(item);
-
-                        return resultArray;
-                    }, {});
-                    setMerchants(result);
-                } else {
-                    setMerchants({});
                 }
             };
 
-            if (merchantInfoList.current.length > 0) {
+            if (merchantInfoList.current && merchantInfoList.current.length > 0) {
                 a(merchantInfoList.current);
-            } else {
+            } else if (!merchantInfoList.current) {
+                merchantInfoList.current = [];
                 fetch(dataURL)
                     .catch((error) => {
                         throw new Error(
@@ -194,17 +168,14 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         navigate,
     ]);
 
-    const router = useRouter();
     const reset = useCallback(() => {
-        router.replace(baseURL + '/new').then(() => {
-            setId(idParam || 0);
-            setRecipient(new PublicKey(0));
-            setLabel('');
-            setCurrency(CURRENCY);
-            setMaxValue(MAX_VALUE);
-            setLocation('');
-        });
-    }, [baseURL, router, idParam]);
+        setId(idParam || 0);
+        setRecipient(new PublicKey(0));
+        setLabel('');
+        setCurrency(CURRENCY);
+        setMaxValue(MAX_VALUE);
+        setLocation('');
+    }, [idParam]);
 
     const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
     const [messages, setMessages] = useState<Record<string, string>>({});
@@ -311,39 +282,9 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                 </ConnectionProvider>
                             </FullscreenProvider>
                         </ErrorProvider>
-                    ) : SHOW_MERCHANT_LIST && merchants && Object.keys(merchants).length > 0 ? (
-                        <div className={css.root}>
-                            <Header />
-                            <div className={css.top}>
-                                <FormattedMessage id="merchants" />
-                            </div>
-                            <div>
-                                {Object.entries(merchants).map(([location, merchant]) => (
-                                    <div key={location}>
-                                        <div className={css.location}>{location}</div>
-                                        <MerchantCarousel merchants={merchant} id={id} alt={messages.merchantLogo} />
-                                    </div>
-                                ))}
-                            </div>
-                            <div className={css.bottom}>
-                                <a className={css.link} href={ABOUT} target="_blank" rel="noreferrer">
-                                    <FormattedMessage id="about" />
-                                </a>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className={css.root}>
-                            <Header />
-                            <div className={css.logo}>
-                                {APP_TITLE === SOLANA_PAY ? (
-                                    <SolanaPayLogo width={240} height={88} />
-                                ) : (
-                                    <TextAnimation>{APP_TITLE}</TextAnimation>
-                                )}
-                            </div>
-                            <MerchantInfoMenu merchantInfoList={merchantInfoList.current} />
-                        </div>
-                    )}
+                    ) : merchantInfoList.current ? (
+                        <MerchantsPage id={id} merchantInfoList={merchantInfoList.current} />
+                    ) : null}
                 </ThemeProvider>
             </IntlProvider>
         </main>
