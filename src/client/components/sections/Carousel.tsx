@@ -1,11 +1,8 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC } from 'react';
 import 'react-responsive-carousel/lib/styles/carousel.min.css'; // requires a loader
 import { Carousel } from 'react-responsive-carousel';
 import { Merchant, MerchantInfo } from './Merchant';
 import css from './Carousel.module.css';
-import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
-import { createURLWithParams } from '../../utils/createURLWithQuery';
-import { PaymentStatus } from '../../hooks/usePayment';
 import { useNavigateToMerchant } from '../../utils/merchant';
 
 export interface MerchantsProps {
