@@ -24,8 +24,6 @@ import {
     MAX_VALUE,
     IS_CUSTOMER_POS,
     POS_USE_WALLET,
-    GOOGLE_SPREADSHEET_ID,
-    GOOGLE_API_KEY,
 } from '../../utils/env';
 import css from './App.module.css';
 import { ErrorProvider } from '../contexts/ErrorProvider';
@@ -36,9 +34,9 @@ import { isMobileDevice } from '../../utils/mobile';
 import { Header } from '../sections/Header';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { Inter } from '@next/font/google';
-import MerchantsPage from './MerchantsPage';
 import { MerchantInfo } from '../sections/Merchant';
-import { convertMerchantData } from '../../utils/merchant';
+import { LoadMerchantData } from '../../utils/merchant';
+import { createURLWithParams } from '../../utils/createURLWithQuery';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -86,7 +84,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const link = useMemo(() => (USE_LINK ? new URL(`${baseURL}/api/`) : undefined), [baseURL]);
 
     const [label, setLabel] = useState('');
-    const [recipient, setRecipient] = useState<PublicKey>();
+    const [recipient, setRecipient] = useState(new PublicKey(0));
     const [currency, setCurrency] = useState('');
     const [maxValue, setMaxValue] = useState(0);
     const [location, setLocation] = useState('');
@@ -122,14 +120,6 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                 location: locationParam,
             } as MerchantInfo);
         } else {
-            const dataURL =
-                GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY
-                    ? 'https://sheets.googleapis.com/v4/spreadsheets/' +
-                      GOOGLE_SPREADSHEET_ID +
-                      '/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=' +
-                      GOOGLE_API_KEY
-                    : `${baseURL}/api/fetchMerchants`;
-
             const a = (data: MerchantInfo[]) => {
                 merchantInfoList.current = data;
                 if (idParam) {
@@ -144,19 +134,13 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                 a(merchantInfoList.current);
             } else if (!merchantInfoList.current) {
                 merchantInfoList.current = [];
-                fetch(dataURL)
-                    .catch((error) => {
-                        throw new Error(
-                            error +
-                                '\nHave you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?'
-                        );
-                    })
-                    .then(convertMerchantData)
-                    .then(a);
+
+                LoadMerchantData().then(a);
             }
         }
     }, [
         baseURL,
+        id,
         idParam,
         query,
         labelParam,
@@ -168,14 +152,15 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         navigate,
     ]);
 
+    const router = useRouter();
     const reset = useCallback(() => {
-        setId(idParam || 0);
-        setRecipient(new PublicKey(0));
-        setLabel('');
-        setCurrency(CURRENCY);
-        setMaxValue(MAX_VALUE);
-        setLocation('');
-    }, [idParam]);
+        const urlParams = new URLSearchParams();
+        if (idParam) {
+            urlParams.append('id', idParam.toString());
+        }
+        const url = createURLWithParams('merchants', urlParams);
+        router.push(url);
+    }, [router, idParam]);
 
     const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
     const [messages, setMessages] = useState<Record<string, string>>({});
@@ -246,45 +231,41 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         <main className={className}>
             <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
                 <ThemeProvider>
-                    {label && recipient && currencyName && maxValue ? (
-                        <ErrorProvider>
-                            <FullscreenProvider>
-                                <ConnectionProvider endpoint={endpoint}>
-                                    <WalletProvider wallets={wallets} autoConnect={shouldConnectWallet}>
-                                        <WalletModalProvider>
-                                            <ConfigProvider
-                                                link={link}
-                                                recipient={recipient}
-                                                label={label}
-                                                message={message}
-                                                splToken={splToken}
-                                                symbol={symbol}
-                                                icon={React.createElement(icon)}
-                                                decimals={decimals}
-                                                minDecimals={minDecimals}
-                                                maxDecimals={maxDecimals}
-                                                maxValue={maxValue}
-                                                multiplier={multiplier}
-                                                currencyName={currencyName}
-                                                id={id}
-                                                shouldConnectWallet={shouldConnectWallet}
-                                                reset={reset}
-                                            >
-                                                <TransactionsProvider>
-                                                    <PaymentProvider>
-                                                        <Header label={label} />
-                                                        <Component {...pageProps} />
-                                                    </PaymentProvider>
-                                                </TransactionsProvider>
-                                            </ConfigProvider>
-                                        </WalletModalProvider>
-                                    </WalletProvider>
-                                </ConnectionProvider>
-                            </FullscreenProvider>
-                        </ErrorProvider>
-                    ) : merchantInfoList.current ? (
-                        <MerchantsPage id={id} merchantInfoList={merchantInfoList.current} />
-                    ) : null}
+                    <ErrorProvider>
+                        <FullscreenProvider>
+                            <ConnectionProvider endpoint={endpoint}>
+                                <WalletProvider wallets={wallets} autoConnect={shouldConnectWallet}>
+                                    <WalletModalProvider>
+                                        <ConfigProvider
+                                            link={link}
+                                            recipient={recipient}
+                                            label={label}
+                                            message={message}
+                                            splToken={splToken}
+                                            symbol={symbol}
+                                            icon={React.createElement(icon)}
+                                            decimals={decimals}
+                                            minDecimals={minDecimals}
+                                            maxDecimals={maxDecimals}
+                                            maxValue={maxValue}
+                                            multiplier={multiplier}
+                                            currencyName={currencyName}
+                                            id={id}
+                                            shouldConnectWallet={shouldConnectWallet}
+                                            reset={reset}
+                                        >
+                                            <TransactionsProvider>
+                                                <PaymentProvider>
+                                                    <Header label={label} />
+                                                    <Component {...pageProps} />
+                                                </PaymentProvider>
+                                            </TransactionsProvider>
+                                        </ConfigProvider>
+                                    </WalletModalProvider>
+                                </WalletProvider>
+                            </ConnectionProvider>
+                        </FullscreenProvider>
+                    </ErrorProvider>
                 </ThemeProvider>
             </IntlProvider>
         </main>

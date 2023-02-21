@@ -1,9 +1,28 @@
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
 import { MerchantInfo } from '../components/sections/Merchant';
-import { useNavigateWithQuery } from '../hooks/useNavigateWithQuery';
 import { PaymentStatus } from '../hooks/usePayment';
-import { createURLWithParams } from './createURLWithQuery';
+import { createURLWithParams, getBaseURL } from './createURLWithQuery';
+import { GOOGLE_API_KEY, GOOGLE_SPREADSHEET_ID } from './env';
+
+export async function LoadMerchantData() {
+    const dataURL =
+        GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY
+            ? 'https://sheets.googleapis.com/v4/spreadsheets/' +
+              GOOGLE_SPREADSHEET_ID +
+              '/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=' +
+              GOOGLE_API_KEY
+            : `${getBaseURL()}/api/fetchMerchants`;
+
+    return await fetch(dataURL)
+        .catch((error) => {
+            throw new Error(
+                error +
+                    '\nHave you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?'
+            );
+        })
+        .then(convertMerchantData);
+}
 
 export async function convertMerchantData(response: Response) {
     return response.json().then((data: { values: (string | number)[][]; error: { message: string } }) => {
