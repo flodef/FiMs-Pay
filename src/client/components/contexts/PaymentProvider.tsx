@@ -10,7 +10,7 @@ import { getAccount, getAssociatedTokenAddress, TokenAccountNotFoundError } from
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { ConfirmedSignatureInfo, Keypair, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
@@ -196,7 +196,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [disconnect, publicKey, selectWallet]);
 
-    const updateBalance = useCallback(async () => {
+    const loadBalance = useCallback(async () => {
         if (!(connection && publicKey && balance === undefined)) return;
 
         try {
@@ -226,12 +226,17 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareError, connectWallet]);
 
+    const updateBalance = useCallback(() => {
+        setBalance(undefined);
+        loadBalance();
+    }, [loadBalance]);
+
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
         if (!(status === PaymentStatus.New)) return;
 
-        updateBalance();
-    }, [status, updateBalance]);
+        loadBalance();
+    }, [status, loadBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {

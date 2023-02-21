@@ -9,16 +9,10 @@ import { ActionMenu } from './ActionMenu';
 
 export const TopBar: FC = () => {
     const { reset } = useConfig();
-    const { disconnect } = useWallet();
-
-    const handleClick = useCallback(() => {
-        disconnect();
-        reset();
-    }, [reset, disconnect]);
 
     return (
         <div className={css.root}>
-            <BackButton onClick={handleClick}>
+            <BackButton onClick={reset}>
                 <FormattedMessage id={SHOW_MERCHANT_LIST ? 'merchants' : 'back'} />
             </BackButton>
             <ActionMenu />

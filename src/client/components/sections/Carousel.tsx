@@ -4,6 +4,7 @@ import { Carousel } from 'react-responsive-carousel';
 import { Merchant, MerchantInfo } from './Merchant';
 import css from './Carousel.module.css';
 import { useNavigateToMerchant } from '../../utils/merchant';
+import { usePayment } from '../../hooks/usePayment';
 
 export interface MerchantsProps {
     merchants: MerchantInfo[];
@@ -12,7 +13,8 @@ export interface MerchantsProps {
 }
 
 export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => {
-    const navigate = useNavigateToMerchant();
+    const { updateBalance } = usePayment();
+    const navigate = useNavigateToMerchant(updateBalance);
     const selectedItem = id && merchants.length > 0 ? parseInt(id.toString()) - merchants[0].index : 0;
 
     return (

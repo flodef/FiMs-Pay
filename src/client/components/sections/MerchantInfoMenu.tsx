@@ -10,12 +10,14 @@ import { merchantImageSrc, MerchantInfo } from './Merchant';
 import { SelectImage } from './SelectImage';
 import Image from 'next/image';
 import { useNavigateToMerchant } from '../../utils/merchant';
+import { usePayment } from '../../hooks/usePayment';
 
 export interface MerchantInfoMenuProps {
     merchantInfoList: MerchantInfo[];
 }
 
 export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }) => {
+    const { updateBalance } = usePayment();
     const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
     const myShopWalletAddress = useTranslate('myShopWalletAddress');
     const myShopName = useTranslate('myShopName');
@@ -29,7 +31,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
     const [recipient, setRecipient] = useState('');
     const [maxValue, setMaxValue] = useState('');
 
-    const navigate = useNavigateToMerchant();
+    const navigate = useNavigateToMerchant(updateBalance);
     const handleClick = useCallback(
         (event: MouseEvent) => {
             const merchant =

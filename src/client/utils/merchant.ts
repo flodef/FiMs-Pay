@@ -49,7 +49,7 @@ export async function convertMerchantData(response: Response) {
     });
 }
 
-export function useNavigateToMerchant() {
+export function useNavigateToMerchant(postNav: any) {
     const router = useRouter();
 
     return useCallback(
@@ -62,8 +62,8 @@ export function useNavigateToMerchant() {
             urlParams.append('currency', currency.toString());
             urlParams.append('maxValue', maxValue.toString());
             const url = createURLWithParams(PaymentStatus.New, urlParams);
-            router.push(url);
+            router.push(url).then(postNav);
         },
-        [router]
+        [router, postNav]
     );
 }
