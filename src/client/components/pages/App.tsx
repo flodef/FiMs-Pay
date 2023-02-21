@@ -91,10 +91,10 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const [id, setId] = useState(0);
 
     const setInfo = useCallback((merchant: MerchantInfo) => {
-        setRecipient(new PublicKey(merchant.address ?? 0));
-        setLabel(merchant.company ?? APP_TITLE);
-        setCurrency(merchant.currency ?? CURRENCY);
-        setMaxValue(merchant.maxValue ?? MAX_VALUE);
+        setRecipient(new PublicKey(merchant.address || 0));
+        setLabel(merchant.company || APP_TITLE);
+        setCurrency(merchant.currency || CURRENCY);
+        setMaxValue(Number(merchant.maxValue) || MAX_VALUE);
         setLocation(merchant.location);
     }, []);
 
