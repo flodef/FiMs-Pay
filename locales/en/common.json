@@ -32,6 +32,7 @@
     "invalid": "Invalid",
     "finalized": "Finished",
     "error": "Error",
+    "copyAddress": "Copy Address",
     "connecting": "Connecting...",
     "connect": "Connect",
     "reload": "Reload",

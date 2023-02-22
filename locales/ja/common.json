@@ -32,6 +32,7 @@
     "invalid": "無効",
     "finalized": "終了",
     "error": "エラー",
+    "copyAddress": "コピーアドレス",
     "connecting": "接続中...",
     "connect": "接続",
     "reload": "リロード",

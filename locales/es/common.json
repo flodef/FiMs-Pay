@@ -32,6 +32,7 @@
     "invalid": "Inválido",
     "finalized": "Terminado",
     "error": "Error",
+    "copyAddress": "Copiar dirección",
     "connecting": "Conectando...",
     "connect": "Conectar",
     "reload": "Recargar",
