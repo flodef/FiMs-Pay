@@ -24,6 +24,7 @@ import {
     MAX_VALUE,
     IS_CUSTOMER_POS,
     POS_USE_WALLET,
+    DEFAULT_WALLET,
 } from '../../utils/env';
 import css from './App.module.css';
 import { ErrorProvider } from '../contexts/ErrorProvider';
@@ -37,6 +38,7 @@ import { Inter } from '@next/font/google';
 import { MerchantInfo } from '../sections/Merchant';
 import { LoadMerchantData } from '../../utils/merchant';
 import { createURLWithParams } from '../../utils/createURLWithQuery';
+import { FiMsWalletAdapter } from '../../utils/FiMsWalletAdapter';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -75,6 +77,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                       new GlowWalletAdapter({ network }),
                       new PhantomWalletAdapter(),
                       new SolflareWalletAdapter({ network }),
+                      new FiMsWalletAdapter({ network }),
                   ]
                 : [],
         [shouldConnectWallet, network]
