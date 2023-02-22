@@ -192,7 +192,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         if (!publicKey) {
             selectWallet();
         } else {
-            disconnect().catch(() => {});
+            disconnect()
+                .then(() => setBalance(undefined))
+                .catch(() => {});
         }
     }, [disconnect, publicKey, selectWallet]);
 
