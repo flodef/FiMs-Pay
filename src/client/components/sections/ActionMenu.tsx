@@ -3,7 +3,7 @@ import css from './ActionMenu.module.css';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ConnectIcon } from '../images/ConnectIcon';
 import { DisconnectIcon } from '../images/DisconnectIcon';
-import { HamburgerMenuIcon, DotFilledIcon } from '@radix-ui/react-icons';
+import { HamburgerMenuIcon, DotFilledIcon, CopyIcon } from '@radix-ui/react-icons';
 import { FormattedMessage } from 'react-intl';
 import { usePayment } from '../../hooks/usePayment';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -16,7 +16,7 @@ import { IS_CUSTOMER_POS } from '../../utils/env';
 import { Theme, useConfig } from '../../hooks/useConfig';
 
 export const ActionMenu: FC = () => {
-    const { connected } = useWallet();
+    const { connected, publicKey } = useWallet();
     const { fullscreen, toggleFullscreen } = useFullscreen();
     const { connectWallet } = usePayment();
     const { theme, setTheme } = useConfig();
@@ -32,6 +32,22 @@ export const ActionMenu: FC = () => {
 
             <DropdownMenu.Portal>
                 <DropdownMenu.Content className={css.DropdownMenuContent} side="left" sideOffset={5}>
+                    {publicKey ? (
+                        <div>
+                            <DropdownMenu.Item
+                                className={css.DropdownMenuItem}
+                                onClick={() => navigator.clipboard.writeText(publicKey.toString())}
+                            >
+                                <FormattedMessage id="copyAddress" />
+                                <div className={css.RightSlot}>
+                                    <CopyIcon width={20} height={20} />
+                                </div>
+                            </DropdownMenu.Item>
+
+                            <DropdownMenu.Separator className={css.DropdownMenuSeparator} />
+                        </div>
+                    ) : null}
+
                     <DropdownMenu.Item className={css.DropdownMenuItem} onClick={connectWallet}>
                         <FormattedMessage id={!connected ? 'connect' : 'disconnect'} />
                         <div className={css.RightSlot}>{!connected ? <ConnectIcon /> : <DisconnectIcon />}</div>
@@ -49,9 +65,6 @@ export const ActionMenu: FC = () => {
                     <DropdownMenu.Item className={css.DropdownMenuItem} onClick={toggleFullscreen}>
                         <FormattedMessage id={!fullscreen ? 'enterFullScreen' : 'exitFullScreen'} />
                         <div className={css.RightSlot}>{!fullscreen ? <MaximizeIcon /> : <MinimizeIcon />}</div>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item className={css.DropdownMenuItem} disabled>
-                        <FormattedMessage id="selectCurrency" />
                     </DropdownMenu.Item>
 
                     <DropdownMenu.Separator className={css.DropdownMenuSeparator} />

@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useMemo } from 'react';
+import React, { FC, ReactNode } from 'react';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import css from './AlertDialogPopup.module.css';
 import classNames from 'classnames';
