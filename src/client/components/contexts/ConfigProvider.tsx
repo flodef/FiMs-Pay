@@ -1,3 +1,4 @@
+import { useLocalStorage } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import React, { FC, ReactElement, ReactNode, useState } from 'react';
 import { ConfigContext } from '../../hooks/useConfig';
@@ -46,7 +47,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     shouldConnectWallet = false,
     reset,
 }) => {
-    const [theme, setTheme] = useState(DEFAULT_THEME);
+    const [theme, setTheme] = useLocalStorage('Theme', DEFAULT_THEME);
 
     return (
         <ConfigContext.Provider
