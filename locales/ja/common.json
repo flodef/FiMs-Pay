@@ -10,7 +10,7 @@
     "total": "合計",
     "balance": "バランス",
     "createTransaction": "トランザクションを作成しています...",
-    "approveTransaction": "トランザクションを承認してください!",
+    "approveTransaction": "トランザクションを承認しています...",
     "sendTransaction": "トランザクションを送信しています...",
     "verifyTransaction": "検証中...",
     "scanCode": "Solana Pay ウォレットでこのコードをスキャン",

@@ -10,7 +10,7 @@
     "total": "total",
     "balance": "saldo",
     "createTransaction": "Creando transacción...",
-    "approveTransaction": "¡Apruebe la transacción!",
+    "approveTransaction": "Aprobando transacción...",
     "sendTransaction": "Enviando transacción...",
     "verifyTransaction": "Verificando...",
     "scanCode": "Escanea este código con tu billetera Solana Pay",

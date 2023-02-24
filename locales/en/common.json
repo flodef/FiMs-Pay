@@ -10,7 +10,7 @@
     "total": "Total",
     "balance": "Balance",
     "createTransaction": "Creating transaction...",
-    "approveTransaction": "Please approve the transaction!",
+    "approveTransaction": "Approving transaction...",
     "sendTransaction": "Sending transaction...",
     "verifyTransaction": "Verifying...",
     "scanCode": "Scan this code with your Solana Pay wallet",
