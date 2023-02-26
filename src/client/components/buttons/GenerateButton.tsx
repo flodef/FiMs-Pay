@@ -21,7 +21,7 @@ export interface GenerateButtonProps {
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const { amount, status, hasSufficientBalance, balance, generate, updateBalance, connectWallet } = usePayment();
     const { publicKey, connecting } = useWallet();
-    const { theme } = useConfig();
+    const { theme, currencyName } = useConfig();
 
     const [needRefresh, setNeedRefresh] = useState(false);
 
@@ -34,16 +34,14 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                         ? State.Connecting
                         : id
                     : State.Connect
-                : needRefresh || balance === undefined
+                : needRefresh
                 ? publicKey
                     ? State.Reload
                     : State.Connect
-                : hasSufficientBalance
-                ? State.Supply
-                : status === PaymentStatus.Error
+                : balance !== undefined && balance.gt(0)
                 ? id
-                : null,
-        [connecting, hasSufficientBalance, id, needRefresh, balance, publicKey, status]
+                : State.Supply,
+        [connecting, hasSufficientBalance, id, needRefresh, balance, publicKey]
     );
 
     const alert = useMemo(
@@ -77,7 +75,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     };
                 case 'supply':
                     return () => {
-                        window.open(FAUCET, '_blank');
+                        window.open(FAUCET + '/?token-name=' + currencyName, '_blank');
                         setNeedRefresh(true);
                     };
                 default:
@@ -85,7 +83,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             }
         };
         a()();
-    }, [generate, connectWallet, action, id, updateBalance]);
+    }, [generate, connectWallet, action, id, updateBalance, currencyName]);
 
     const button = useMemo(
         () =>
