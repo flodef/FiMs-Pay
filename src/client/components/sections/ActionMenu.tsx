@@ -1,10 +1,10 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import css from './ActionMenu.module.css';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ConnectIcon } from '../images/ConnectIcon';
 import { DisconnectIcon } from '../images/DisconnectIcon';
 import { HamburgerMenuIcon, DotFilledIcon, CopyIcon } from '@radix-ui/react-icons';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { usePayment } from '../../hooks/usePayment';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
@@ -14,6 +14,7 @@ import { MaximizeIcon } from '../images/MaximizeIcon';
 import { MinimizeIcon } from '../images/MinimizeIcon';
 import { IS_CUSTOMER_POS } from '../../utils/env';
 import { Theme, useConfig } from '../../hooks/useConfig';
+import { ActionSnackbar } from './ActionSnackbar';
 
 export const ActionMenu: FC = () => {
     const { connected, publicKey } = useWallet();
@@ -22,8 +23,14 @@ export const ActionMenu: FC = () => {
     const { theme, setTheme } = useConfig();
     const navigate = useNavigateWithQuery();
 
+    const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
+    const walletAddressCopied = useTranslate('walletAddressCopied');
+
+    const [message, setMessage] = useState('');
+
     return (
         <DropdownMenu.Root>
+            <ActionSnackbar message={message} setMessage={setMessage} />
             <DropdownMenu.Trigger asChild>
                 <button className={css.IconButton} aria-label="Customise options">
                     <HamburgerMenuIcon />
@@ -36,7 +43,10 @@ export const ActionMenu: FC = () => {
                         <div>
                             <DropdownMenu.Item
                                 className={css.DropdownMenuItem}
-                                onClick={() => navigator.clipboard.writeText(publicKey.toString())}
+                                onClick={() => {
+                                    navigator.clipboard.writeText(publicKey.toString());
+                                    setMessage(walletAddressCopied);
+                                }}
                             >
                                 <FormattedMessage id="copyAddress" />
                                 <div className={css.RightSlot}>

@@ -19,6 +19,9 @@
         "proxy": "local-ssl-proxy --source 3001 --target 3000"
     },
     "dependencies": {
+        "@emotion/react": "^11.10.6",
+        "@emotion/styled": "^11.10.6",
+        "@mui/material": "^5.11.10",
         "@next/font": "^13.1.6",
         "@radix-ui/colors": "^0.1.8",
         "@radix-ui/react-alert-dialog": "^1.0.2",

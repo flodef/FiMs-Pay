@@ -4,11 +4,11 @@ const nextConfig = {
         domains: [process.env.IMAGE_DOMAIN || 'flodef.github.io'],
     },
     reactStrictMode: true,
-    // modularizeImports: {
-    //     '@radix-ui/react-icons':{
-    //         transform:'@radix-ui/react-icons/dist/{{member}}.d.ts',
-    //     },
-    // },
+    modularizeImports: {
+        '@mui/material': {
+            transform: '@mui/material/dist/{{member}}.d.ts',
+        },
+    },
     async redirects() {
         return [
             {

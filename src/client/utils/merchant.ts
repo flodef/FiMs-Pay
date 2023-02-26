@@ -5,6 +5,7 @@ import { PaymentStatus } from '../hooks/usePayment';
 import { createURLWithParams, getBaseURL } from './createURLWithQuery';
 import { GOOGLE_API_KEY, GOOGLE_SPREADSHEET_ID } from './env';
 
+// TODO : translate error
 export async function LoadMerchantData() {
     const dataURL =
         GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY
@@ -24,6 +25,7 @@ export async function LoadMerchantData() {
         .then(convertMerchantData);
 }
 
+// TODO : translate error
 export async function convertMerchantData(response: Response) {
     return response.json().then((data: { values: (string | number)[][]; error: { message: string } }) => {
         if (!data) throw new Error('data not fetched');
