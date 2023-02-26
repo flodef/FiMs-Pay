@@ -190,7 +190,7 @@ export const SOLIcon: FC<SVGProps<SVGSVGElement>> = ({ width = 32, height = 32 }
 ```
 
 > Change `SOLIcon` to your SPL Token name (eg: BONKIcon for $BONK).
-> Replace the Function Component `<svg></svg>` by your own.  
+> Replace the Function Component `<svg></svg>` by your own.
 > Make sure the `width` and `height` are accepting JSX parameters (should be between brackets `{ }`).
 
 Find your token info on a Solana Explorer, for example [Solscan](https://solscan.io/):
@@ -325,7 +325,7 @@ Here is the list of all availables settings with their explanation and default v
 -   RATE_LIMIT_INTERVAL=60 : Number of seconds to define the interval during which a number of requests can be sent (RATE_LIMIT).
 -   IMAGE_DOMAIN=flodef.github.io : Domain Address where images are stored (used by Next.JS to cache and improve loading performances).
 -   NEXT_PUBLIC_CURRENCY=SOL : Default currency used (Possible value can be : EUR, agEUR, USDC, USDC_Dev, USDT, SOL, BONK).
--   NEXT_PUBLIC_MAX_VALUE=99999.99 : Default maximum value a merchant can receive as a payment (for example, a bakery won't probably never be paid more than $1000.
+-   NEXT_PUBLIC_MAX_VALUE=99999.99 : Default maximum value a merchant can receive as a payment (for example, a bakery won't probably never be paid more than $1000).
 -   NEXT_PUBLIC_IS_CUSTOMER_POS=false : Whether the app display a Customer POS (if the merchant does not have its own POS, it's possible to use this option to pay directly and show the merchant the validation info once paid).
 -   NEXT_PUBLIC_POS_USE_WALLET=false : Whether the POS needs to connect a wallet to get it's address / balance, or simply uses an address to get payments to.
 -   NEXT_PUBLIC_SHOW_MERCHANT_LIST=false : Whether a list of predefined merchants should be shown or a more advanced menu to enter one's own merchant infos
@@ -338,12 +338,17 @@ Here is the list of all availables settings with their explanation and default v
 -   NEXT_PUBLIC_DEFAULT_WALLET : The default wallet to connect to (for example, if you know all of your customers are only using one wallet).
 -   NEXT_PUBLIC_APP_TITLE=FiMs Pay : The app default title, that will be displayed in the web page and use as default merchant label.
 -   NEXT_PUBLIC_DEFAULT_LANGUAGE=en : The app default language if the browser language is not found as a translated language (currently, english, esperanto, spanish, french, japanese and portuguese).
--   NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID : The Google Spreadsheet ID to load data from (if not specified, data will be loaded from the [`server/data`](https://github.com/flodef/FiMs-Pay/blob/master/src/server/data) folder).
--   NEXT_PUBLIC_GOOGLE_API_KEY : The Google API key allowing to connect to a Spreadsheet.
 -   NEXT_PUBLIC_MERCHANT_IMAGE_PATH='/Img/Merchant/' : The path or Web address to where the merchant's logo is located
 -   NEXT_PUBLIC_FAUCET=https://spl-token-faucet.com : A web address to a SOL / SPL Token faucet
 -   NEXT_PUBLIC_ABOUT=https://solanapay.com/ : A web address to know more about the app / project
 -   NEXT_PUBLIC_PRIVATE_PAYMENT : Whether to use Private payments or not
+
+These are your personnal Private Keys. You can use them in your private `.env.local` (on your own machine) and in Vercel Environment settings (encrypted).
+DO NOT SHARE THEM OR USE THEM ANYWHERE ELSE !!!
+
+-   NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID : The Google Spreadsheet ID to load data from (if not specified, data will be loaded from the [`server/data`](https://github.com/flodef/FiMs-Pay/blob/master/src/server/data) folder).
+-   NEXT_PUBLIC_GOOGLE_API_KEY : The Google API key allowing to connect to a Spreadsheet.
+-   NEXT_PUBLIC_CRYPTO_SECRET : The crypto secret key used to cipher the FiMs wallet private key
 
 ## Private Payments
 
@@ -453,7 +458,7 @@ I would be very happy to receive your translated texts and add it to the project
 
 ## License
 
-The Solana Pay Point of Sale app is open source and available under the Apache License, Version 2.0. See the [LICENSE](./LICENSE) file for more info.
+The FiMs Pay Point of Sale app is open source and available under the Apache License, Version 2.0. See the [LICENSE](./LICENSE) file for more info.
 
 <!-- Links -->
 
