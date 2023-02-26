@@ -7,6 +7,7 @@ import { agEURIcon } from '../components/images/agEURIcon';
 import { BONKIcon } from '../components/images/BONKIcon';
 import { Digits } from '../types';
 import { Multiplier } from './multiplier';
+import { HEOLIcon } from '../components/images/HEOLIcon';
 
 export const MAX_CONFIRMATIONS = 32;
 export const NON_BREAKING_SPACE = '\u00a0';
@@ -41,6 +42,7 @@ export const CURRENCY_LIST: currencyType =
         ? {
               SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
               USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
+              HEOL_Dev: { splToken: DEVNET_DUMMY_MINT, icon: HEOLIcon, decimals: 6, minDecimals: 2, symbol: 'EUR' },
           }
         : {
               SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
