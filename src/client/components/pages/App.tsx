@@ -24,7 +24,6 @@ import {
     MAX_VALUE,
     IS_CUSTOMER_POS,
     POS_USE_WALLET,
-    DEFAULT_WALLET,
 } from '../../utils/env';
 import css from './App.module.css';
 import { ErrorProvider } from '../contexts/ErrorProvider';

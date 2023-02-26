@@ -2,6 +2,8 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { Keypair, Message, PublicKey, Signer, Transaction, VersionedTransaction } from '@solana/web3.js';
 import EventEmitter from 'eventemitter3';
 import { FiMsWalletName } from './FiMsWalletAdapter';
+import CryptoJS from 'crypto-js';
+import { CRYPTO_SECRET } from './env';
 
 export interface FiMsWalletConfig {
     network?: WalletAdapterNetwork;
@@ -26,12 +28,15 @@ export default class FiMsWallet extends EventEmitter {
     async connect(): Promise<void> {
         const stored = localStorage.getItem(FiMsWalletName);
         if (stored) {
-            const value = stored.split(',').map(Number);
-            const array = Uint8Array.from(value);
+            const bytes = CryptoJS.AES.decrypt(stored, CRYPTO_SECRET);
+            const value = bytes.toString(CryptoJS.enc.Utf8);
+            const list = value.split(',').map(Number);
+            const array = Uint8Array.from(list);
             this._keypair = Keypair.fromSecretKey(array);
         } else {
             const value = Keypair.generate();
-            localStorage.setItem(FiMsWalletName, value.secretKey.toString());
+            const ciphertext = CryptoJS.AES.encrypt(value.secretKey.toString(), CRYPTO_SECRET).toString();
+            localStorage.setItem(FiMsWalletName, ciphertext);
             this._keypair = value;
         }
     }
