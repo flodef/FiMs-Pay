@@ -1,6 +1,6 @@
 import { useWallet } from '@solana/wallet-adapter-react';
 import React, { FC, useCallback, useMemo, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { FAUCET, IS_CUSTOMER_POS, IS_DEV, POS_USE_WALLET } from '../../utils/env';
@@ -23,6 +23,9 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const { publicKey, connecting } = useWallet();
     const { theme, currencyName } = useConfig();
 
+    const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
+    const balanceIsEmpty = useTranslate('balanceIsEmpty');
+
     const [needRefresh, setNeedRefresh] = useState(false);
 
     const isInvalidAmount = useMemo(() => !amount || amount.isLessThanOrEqualTo(0), [amount]);
@@ -44,21 +47,22 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         [connecting, hasSufficientBalance, id, needRefresh, balance, publicKey]
     );
 
+    // TODO Translate
     const alert = useMemo(
         () =>
             action === State.Supply && IS_DEV
                 ? {
-                      title: 'Your public wallet balance is empty!',
+                      title: balanceIsEmpty,
                       description: [
-                          `A new tab will open on a Solana Faucet where you can get some SOL/USDC:`,
+                          `A new tab will open on a Solana Faucet where you can get some SOL/${currencyName}:`,
                           `1. Copy your wallet address: ${publicKey}`,
                           `2. Paste it in the faucet recipient text box`,
-                          `3. Airdrop some SOL to your wallet on the DEVNET network`,
+                          `3. Airdrop some SOL to your Solana wallet on the DEVNET network`,
                       ],
                       type: AlertType.Message,
                   }
                 : undefined,
-        [action, publicKey]
+        [action, publicKey, currencyName, balanceIsEmpty]
     );
 
     const handleClick = useCallback(() => {
