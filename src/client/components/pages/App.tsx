@@ -33,7 +33,7 @@ import { Digits } from '../../types';
 import { isMobileDevice } from '../../utils/mobile';
 import { Header } from '../sections/Header';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
-import { Inter } from '@next/font/google';
+import { Inter } from 'next/font/google';
 import { MerchantInfo } from '../sections/Merchant';
 import { LoadMerchantData } from '../../utils/merchant';
 import { createURLWithParams } from '../../utils/createURLWithQuery';
