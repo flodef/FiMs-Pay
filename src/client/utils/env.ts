@@ -19,3 +19,4 @@ export const ABOUT = process.env.NEXT_PUBLIC_ABOUT || 'https://fims.fi/';
 export const GOOGLE_SPREADSHEET_ID = process.env.NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID;
 export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 export const CRYPTO_SECRET = process.env.NEXT_PUBLIC_CRYPTO_SECRET || APP_TITLE;
+export const FAUCET_ENCODED_KEY = IS_DEV ? process.env.NEXT_PUBLIC_FAUCET_ENCODED_KEY : null;
