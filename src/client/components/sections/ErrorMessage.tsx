@@ -1,5 +1,9 @@
 import { TokenAccountNotFoundError } from '@solana/spl-token';
-import { WalletSendTransactionError, WalletSignTransactionError } from '@solana/wallet-adapter-base';
+import {
+    WalletNotConnectedError,
+    WalletSendTransactionError,
+    WalletSignTransactionError,
+} from '@solana/wallet-adapter-base';
 import React, { FC, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { CreateTransferError } from '../../../server/core/createTransfer';
@@ -22,6 +26,7 @@ export const ErrorMessage: FC = () => {
                 case new WalletSignTransactionError().name:
                 case new WalletSendTransactionError().name:
                 case new TokenAccountNotFoundError().name:
+                case new WalletNotConnectedError().name:
                     return error.name;
                 case new CreateTransferError().name:
                 case new ValidateTransferError().name:
