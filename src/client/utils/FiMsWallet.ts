@@ -10,11 +10,9 @@ export interface FiMsWalletConfig {
 }
 
 export default class FiMsWallet extends EventEmitter {
-    private _network;
     private _keypair: Keypair | undefined;
-    constructor(config?: FiMsWalletConfig) {
+    constructor() {
         super();
-        this._network = config?.network;
     }
 
     get publicKey(): PublicKey | undefined {
@@ -23,8 +21,6 @@ export default class FiMsWallet extends EventEmitter {
     get isConnected(): boolean {
         return this._keypair !== undefined;
     }
-    // get connected(): boolean;
-    // get autoApprove(): boolean;
     async connect(): Promise<void> {
         const stored = localStorage.getItem(FiMsWalletName);
         if (stored) {
@@ -60,6 +56,7 @@ export default class FiMsWallet extends EventEmitter {
 
         return transactions;
     }
+    // TODO : translate
     async signMessage(data: Uint8Array, display?: 'hex' | 'utf8'): Promise<Uint8Array> {
         const message = Message.from(data);
         const transaction = Transaction.populate(message);
@@ -68,21 +65,4 @@ export default class FiMsWallet extends EventEmitter {
 
         return transaction.signature;
     }
-    // sign(data: Uint8Array, display?: 'hex' | 'utf8'): Promise<Uint8Array>;
-    // detectWallet(timeout?: number): Promise<boolean>;
-    // private _handleEvent;
-    // private _handleResize;
-    // private _handleMessage;
-    // private _removeElement;
-    // private _removeDanglingElements;
-    // private _injectElement;
-    // private _collapseIframe;
-    // private _expandIframe;
-    // private _getPreferredAdapter;
-    // private _setPreferredAdapter;
-    // private _clearPreferredAdapter;
-    // private _webConnected;
-    // private _webDisconnected;
-    // private _disconnected;
-    // private _handleMobileMessage;
 }

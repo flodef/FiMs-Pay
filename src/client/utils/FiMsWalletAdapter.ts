@@ -1,4 +1,4 @@
-import type { WalletAdapterNetwork, WalletName } from '@solana/wallet-adapter-base';
+import { WalletAdapterNetwork, WalletName } from '@solana/wallet-adapter-base';
 import {
     BaseMessageSignerWalletAdapter,
     WalletConfigError,
@@ -16,10 +16,6 @@ import { Transaction, TransactionVersion, VersionedTransaction } from '@solana/w
 import { PublicKey } from '@solana/web3.js';
 import FiMsWallet from './FiMsWallet';
 
-export interface FiMsWalletAdapterConfig {
-    network?: WalletAdapterNetwork;
-}
-
 export const FiMsWalletName = 'FiMs' as WalletName<'FiMs'>;
 
 export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
@@ -35,28 +31,20 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
     private _connecting: boolean;
     private _wallet: FiMsWallet | null;
     private _publicKey: PublicKey | null;
-    private _config: FiMsWalletAdapterConfig;
     private _readyState: WalletReadyState =
         typeof window === 'undefined' || typeof document === 'undefined'
             ? WalletReadyState.Unsupported
             : WalletReadyState.Loadable;
 
-    constructor(config: FiMsWalletAdapterConfig = {}) {
+    constructor() {
         super();
         this._connecting = false;
         this._publicKey = null;
         this._wallet = null;
-        this._config = config;
 
         if (this._readyState !== WalletReadyState.Unsupported) {
-            // scopePollingDetectionStrategy(() => {
-            //     if (window.solflare?.isSolflare || window.SolflareApp) {
             this._readyState = WalletReadyState.Installed;
             this.emit('readyStateChange', this._readyState);
-            //         return true;
-            //     }
-            //     return false;
-            // });
         }
     }
 
@@ -77,11 +65,7 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
     }
 
     async autoConnect(): Promise<void> {
-        // // Skip autoconnect in the Loadable state on iOS
-        // // We can't redirect to a universal link without user input
-        // if (!(this.readyState === WalletReadyState.Loadable && isIosAndRedirectable())) {
         await this.connect();
-        // }
     }
 
     async connect(): Promise<void> {
@@ -90,25 +74,9 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
             if (this._readyState !== WalletReadyState.Loadable && this._readyState !== WalletReadyState.Installed)
                 throw new WalletNotReadyError();
 
-            // redirect to the Solflare /browse universal link
-            // this will open the current URL in the Solflare in-wallet browser
-            // if (this.readyState === WalletReadyState.Loadable && isIosAndRedirectable()) {
-            //     const url = encodeURIComponent(window.location.href);
-            //     const ref = encodeURIComponent(window.location.origin);
-            //     window.location.href = `https://solflare.com/ul/v1/browse/${url}?ref=${ref}`;
-            //     return;
-            // }
-
-            // let SolflareClass: typeof Solflare;
-            // try {
-            //     SolflareClass = (await import('@solflare-wallet/sdk')).default;
-            // } catch (error: any) {
-            //     throw new WalletLoadError(error?.message, error);
-            // }
-
             let wallet: FiMsWallet;
             try {
-                wallet = new FiMsWallet({ network: this._config.network });
+                wallet = new FiMsWallet();
             } catch (error: any) {
                 throw new WalletConfigError(error?.message, error);
             }
