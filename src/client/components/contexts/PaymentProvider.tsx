@@ -232,7 +232,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 if (connection.rpcEndpoint !== clusterApiUrl('devnet'))
                     throw new Error('Airdrop available only on Devnet');
 
-                setBalance(BigNumber(-1));
+                initBalance();
 
                 const bytes = CryptoJS.AES.decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET);
                 const value = bytes.toString(CryptoJS.enc.Utf8);
@@ -248,8 +248,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     recipient: publicKey,
                     amount: BigNumber(5.55),
                     splToken: DEVNET_DUMMY_MINT,
-                    reference: undefined,
-                    memo: undefined,
                 });
 
                 await sendAndConfirmTransaction(connection, transaction, [keypair], {
@@ -262,7 +260,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             }
         };
         setTimeout(run, 0);
-    }, []);
+    }, [publicKey, connection]);
 
     const loadBalance = useCallback(() => {
         if (!(connection && publicKey && balance === undefined)) return;
@@ -274,8 +272,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     throw new PaymentError('sender is also recipient');
                 }
 
-                setStatus(PaymentStatus.New);
-                setBalance(BigNumber(-1));
+                initBalance();
 
                 let amount = 0;
                 if (splToken) {
@@ -296,6 +293,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         };
         setTimeout(run, 0);
     }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareError, connectWallet]);
+
+    const initBalance = useCallback(() => {
+        setStatus(PaymentStatus.New); // Remove error if any
+        setBalance(BigNumber(-1)); // Set balance status to loading
+    }, []);
 
     const updateBalance = useCallback(() => {
         setBalance(undefined);
