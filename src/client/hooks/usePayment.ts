@@ -32,6 +32,7 @@ export interface PaymentContextState {
     isPaidStatus: boolean;
     reset(): void;
     generate(): void;
+    requestAirdrop(): void;
     updateBalance(): void;
     selectWallet(): void;
     connectWallet(): void;

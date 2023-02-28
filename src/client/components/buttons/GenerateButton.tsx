@@ -1,10 +1,12 @@
-import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import React, { FC, useCallback, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
+import { useError } from '../../hooks/useError';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { FAUCET, IS_CUSTOMER_POS, IS_DEV, POS_USE_WALLET } from '../../utils/env';
-import { AlertDialogPopup, AlertType } from '../sections/AlertDialogPopup';
+import { FAUCET, FAUCET_ENCODED_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
+import { AlertDialogPopup } from '../sections/AlertDialogPopup';
 import css from './GenerateButton.module.css';
 
 enum State {
@@ -19,9 +21,12 @@ export interface GenerateButtonProps {
 }
 
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
-    const { amount, status, hasSufficientBalance, balance, generate, updateBalance, connectWallet } = usePayment();
+    const { amount, status, hasSufficientBalance, balance, generate, requestAirdrop, updateBalance, connectWallet } =
+        usePayment();
     const { publicKey, connecting } = useWallet();
     const { theme, currencyName } = useConfig();
+    const { connection } = useConnection();
+    const { processError } = useError();
 
     const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
     const balanceIsEmpty = useTranslate('balanceIsEmpty');
@@ -31,17 +36,13 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const isInvalidAmount = useMemo(() => !amount || amount.isLessThanOrEqualTo(0), [amount]);
     const action = useMemo(
         () =>
-            hasSufficientBalance
-                ? publicKey || !(POS_USE_WALLET || IS_CUSTOMER_POS)
-                    ? connecting
-                        ? State.Connecting
-                        : id
+            !publicKey || !(POS_USE_WALLET || IS_CUSTOMER_POS)
+                ? connecting
+                    ? State.Connecting
                     : State.Connect
                 : needRefresh
-                ? publicKey
-                    ? State.Reload
-                    : State.Connect
-                : balance !== undefined && balance.gt(0)
+                ? State.Reload
+                : hasSufficientBalance
                 ? id
                 : State.Supply,
         [connecting, hasSufficientBalance, id, needRefresh, balance, publicKey]
@@ -49,20 +50,20 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
 
     // TODO Translate
     const alert = useMemo(
-        () =>
-            action === State.Supply && IS_DEV
-                ? {
-                      title: balanceIsEmpty,
-                      description: [
-                          `A new tab will open on a Solana Faucet where you can get some SOL/${currencyName}:`,
-                          `1. Copy your wallet address: ${publicKey}`,
-                          `2. Paste it in the faucet recipient text box`,
-                          `3. Airdrop some SOL to your Solana wallet on the DEVNET network`,
-                      ],
-                      type: AlertType.Message,
-                  }
-                : undefined,
-        [action, publicKey, currencyName, balanceIsEmpty]
+        () => undefined,
+        // action === State.Supply && IS_DEV
+        //     ? {
+        //           title: balanceIsEmpty,
+        //           description: [
+        //               `A new tab will open on a Solana Faucet where you can get some free SOL (for paying transaction fee) and some ${currencyName}:`,
+        //               `1. Paste your wallet address in the faucet recipient text box OR select a wallet`,
+        //               `2. Airdrop some SOL to your Solana wallet on the DEVNET network`,
+        //               `3. Airdrop some ${currencyName} (if possible)`,
+        //           ],
+        //           type: AlertType.Message,
+        //       }
+        //     : undefined,
+        [action, currencyName, balanceIsEmpty]
     );
 
     const handleClick = useCallback(() => {
@@ -79,15 +80,21 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     };
                 case 'supply':
                     return () => {
-                        window.open(FAUCET + '/?token-name=' + currencyName, '_blank');
-                        setNeedRefresh(true);
+                        if (!publicKey) throw new WalletNotConnectedError();
+                        if (!FAUCET_ENCODED_KEY) {
+                            navigator.clipboard.writeText(publicKey.toString());
+                            window.open(FAUCET + '/?token-name=' + currencyName, '_blank');
+                            setNeedRefresh(true);
+                        } else {
+                            requestAirdrop();
+                        }
                     };
                 default:
                     return () => {};
             }
         };
         a()();
-    }, [generate, connectWallet, action, id, updateBalance, currencyName]);
+    }, [generate, connectWallet, action, id, updateBalance, publicKey, connection, processError]);
 
     const button = useMemo(
         () =>

@@ -6,9 +6,24 @@ import {
     parseURL,
     ValidateTransferError,
 } from '@solana/pay';
-import { getAccount, getAssociatedTokenAddress, TokenAccountNotFoundError } from '@solana/spl-token';
+import {
+    getAccount,
+    getAssociatedTokenAddress,
+    getOrCreateAssociatedTokenAccount,
+    TokenAccountNotFoundError,
+} from '@solana/spl-token';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { ConfirmedSignatureInfo, Keypair, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
+import {
+    clusterApiUrl,
+    ConfirmedSignatureInfo,
+    Keypair,
+    LAMPORTS_PER_SOL,
+    PublicKey,
+    sendAndConfirmTransaction,
+    Transaction,
+    TransactionConfirmationStrategy,
+    TransactionSignature,
+} from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
@@ -16,7 +31,15 @@ import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
-import { IS_DEV, IS_CUSTOMER_POS, DEFAULT_WALLET, AUTO_CONNECT, POS_USE_WALLET } from '../../utils/env';
+import {
+    IS_DEV,
+    IS_CUSTOMER_POS,
+    DEFAULT_WALLET,
+    AUTO_CONNECT,
+    POS_USE_WALLET,
+    FAUCET_ENCODED_KEY,
+    CRYPTO_SECRET,
+} from '../../utils/env';
 import { exitFullscreen, isFullscreen } from '../../utils/fullscreen';
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
 import { WalletName } from '@solana/wallet-adapter-base';
@@ -24,6 +47,8 @@ import { isMobileDevice } from '../../utils/mobile';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
+import { DEVNET_DUMMY_MINT } from '../../utils/constants';
+import CryptoJS from 'crypto-js';
 
 export class PaymentError extends Error {
     name = 'PaymentError';
@@ -127,6 +152,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             status !== PaymentStatus.Error &&
             (!IS_CUSTOMER_POS ||
                 balance === undefined ||
+                balance.lt(0) ||
                 (balance.gt(0) && amount !== undefined && balance.gte(amount))),
         [balance, amount, status]
     );
@@ -162,7 +188,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [status, reference, navigate, setStatus]);
 
-    const selectWallet = useCallback(async () => {
+    const selectWallet = useCallback(() => {
         if (publicKey) return;
         if (DEFAULT_WALLET) {
             const defaultWallet = DEFAULT_WALLET as WalletName;
@@ -187,7 +213,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [connect, select, wallet, setVisible, publicKey]);
 
-    const connectWallet = useCallback(async () => {
+    const connectWallet = useCallback(() => {
         setStatus(PaymentStatus.New);
         if (!publicKey) {
             selectWallet();
@@ -198,34 +224,77 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [disconnect, publicKey, selectWallet]);
 
-    const loadBalance = useCallback(async () => {
+    const requestAirdrop = useCallback(() => {
+        // TODO : translate
+        const run = async () => {
+            try {
+                if (!(FAUCET_ENCODED_KEY && publicKey)) return;
+                if (connection.rpcEndpoint !== clusterApiUrl('devnet'))
+                    throw new Error('Airdrop available only on Devnet');
+
+                setBalance(BigNumber(-1));
+
+                const bytes = CryptoJS.AES.decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET);
+                const value = bytes.toString(CryptoJS.enc.Utf8);
+                const list = value.split(',').map(Number);
+                const array = Uint8Array.from(list);
+                const keypair = Keypair.fromSecretKey(array);
+                const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
+                await connection.confirmTransaction({
+                    signature,
+                } as TransactionConfirmationStrategy);
+                await getOrCreateAssociatedTokenAccount(connection, keypair, DEVNET_DUMMY_MINT, publicKey);
+                const transaction = await createTransfer(connection, keypair.publicKey, {
+                    recipient: publicKey,
+                    amount: BigNumber(5.55),
+                    splToken: DEVNET_DUMMY_MINT,
+                    reference: undefined,
+                    memo: undefined,
+                });
+
+                await sendAndConfirmTransaction(connection, transaction, [keypair], {
+                    commitment: 'confirmed',
+                });
+
+                updateBalance();
+            } catch (error: any) {
+                sendError(error);
+            }
+        };
+        setTimeout(run, 0);
+    }, []);
+
+    const loadBalance = useCallback(() => {
         if (!(connection && publicKey && balance === undefined)) return;
 
-        try {
-            if (recipient.toString() === publicKey.toString()) {
-                connectWallet();
-                throw new PaymentError('sender is also recipient');
-            }
+        const run = async () => {
+            try {
+                if (recipient.toString() === publicKey.toString()) {
+                    connectWallet();
+                    throw new PaymentError('sender is also recipient');
+                }
 
-            setStatus(PaymentStatus.New);
-            setBalance(BigNumber(-1));
+                setStatus(PaymentStatus.New);
+                setBalance(BigNumber(-1));
 
-            let amount = 0;
-            if (splToken) {
-                const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
-                const senderAccount = await getAccount(connection, senderATA);
-                amount = Number(senderAccount.amount);
-            } else {
-                const senderInfo = await connection.getAccountInfo(publicKey);
-                amount = senderInfo ? senderInfo.lamports : 0;
+                let amount = 0;
+                if (splToken) {
+                    const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
+                    const senderAccount = await getAccount(connection, senderATA);
+                    amount = Number(senderAccount.amount);
+                } else {
+                    const senderInfo = await connection.getAccountInfo(publicKey);
+                    amount = senderInfo ? senderInfo.lamports : 0;
+                }
+                setBalance(BigNumber(amount / Math.pow(10, decimals)));
+            } catch (error: any) {
+                sendError(
+                    compareError(error, new TokenAccountNotFoundError()) ? new PaymentError('sender not found') : error
+                );
+                setBalance(undefined);
             }
-            setBalance(BigNumber(amount / Math.pow(10, decimals)));
-        } catch (error: any) {
-            sendError(
-                compareError(error, new TokenAccountNotFoundError()) ? new PaymentError('sender not found') : error
-            );
-            setBalance(undefined);
-        }
+        };
+        setTimeout(run, 0);
     }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareError, connectWallet]);
 
     const updateBalance = useCallback(() => {
@@ -415,6 +484,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 isPaidStatus,
                 reset,
                 generate,
+                requestAirdrop,
                 updateBalance,
                 selectWallet,
                 connectWallet,
