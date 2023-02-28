@@ -73,10 +73,10 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         () =>
             shouldConnectWallet
                 ? [
+                      new FiMsWalletAdapter(),
+                      new SolflareWalletAdapter({ network }),
                       new GlowWalletAdapter({ network }),
                       new PhantomWalletAdapter(),
-                      new SolflareWalletAdapter({ network }),
-                      new FiMsWalletAdapter({ network }),
                   ]
                 : [],
         [shouldConnectWallet, network]
