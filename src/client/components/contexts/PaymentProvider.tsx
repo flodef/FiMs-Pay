@@ -224,6 +224,59 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [disconnect, publicKey, selectWallet]);
 
+    const initBalance = useCallback(() => {
+        setStatus(PaymentStatus.New); // Remove error if any
+        setBalance(BigNumber(-1)); // Set balance status to loading
+    }, []);
+
+    const loadBalance = useCallback(() => {
+        if (!(connection && publicKey && balance === undefined)) return;
+
+        const run = async () => {
+            try {
+                if (recipient.toString() === publicKey.toString()) {
+                    connectWallet();
+                    throw new PaymentError('sender is also recipient');
+                }
+
+                initBalance();
+
+                let amount = 0;
+                if (splToken) {
+                    const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
+                    const senderAccount = await getAccount(connection, senderATA);
+                    amount = Number(senderAccount.amount);
+                } else {
+                    const senderInfo = await connection.getAccountInfo(publicKey);
+                    amount = senderInfo ? senderInfo.lamports : 0;
+                }
+                setBalance(BigNumber(amount / Math.pow(10, decimals)));
+            } catch (error: any) {
+                sendError(
+                    compareError(error, new TokenAccountNotFoundError()) ? new PaymentError('sender not found') : error
+                );
+                setBalance(undefined);
+            }
+        };
+        setTimeout(run, 0);
+    }, [
+        connection,
+        publicKey,
+        splToken,
+        decimals,
+        recipient,
+        balance,
+        sendError,
+        compareError,
+        connectWallet,
+        initBalance,
+    ]);
+
+    const updateBalance = useCallback(() => {
+        setBalance(undefined);
+        loadBalance();
+    }, [loadBalance]);
+
     const requestAirdrop = useCallback(() => {
         // TODO : translate
         const run = async () => {
@@ -260,49 +313,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             }
         };
         setTimeout(run, 0);
-    }, [publicKey, connection]);
-
-    const loadBalance = useCallback(() => {
-        if (!(connection && publicKey && balance === undefined)) return;
-
-        const run = async () => {
-            try {
-                if (recipient.toString() === publicKey.toString()) {
-                    connectWallet();
-                    throw new PaymentError('sender is also recipient');
-                }
-
-                initBalance();
-
-                let amount = 0;
-                if (splToken) {
-                    const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
-                    const senderAccount = await getAccount(connection, senderATA);
-                    amount = Number(senderAccount.amount);
-                } else {
-                    const senderInfo = await connection.getAccountInfo(publicKey);
-                    amount = senderInfo ? senderInfo.lamports : 0;
-                }
-                setBalance(BigNumber(amount / Math.pow(10, decimals)));
-            } catch (error: any) {
-                sendError(
-                    compareError(error, new TokenAccountNotFoundError()) ? new PaymentError('sender not found') : error
-                );
-                setBalance(undefined);
-            }
-        };
-        setTimeout(run, 0);
-    }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareError, connectWallet]);
-
-    const initBalance = useCallback(() => {
-        setStatus(PaymentStatus.New); // Remove error if any
-        setBalance(BigNumber(-1)); // Set balance status to loading
-    }, []);
-
-    const updateBalance = useCallback(() => {
-        setBalance(undefined);
-        loadBalance();
-    }, [loadBalance]);
+    }, [publicKey, connection, initBalance, updateBalance, sendError]);
+    [publicKey, connection];
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
