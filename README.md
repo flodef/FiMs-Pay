@@ -349,6 +349,7 @@ DO NOT SHARE THEM OR USE THEM ANYWHERE ELSE !!!
 -   NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID : The Google Spreadsheet ID to load data from (if not specified, data will be loaded from the [`server/data`](https://github.com/flodef/FiMs-Pay/blob/master/src/server/data) folder).
 -   NEXT_PUBLIC_GOOGLE_API_KEY : The Google API key allowing to connect to a Spreadsheet.
 -   NEXT_PUBLIC_CRYPTO_SECRET : The crypto secret key used to cipher the FiMs wallet private key
+-   NEXT_PUBLIC_FAUCET_ENCODED_KEY : The faucet wallet private key, encoded with the crypto secret key above
 
 ## Private Payments
 
