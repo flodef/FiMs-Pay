@@ -70,13 +70,6 @@ export async function createTransfer(
     transaction.feePayer = sender;
     transaction.recentBlockhash = (await connection.getLatestBlockhash(commitment)).blockhash;
 
-    // Check whether sender can pay for transaction fee
-    const response = await connection.getFeeForMessage(transaction.compileMessage(), commitment);
-    const feeInLamports = response.value || 5000; // Set the minimal transaction fee in case it was not fetch
-    const lamportsNeeded = feeInLamports + (splToken ? 0 : convertAmountToLamports(amount));
-    if (lamportsNeeded > senderInfo.lamports)
-        throw new CreateTransferError('insufficient SOL funds to pay for transaction fee');
-
     // If a memo is provided, add it to the transaction before adding the transfer instruction
     if (memo != null) {
         transaction.add(
@@ -90,6 +83,13 @@ export async function createTransfer(
 
     // Add the transfer instruction to the transaction
     transaction.add(instruction);
+
+    // Check whether sender can pay for transaction fee
+    const response = await connection.getFeeForMessage(transaction.compileMessage(), commitment);
+    const feeInLamports = response.value || 5000; // Set the minimal transaction fee in case it was not fetch
+    const lamportsNeeded = feeInLamports + (splToken ? 0 : convertAmountToLamports(amount));
+    if (lamportsNeeded > senderInfo.lamports)
+        throw new CreateTransferError('insufficient SOL funds to pay for transaction fee');
 
     return transaction;
 }
