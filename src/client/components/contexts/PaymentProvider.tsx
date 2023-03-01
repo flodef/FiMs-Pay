@@ -292,10 +292,19 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 const list = value.split(',').map(Number);
                 const array = Uint8Array.from(list);
                 const keypair = Keypair.fromSecretKey(array);
-                const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
-                await connection.confirmTransaction({
-                    signature,
-                } as TransactionConfirmationStrategy);
+                // ('retrieving recipient info');
+                // ('transferring SOL');
+                // ('confirming SOL transfer');
+                // ('retrieving token account');
+                // ('transferring token');
+                // ('confirming token transfer');
+                const recipientInfo = await connection.getAccountInfo(publicKey);
+                if (!recipientInfo || recipientInfo.lamports < 0.1 * LAMPORTS_PER_SOL) {
+                    const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
+                    await connection.confirmTransaction({
+                        signature,
+                    } as TransactionConfirmationStrategy);
+                }
                 await getOrCreateAssociatedTokenAccount(connection, keypair, DEVNET_DUMMY_MINT, publicKey);
                 const transaction = await createTransfer(connection, keypair.publicKey, {
                     recipient: publicKey,
@@ -310,6 +319,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 updateBalance();
             } catch (error: any) {
                 sendError(error);
+                setBalance(undefined);
             }
         };
         setTimeout(run, 0);
