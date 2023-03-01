@@ -41,17 +41,16 @@ export const ActionSnackbar: FC<ActionSnackbarProps> = ({
     };
 
     return (
-        <Stack className={css.root} spacing={2} sx={{ width: '100%' }}>
-            <Snackbar
-                open={open}
-                autoHideDuration={duration}
-                onClose={handleClose}
-                anchorOrigin={{ vertical, horizontal }}
-            >
-                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    {alertMessage.current}
-                </Alert>
-            </Snackbar>
-        </Stack>
+        <Snackbar
+            className={css.root}
+            open={open}
+            autoHideDuration={duration}
+            onClose={handleClose}
+            anchorOrigin={{ vertical, horizontal }}
+        >
+            <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                {alertMessage.current}
+            </Alert>
+        </Snackbar>
     );
 };
