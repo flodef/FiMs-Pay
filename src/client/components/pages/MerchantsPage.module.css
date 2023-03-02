@@ -7,6 +7,10 @@
     align-items: center;
 }
 
+.main {
+    width: 100%;
+}
+
 .top {
     text-align: center;
     font-size: 24px;

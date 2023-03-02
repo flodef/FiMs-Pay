@@ -50,7 +50,7 @@ const MerchantsPage: NextPage = () => {
             <div className={css.top}>
                 <FormattedMessage id="merchants" />
             </div>
-            <div>
+            <div className={css.main}>
                 {Object.entries(merchants).map(([location, merchant]) => (
                     <div key={location}>
                         <div className={css.location}>{location}</div>
