@@ -83,7 +83,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [airdropStatus, setAirdropStatus] = useState<AirdropStatus>();
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
     const navigate = useNavigateWithQuery();
-    const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
+    const confirmationProgress = useMemo(
+        () => confirmations / requiredConfirmations,
+        [confirmations, requiredConfirmations]
+    );
     const recipient = useMemo(
         () => (IS_CUSTOMER_POS || !POS_USE_WALLET || !publicKey ? recipientParam : publicKey),
         [recipientParam, publicKey]
@@ -315,6 +318,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 await sendAndConfirmTransaction(connection, transaction, [keypair], {
                     commitment: 'confirmed',
                 });
+                setAirdropStatus(undefined);
 
                 updateBalance();
             } catch (error: any) {
@@ -512,8 +516,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 reference,
                 signature,
                 paymentStatus,
-                confirmations,
-                progress,
+                airdropStatus,
+                confirmationProgress,
                 url,
                 hasSufficientBalance,
                 isPaidStatus,

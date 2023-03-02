@@ -13,7 +13,7 @@ import { TransactionInfo } from '../sections/TransactionInfo';
 import css from './ProcessingPage.module.css';
 
 const ProcessingPage: NextPage = () => {
-    const { reset, paymentStatus, progress, isPaidStatus } = usePayment();
+    const { reset, paymentStatus, confirmationProgress, isPaidStatus } = usePayment();
 
     const [value, text] = useMemo(() => {
         switch (paymentStatus) {
@@ -26,7 +26,7 @@ const ProcessingPage: NextPage = () => {
             case PaymentStatus.Confirmed:
                 return [4 / 6, 'verifyTransaction'];
             case PaymentStatus.Valid:
-                return [5 / 6 + Math.max(progress, 1) / 6, paymentStatus];
+                return [5 / 6 + Math.max(confirmationProgress, 1) / 6, paymentStatus];
             case PaymentStatus.Finalized:
                 return [1, PaymentStatus.Valid];
             case PaymentStatus.Error:
@@ -34,7 +34,7 @@ const ProcessingPage: NextPage = () => {
             default:
                 return [0, undefined];
         }
-    }, [paymentStatus, progress]);
+    }, [paymentStatus, confirmationProgress]);
 
     const isNewStatus = paymentStatus === PaymentStatus.New;
     const isConfirmedStatus = paymentStatus === PaymentStatus.Confirmed;

@@ -14,12 +14,7 @@ export enum PaymentStatus {
     Finalized = 'finalized',
     Error = 'error',
 }
-// ('retrieving recipient info');
-// ('transferring SOL');
-// ('confirming SOL transfer');
-// ('retrieving token account');
-// ('transferring token');
-// ('confirming token transfer');
+
 export enum AirdropStatus {
     RetrievingRecipient = 'retrievingRecipient',
     TransferingSOL = 'transferingSOL',
@@ -38,8 +33,8 @@ export interface PaymentContextState {
     reference: PublicKey | undefined;
     signature: TransactionSignature | undefined;
     paymentStatus: PaymentStatus;
-    confirmations: Confirmations;
-    progress: number;
+    airdropStatus: AirdropStatus | undefined;
+    confirmationProgress: number;
     url: URL;
     hasSufficientBalance: boolean;
     isPaidStatus: boolean;
