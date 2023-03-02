@@ -99,7 +99,7 @@ export const NumPad: FC = () => {
                     ) : null}
                 </div>
             ) : null}
-            {!IS_CUSTOMER_POS || (hasBalance && publicKey) ? (
+            {!IS_CUSTOMER_POS || publicKey ? (
                 <div>
                     <div className={css.icon}>
                         <SelectImage

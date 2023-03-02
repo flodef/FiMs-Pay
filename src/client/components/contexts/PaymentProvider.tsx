@@ -227,11 +227,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [disconnect, publicKey, selectWallet]);
 
-    const initBalance = useCallback(() => {
-        setPaymentStatus(PaymentStatus.New); // Remove error if any
-        setBalance(BigNumber(-1)); // Set balance status to loading
-    }, []);
-
     const loadBalance = useCallback(() => {
         if (!(connection && publicKey && balance === undefined)) return;
 
@@ -242,7 +237,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     throw new PaymentError('sender is also recipient');
                 }
 
-                initBalance();
+                setPaymentStatus(PaymentStatus.New); // Remove error if any
+                setBalance(BigNumber(-1)); // Set balance status to loading
 
                 let amount = 0;
                 if (splToken) {
@@ -262,18 +258,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             }
         };
         setTimeout(run, 0);
-    }, [
-        connection,
-        publicKey,
-        splToken,
-        decimals,
-        recipient,
-        balance,
-        sendError,
-        compareError,
-        connectWallet,
-        initBalance,
-    ]);
+    }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareError, connectWallet]);
 
     const updateBalance = useCallback(() => {
         setBalance(undefined);
@@ -287,8 +272,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 if (!(FAUCET_ENCODED_KEY && publicKey)) return;
                 if (connection.rpcEndpoint !== clusterApiUrl('devnet'))
                     throw new Error('Airdrop available only on Devnet');
-
-                initBalance();
 
                 const bytes = CryptoJS.AES.decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET);
                 const value = bytes.toString(CryptoJS.enc.Utf8);
@@ -318,16 +301,16 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 await sendAndConfirmTransaction(connection, transaction, [keypair], {
                     commitment: 'confirmed',
                 });
-                setAirdropStatus(undefined);
 
                 updateBalance();
             } catch (error: any) {
                 sendError(error);
-                setBalance(undefined);
+            } finally {
+                setAirdropStatus(undefined);
             }
         };
         setTimeout(run, 0);
-    }, [publicKey, connection, initBalance, updateBalance, sendError]);
+    }, [publicKey, connection, updateBalance, sendError]);
     [publicKey, connection];
 
     // If there's a connected wallet, load it's token balance
