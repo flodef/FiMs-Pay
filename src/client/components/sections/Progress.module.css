@@ -1,8 +1,15 @@
-.root {
-    width: 200px;
-    height: 200px;
+.linearRoot,
+.circularRoot {
     position: relative;
     margin: auto auto 24px auto;
+}
+.linearRoot {
+    width: 80%;
+    height: 100px;
+}
+.circularRoot {
+    width: 200px;
+    height: 200px;
 }
 
 .text {

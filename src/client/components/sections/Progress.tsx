@@ -33,7 +33,7 @@ export const Progress: FC<ProgressProps> = ({ value, text, shape, isError = fals
     }, [value, progress]);
 
     return (
-        <div className={css.root}>
+        <div className={shape === ProgresShape.Linear ? css.linearRoot : css.circularRoot}>
             {shape === ProgresShape.Linear ? (
                 <LinearProgress
                     variant="determinate"
