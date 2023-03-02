@@ -6,7 +6,7 @@ const nextConfig = {
     reactStrictMode: true,
     modularizeImports: {
         '@mui/material': {
-            transform: '@mui/material/dist/{{member}}.d.ts',
+            transform: '@mui/material/{{member}}',
         },
     },
     async redirects() {
