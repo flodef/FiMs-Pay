@@ -1,53 +1,70 @@
 import interpolate from 'color-interpolate';
-import React, { FC, useMemo } from 'react';
-import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, FormattedNumber } from 'react-intl';
-import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import css from './Progress.module.css';
+import { Box, CircularProgress, LinearProgress } from '@mui/material';
 
-export const Progress: FC = () => {
-    const { status, progress } = usePayment();
+export enum ProgresShape {
+    Linear,
+    Circular,
+}
 
-    const [value, text] = useMemo(() => {
-        switch (status) {
-            case PaymentStatus.Pending:
-                return [1 / 6, 'createTransaction'];
-            case PaymentStatus.Creating:
-                return [2 / 6, 'approveTransaction'];
-            case PaymentStatus.Sent:
-                return [3 / 6, 'sendTransaction'];
-            case PaymentStatus.Confirmed:
-                return [4 / 6, 'verifyTransaction'];
-            case PaymentStatus.Valid:
-                return [5 / 6 + Math.max(progress, 1), status];
-            case PaymentStatus.Finalized:
-                return [1, PaymentStatus.Valid];
-            case PaymentStatus.Invalid:
-            case PaymentStatus.Error:
-                return [1, status];
-            default:
-                return [0, undefined];
-        }
-    }, [status, progress]);
+export interface ProgressProps {
+    value: number;
+    text: string | undefined;
+    shape: ProgresShape;
+    isError?: boolean;
+}
 
+export const Progress: FC<ProgressProps> = ({ value, text, shape, isError = false }) => {
     const interpolated = useMemo(() => interpolate(['#8752f3', '#5497d5', '#43b4ca', '#28e0b9', '#19fb9b']), []);
-    const styles = useMemo(
-        () =>
-            buildStyles({
-                pathTransitionDuration: value !== 0 ? 3 : 1.5,
-                pathColor:
-                    status !== PaymentStatus.Invalid && status !== PaymentStatus.Error
-                        ? interpolated(value)
-                        : '#FF0000',
-                trailColor: 'rgba(0,0,0,.1)',
-            }),
-        [interpolated, value, status]
-    );
+    const color = useMemo(() => (!isError ? interpolated(value) : '#FF0000'), [interpolated, value, isError]);
+    const backgroundColor = 'rgba(0, 0, 0, 0.1)';
+
+    const [progress, setProgress] = useState(0);
+    useEffect(() => {
+        const dist = value - progress;
+        const timer = setInterval(() => {
+            setProgress((prevProgress) => prevProgress + dist / 2);
+        }, 80);
+        return () => {
+            clearInterval(timer);
+        };
+    }, [value, progress]);
 
     return (
         <div className={css.root}>
-            <CircularProgressbar maxValue={1} value={value} styles={styles} />
+            {shape === ProgresShape.Linear ? (
+                <LinearProgress
+                    variant="determinate"
+                    value={Math.min(value * 100, 100)}
+                    sx={{
+                        height: 10,
+                        borderRadius: 5,
+                        backgroundColor: backgroundColor,
+                        '& .MuiLinearProgress-bar': {
+                            borderRadius: 5,
+                            backgroundColor: color,
+                            transition: 'transform 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                        },
+                    }}
+                />
+            ) : (
+                <Box sx={{ position: 'relative' }}>
+                    <CircularProgress size={200} variant="determinate" sx={{ color: backgroundColor }} value={100} />
+                    <CircularProgress
+                        size={200}
+                        variant="determinate"
+                        sx={{
+                            color: color,
+                            position: 'absolute',
+                            left: '0',
+                            strokeLinecap: 'round',
+                        }}
+                        value={Math.min(progress * 100, 100)}
+                    />
+                </Box>
+            )}
             <div className={css.text}>
                 {text ? (
                     <FormattedMessage id={text} />

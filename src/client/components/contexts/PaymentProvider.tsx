@@ -29,7 +29,7 @@ import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 
 import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
-import { PaymentContext, PaymentStatus } from '../../hooks/usePayment';
+import { AirdropStatus, PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
 import {
     IS_DEV,
@@ -79,7 +79,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [memo, setMemo] = useState<string>();
     const [reference, setReference] = useState<PublicKey>();
     const [signature, setSignature] = useState<TransactionSignature>();
-    const [status, setStatus] = useState(PaymentStatus.New);
+    const [paymentStatus, setPaymentStatus] = useState(PaymentStatus.New);
+    const [airdropStatus, setAirdropStatus] = useState<AirdropStatus>();
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
     const navigate = useNavigateWithQuery();
     const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
@@ -91,12 +92,12 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const sendError = useCallback(
         (error?: Error) => {
             if (error) {
-                setStatus(PaymentStatus.Error);
+                setPaymentStatus(PaymentStatus.Error);
                 setReference(undefined);
             }
             processError(error);
         },
-        [setStatus, processError]
+        [setPaymentStatus, processError]
     );
 
     const compareError = useCallback((error: Error, type: Error) => {
@@ -149,24 +150,23 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     const hasSufficientBalance = useMemo(
         () =>
-            status !== PaymentStatus.Error &&
+            paymentStatus !== PaymentStatus.Error &&
             (!IS_CUSTOMER_POS ||
                 balance === undefined ||
                 balance.lt(0) ||
                 (balance.gt(0) && amount !== undefined && balance.gte(amount))),
-        [balance, amount, status]
+        [balance, amount, paymentStatus]
     );
     const isPaidStatus = useMemo(
         () =>
-            status === PaymentStatus.Finalized ||
-            status === PaymentStatus.Valid ||
-            status === PaymentStatus.Invalid ||
-            status === PaymentStatus.Error,
-        [status]
+            paymentStatus === PaymentStatus.Finalized ||
+            paymentStatus === PaymentStatus.Valid ||
+            paymentStatus === PaymentStatus.Error,
+        [paymentStatus]
     );
 
     const reset = useCallback(() => {
-        setStatus(PaymentStatus.New);
+        setPaymentStatus(PaymentStatus.New);
         setConfirmations(0);
         setBalance(undefined);
         setAmount(undefined);
@@ -175,18 +175,18 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         setSignature(undefined);
         sendError(undefined);
         setTimeout(() => navigate(PaymentStatus.New, true), isPaidStatus ? 1500 : 0);
-    }, [navigate, setStatus, sendError, isPaidStatus]);
+    }, [navigate, setPaymentStatus, sendError, isPaidStatus]);
 
     const generate = useCallback(() => {
-        if (!((status === PaymentStatus.New || status === PaymentStatus.Error) && !reference)) return;
+        if (!((paymentStatus === PaymentStatus.New || paymentStatus === PaymentStatus.Error) && !reference)) return;
 
         navigate(PaymentStatus.Processing);
         setReference(Keypair.generate().publicKey);
-        setTimeout(() => setStatus(PaymentStatus.Pending), 800);
+        setTimeout(() => setPaymentStatus(PaymentStatus.Pending), 800);
         if (IS_CUSTOMER_POS && isFullscreen() && isMobileDevice()) {
             exitFullscreen();
         }
-    }, [status, reference, navigate, setStatus]);
+    }, [paymentStatus, reference, navigate, setPaymentStatus]);
 
     const selectWallet = useCallback(() => {
         if (publicKey) return;
@@ -214,7 +214,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [connect, select, wallet, setVisible, publicKey]);
 
     const connectWallet = useCallback(() => {
-        setStatus(PaymentStatus.New);
+        setPaymentStatus(PaymentStatus.New);
         if (!publicKey) {
             selectWallet();
         } else {
@@ -225,7 +225,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [disconnect, publicKey, selectWallet]);
 
     const initBalance = useCallback(() => {
-        setStatus(PaymentStatus.New); // Remove error if any
+        setPaymentStatus(PaymentStatus.New); // Remove error if any
         setBalance(BigNumber(-1)); // Set balance status to loading
     }, []);
 
@@ -292,26 +292,26 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 const list = value.split(',').map(Number);
                 const array = Uint8Array.from(list);
                 const keypair = Keypair.fromSecretKey(array);
-                // ('retrieving recipient info');
-                // ('transferring SOL');
-                // ('confirming SOL transfer');
-                // ('retrieving token account');
-                // ('transferring token');
-                // ('confirming token transfer');
+
+                setAirdropStatus(AirdropStatus.RetrievingRecipient);
                 const recipientInfo = await connection.getAccountInfo(publicKey);
                 if (!recipientInfo || recipientInfo.lamports < 0.1 * LAMPORTS_PER_SOL) {
+                    setAirdropStatus(AirdropStatus.TransferingSOL);
                     const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
+                    setAirdropStatus(AirdropStatus.ConfirmingSOLTransfer);
                     await connection.confirmTransaction({
                         signature,
                     } as TransactionConfirmationStrategy);
                 }
+                setAirdropStatus(AirdropStatus.RetrievingTokenAccount);
                 await getOrCreateAssociatedTokenAccount(connection, keypair, DEVNET_DUMMY_MINT, publicKey);
+                setAirdropStatus(AirdropStatus.TransferingToken);
                 const transaction = await createTransfer(connection, keypair.publicKey, {
                     recipient: publicKey,
                     amount: BigNumber(5.55),
                     splToken: DEVNET_DUMMY_MINT,
                 });
-
+                setAirdropStatus(AirdropStatus.ConfirmingTokenTransfer);
                 await sendAndConfirmTransaction(connection, transaction, [keypair], {
                     commitment: 'confirmed',
                 });
@@ -328,14 +328,14 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
-        if (!(status === PaymentStatus.New)) return;
+        if (!(paymentStatus === PaymentStatus.New)) return;
 
         loadBalance();
-    }, [status, loadBalance]);
+    }, [paymentStatus, loadBalance]);
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
-        if (!(IS_CUSTOMER_POS && status === PaymentStatus.Pending && connection && publicKey)) return;
+        if (!(IS_CUSTOMER_POS && paymentStatus === PaymentStatus.Pending && connection && publicKey)) return;
         let changed = false;
 
         const run = async () => {
@@ -360,9 +360,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
 
                 if (!changed) {
-                    setStatus(PaymentStatus.Creating);
+                    setPaymentStatus(PaymentStatus.Creating);
                     const transactionHash = await sendTransaction(transaction, connection);
-                    setStatus(PaymentStatus.Sent);
+                    setPaymentStatus(PaymentStatus.Sent);
                     console.log(
                         `Transaction sent: https://solscan.io/tx/${transactionHash}${IS_DEV ? '?cluster=devnet' : ''}`
                     );
@@ -381,14 +381,14 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, shouldConnectWallet, publicKey, url, connection, sendTransaction, setStatus, sendError]);
+    }, [paymentStatus, shouldConnectWallet, publicKey, url, connection, sendTransaction, setPaymentStatus, sendError]);
 
     // When the status is pending, poll for the transaction using the reference key
     useEffect(() => {
         if (
             !(
-                ((!IS_CUSTOMER_POS && status === PaymentStatus.Pending) ||
-                    (IS_CUSTOMER_POS && status === PaymentStatus.Sent)) &&
+                ((!IS_CUSTOMER_POS && paymentStatus === PaymentStatus.Pending) ||
+                    (IS_CUSTOMER_POS && paymentStatus === PaymentStatus.Sent)) &&
                 reference &&
                 !signature
             )
@@ -404,7 +404,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 if (!changed) {
                     clearInterval(interval);
                     setSignature(signature.signature);
-                    setStatus(PaymentStatus.Confirmed);
+                    setPaymentStatus(PaymentStatus.Confirmed);
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction signature yet, try again
@@ -418,11 +418,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearInterval(interval);
         };
-    }, [status, reference, signature, connection, navigate, setStatus, sendError, compareError]);
+    }, [paymentStatus, reference, signature, connection, navigate, setPaymentStatus, sendError, compareError]);
 
     // When the status is confirmed, validate the transaction against the provided params
     useEffect(() => {
-        if (!(status === PaymentStatus.Confirmed && signature && amount)) return;
+        if (!(paymentStatus === PaymentStatus.Confirmed && signature && amount)) return;
         let changed = false;
 
         const run = async () => {
@@ -434,7 +434,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     { maxSupportedTransactionVersion: 0 }
                 );
                 if (!changed) {
-                    setStatus(PaymentStatus.Valid);
+                    setPaymentStatus(PaymentStatus.Valid);
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction yet, try again
@@ -456,11 +456,22 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [status, signature, amount, connection, recipient, splToken, reference, setStatus, sendError, compareError]);
+    }, [
+        paymentStatus,
+        signature,
+        amount,
+        connection,
+        recipient,
+        splToken,
+        reference,
+        setPaymentStatus,
+        sendError,
+        compareError,
+    ]);
 
     // When the status is valid, poll for confirmations until the transaction is finalized
     useEffect(() => {
-        if (!(status === PaymentStatus.Valid && signature)) return;
+        if (!(paymentStatus === PaymentStatus.Valid && signature)) return;
         let changed = false;
 
         const interval = setInterval(async () => {
@@ -476,7 +487,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
                     if (confirmations >= requiredConfirmations || status.confirmationStatus === 'finalized') {
                         clearInterval(interval);
-                        setStatus(PaymentStatus.Finalized);
+                        setPaymentStatus(PaymentStatus.Finalized);
                     }
                 }
             } catch (error: any) {
@@ -488,7 +499,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearInterval(interval);
         };
-    }, [status, signature, connection, requiredConfirmations, setStatus, sendError]);
+    }, [paymentStatus, signature, connection, requiredConfirmations, setPaymentStatus, sendError]);
 
     return (
         <PaymentContext.Provider
@@ -500,7 +511,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 balance,
                 reference,
                 signature,
-                status,
+                paymentStatus,
                 confirmations,
                 progress,
                 url,

@@ -7,7 +7,7 @@ import { Amount } from './Amount';
 import css from './Summary.module.css';
 
 export const Summary: FC = () => {
-    const { amount, balance, status } = usePayment();
+    const { amount, balance, paymentStatus } = usePayment();
     const { publicKey } = useWallet();
 
     return (
@@ -27,7 +27,7 @@ export const Summary: FC = () => {
                                 ) : (
                                     <FormattedMessage id="balanceLoading" />
                                 )
-                            ) : status === PaymentStatus.Error ? (
+                            ) : paymentStatus === PaymentStatus.Error ? (
                                 <FormattedMessage id="balanceLoadingError" />
                             ) : null
                         ) : (

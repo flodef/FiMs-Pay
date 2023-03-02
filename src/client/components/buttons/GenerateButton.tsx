@@ -21,8 +21,16 @@ export interface GenerateButtonProps {
 }
 
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
-    const { amount, status, hasSufficientBalance, balance, generate, requestAirdrop, updateBalance, connectWallet } =
-        usePayment();
+    const {
+        amount,
+        paymentStatus,
+        hasSufficientBalance,
+        balance,
+        generate,
+        requestAirdrop,
+        updateBalance,
+        connectWallet,
+    } = usePayment();
     const { publicKey, connecting } = useWallet();
     const { theme, currencyName } = useConfig();
     const { connection } = useConnection();
@@ -45,12 +53,13 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 : hasSufficientBalance
                 ? id
                 : State.Supply,
-        [connecting, hasSufficientBalance, id, needRefresh, balance, publicKey]
+        [connecting, hasSufficientBalance, id, needRefresh, publicKey]
     );
 
     // TODO Translate
     const alert = useMemo(
         () => undefined,
+        []
         // action === State.Supply && IS_DEV
         //     ? {
         //           title: balanceIsEmpty,
@@ -63,7 +72,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         //           type: AlertType.Message,
         //       }
         //     : undefined,
-        [action, currencyName, balanceIsEmpty]
+        // [action, currencyName, balanceIsEmpty]
     );
 
     const handleClick = useCallback(() => {
@@ -94,7 +103,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             }
         };
         a()();
-    }, [generate, connectWallet, action, id, updateBalance, publicKey, connection, processError]);
+    }, [id, action, publicKey, currencyName, generate, connectWallet, updateBalance, requestAirdrop]);
 
     const button = useMemo(
         () =>
@@ -111,13 +120,13 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                             publicKey !== null &&
                             !connecting &&
                             hasSufficientBalance &&
-                            (isInvalidAmount || status !== PaymentStatus.New))
+                            (isInvalidAmount || paymentStatus !== PaymentStatus.New))
                     }
                 >
                     <FormattedMessage id={action} />
                 </button>
             ) : null,
-        [action, connecting, handleClick, hasSufficientBalance, isInvalidAmount, publicKey, status, theme, alert]
+        [action, connecting, handleClick, hasSufficientBalance, isInvalidAmount, publicKey, paymentStatus, theme, alert]
     );
 
     return <AlertDialogPopup button={button} onClick={handleClick} alert={alert} />;

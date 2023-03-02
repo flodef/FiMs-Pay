@@ -15,13 +15,13 @@ import { PaymentError } from '../contexts/PaymentProvider';
 import css from './ErrorMessage.module.css';
 
 export const ErrorMessage: FC = () => {
-    const { status } = usePayment();
+    const { paymentStatus } = usePayment();
     const { error } = useError();
     const { currencyName } = useConfig();
 
     const unknownError = 'UnknownError';
     const id = useMemo(() => {
-        if (status === PaymentStatus.Error && error) {
+        if (paymentStatus === PaymentStatus.Error && error) {
             switch (error.name) {
                 case new WalletSignTransactionError().name:
                 case new WalletSendTransactionError().name:
@@ -48,7 +48,7 @@ export const ErrorMessage: FC = () => {
         } else {
             return null;
         }
-    }, [error, status]);
+    }, [error, paymentStatus]);
 
     return id ? (
         <div className={css.error}>

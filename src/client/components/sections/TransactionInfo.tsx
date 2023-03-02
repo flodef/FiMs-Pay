@@ -6,7 +6,7 @@ import { Amount } from './Amount';
 import css from './TransactionInfo.module.css';
 
 export const TransactionInfo: FC = () => {
-    const { status } = usePayment();
+    const { paymentStatus } = usePayment();
     const { label } = useConfig();
     const { amount, isPaidStatus } = usePayment();
     const date = useMemo(
@@ -21,7 +21,7 @@ export const TransactionInfo: FC = () => {
             }).format(new Date()),
         []
     );
-    const isNewStatus = useMemo(() => status === PaymentStatus.New, [status]);
+    const isNewStatus = useMemo(() => paymentStatus === PaymentStatus.New, [paymentStatus]);
 
     return (
         <div className={css.root}>

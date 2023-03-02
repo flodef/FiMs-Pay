@@ -13,7 +13,7 @@ import { Amount } from './Amount';
 import css from './NumPad.module.css';
 import { SelectImage } from './SelectImage';
 import { ErrorMessage } from './ErrorMessage';
-import { PaymentStatus, usePayment } from '../../hooks/usePayment';
+import { usePayment } from '../../hooks/usePayment';
 
 interface NumPadInputButton {
     input: Digits | '.';
@@ -47,7 +47,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
 
 export const NumPad: FC = () => {
     const { maxDecimals, maxValue, multiplier, theme, currencyName } = useConfig();
-    const { balance, hasSufficientBalance, status } = usePayment();
+    const { balance, hasSufficientBalance } = usePayment();
     const { publicKey } = useWallet();
     const phone = useIsMobileSize();
 
@@ -78,6 +78,27 @@ export const NumPad: FC = () => {
 
     const [currency, setCurrency] = useState(currencyName);
     const getCurrencyImage = (value: string) => React.createElement(CURRENCY_LIST[value].icon);
+
+    // const [progress, text] = useMemo(() => {
+    //     switch (paymentStatus) {
+    //         case PaymentStatus.Pending:
+    //             return [1 / 6, 'createTransaction'];
+    //         case PaymentStatus.Creating:
+    //             return [2 / 6, 'approveTransaction'];
+    //         case PaymentStatus.Sent:
+    //             return [3 / 6, 'sendTransaction'];
+    //         case PaymentStatus.Confirmed:
+    //             return [4 / 6, 'verifyTransaction'];
+    //         case PaymentStatus.Valid:
+    //             return [5 / 6 + Math.max(progress, 1) / 6, paymentStatus];
+    //         case PaymentStatus.Finalized:
+    //             return [1, PaymentStatus.Valid];
+    //         case PaymentStatus.Error:
+    //             return [1, paymentStatus];
+    //         default:
+    //             return [0, undefined];
+    //     }
+    // }, [paymentStatus, progress]);
 
     return (
         <div className={css.root}>
