@@ -23,7 +23,7 @@ export interface GenerateButtonProps {
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const { amount, paymentStatus, hasSufficientBalance, generate, requestAirdrop, updateBalance, connectWallet } =
         usePayment();
-    const { publicKey, connecting } = useWallet();
+    const { publicKey, connecting, autoConnect } = useWallet();
     const { theme, currencyName } = useConfig();
     const { connection } = useConnection();
     const { processError } = useError();
@@ -37,7 +37,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const action = useMemo(
         () =>
             !publicKey || !(POS_USE_WALLET || IS_CUSTOMER_POS)
-                ? connecting
+                ? connecting || autoConnect
                     ? State.Connecting
                     : State.Connect
                 : needRefresh
@@ -45,7 +45,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 : hasSufficientBalance
                 ? id
                 : State.Supply,
-        [connecting, hasSufficientBalance, id, needRefresh, publicKey]
+        [connecting, hasSufficientBalance, id, needRefresh, publicKey, autoConnect]
     );
 
     // TODO Translate
@@ -102,7 +102,13 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             action ? (
                 <button
                     className={
-                        theme === Theme.Color ? css.rootColor : theme === Theme.BlackWhite ? css.rootBW : css.root
+                        action === State.Connecting
+                            ? css.rootEmpty
+                            : theme === Theme.Color
+                            ? css.rootColor
+                            : theme === Theme.BlackWhite
+                            ? css.rootBW
+                            : css.root
                     }
                     type="button"
                     onClick={!alert ? handleClick : undefined}
