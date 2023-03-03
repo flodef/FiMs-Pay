@@ -9,6 +9,7 @@ export const USE_HTTP = process.env.NEXT_PUBLIC_USE_HTTP === 'true' || false;
 export const USE_LINK = process.env.NEXT_PUBLIC_USE_LINK === 'true' || false;
 export const USE_WEB_WALLET = process.env.NEXT_PUBLIC_USE_WEB_WALLET === 'true' || false;
 export const AUTO_CONNECT = process.env.NEXT_PUBLIC_AUTO_CONNECT === 'true' || false;
+export const USE_CUSTOM_CRYPTO = process.env.NEXT_PUBLIC_USE_CUSTOM_CRYPTO === 'true' || false;
 export const DEFAULT_WALLET = process.env.NEXT_PUBLIC_DEFAULT_WALLET;
 export const APP_TITLE = process.env.NEXT_PUBLIC_APP_TITLE || 'FiMs Pay';
 export const DEFAULT_LANGUAGE = process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE || 'en';

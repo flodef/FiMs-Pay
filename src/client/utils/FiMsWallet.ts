@@ -3,7 +3,8 @@ import { Keypair, Message, PublicKey, Signer, Transaction, VersionedTransaction 
 import EventEmitter from 'eventemitter3';
 import { FiMsWalletName } from './FiMsWalletAdapter';
 import CryptoJS from 'crypto-js';
-import { CRYPTO_SECRET } from './env';
+import { CRYPTO_SECRET, USE_CUSTOM_CRYPTO } from './env';
+import { decrypt, encrypt } from './aes';
 
 export interface FiMsWalletConfig {
     network?: WalletAdapterNetwork;
@@ -24,15 +25,18 @@ export default class FiMsWallet extends EventEmitter {
     async connect(): Promise<void> {
         const stored = localStorage.getItem(FiMsWalletName);
         if (stored) {
-            const bytes = CryptoJS.AES.decrypt(stored, CRYPTO_SECRET);
-            const value = bytes.toString(CryptoJS.enc.Utf8);
+            const value = USE_CUSTOM_CRYPTO
+                ? await decrypt(stored, CRYPTO_SECRET)
+                : CryptoJS.AES.decrypt(stored, CRYPTO_SECRET).toString(CryptoJS.enc.Utf8);
             const list = value.split(',').map(Number);
             const array = Uint8Array.from(list);
             this._keypair = Keypair.fromSecretKey(array);
         } else {
             const value = Keypair.generate();
-            const ciphertext = CryptoJS.AES.encrypt(value.secretKey.toString(), CRYPTO_SECRET).toString();
-            localStorage.setItem(FiMsWalletName, ciphertext);
+            const cipher = USE_CUSTOM_CRYPTO
+                ? await encrypt(value.secretKey.toString(), CRYPTO_SECRET)
+                : CryptoJS.AES.encrypt(value.secretKey.toString(), CRYPTO_SECRET).toString();
+            localStorage.setItem(FiMsWalletName, cipher);
             this._keypair = value;
         }
     }

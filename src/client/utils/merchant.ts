@@ -9,10 +9,7 @@ import { GOOGLE_API_KEY, GOOGLE_SPREADSHEET_ID } from './env';
 export async function LoadMerchantData() {
     const dataURL =
         GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY
-            ? 'https://sheets.googleapis.com/v4/spreadsheets/' +
-              GOOGLE_SPREADSHEET_ID +
-              '/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=' +
-              GOOGLE_API_KEY
+            ? `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SPREADSHEET_ID}/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=${GOOGLE_API_KEY}`
             : `${getBaseURL()}/api/fetchMerchants`;
 
     return await fetch(dataURL)

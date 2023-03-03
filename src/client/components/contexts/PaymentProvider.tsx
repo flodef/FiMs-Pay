@@ -39,6 +39,7 @@ import {
     POS_USE_WALLET,
     FAUCET_ENCODED_KEY,
     CRYPTO_SECRET,
+    USE_CUSTOM_CRYPTO,
 } from '../../utils/env';
 import { exitFullscreen, isFullscreen } from '../../utils/fullscreen';
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
@@ -49,6 +50,7 @@ import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
 import { DEVNET_DUMMY_MINT } from '../../utils/constants';
 import CryptoJS from 'crypto-js';
+import { decrypt } from '../../utils/aes';
 
 export class PaymentError extends Error {
     name = 'PaymentError';
@@ -273,8 +275,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 if (connection.rpcEndpoint !== clusterApiUrl('devnet'))
                     throw new Error('Airdrop available only on Devnet');
 
-                const bytes = CryptoJS.AES.decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET);
-                const value = bytes.toString(CryptoJS.enc.Utf8);
+                const value = USE_CUSTOM_CRYPTO
+                    ? await decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET)
+                    : CryptoJS.AES.decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET).toString(CryptoJS.enc.Utf8);
                 const list = value.split(',').map(Number);
                 const array = Uint8Array.from(list);
                 const keypair = Keypair.fromSecretKey(array);
