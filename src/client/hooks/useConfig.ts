@@ -25,7 +25,6 @@ export interface ConfigContextState {
     currencyName: string;
     requiredConfirmations: Confirmations;
     id?: number;
-    shouldConnectWallet: boolean;
     theme: string;
     setTheme: (theme: string) => void;
     reset: () => void;

@@ -253,7 +253,6 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                             multiplier={multiplier}
                                             currencyName={currencyName}
                                             id={id}
-                                            shouldConnectWallet={shouldConnectWallet}
                                             reset={reset}
                                         >
                                             <TransactionsProvider>

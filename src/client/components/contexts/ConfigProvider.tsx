@@ -23,7 +23,6 @@ export interface ConfigProviderProps {
     currencyName: string;
     requiredConfirmations?: Confirmations;
     id?: number;
-    shouldConnectWallet?: boolean;
     reset: () => void;
 }
 
@@ -44,7 +43,6 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     currencyName,
     requiredConfirmations = 1,
     id,
-    shouldConnectWallet = false,
     reset,
 }) => {
     const [theme, setTheme] = useLocalStorage('Theme', DEFAULT_THEME);
@@ -67,7 +65,6 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
                 currencyName,
                 requiredConfirmations,
                 id,
-                shouldConnectWallet,
                 theme,
                 setTheme,
                 reset,

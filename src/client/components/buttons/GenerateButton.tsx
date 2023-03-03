@@ -21,16 +21,8 @@ export interface GenerateButtonProps {
 }
 
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
-    const {
-        amount,
-        paymentStatus,
-        hasSufficientBalance,
-        balance,
-        generate,
-        requestAirdrop,
-        updateBalance,
-        connectWallet,
-    } = usePayment();
+    const { amount, paymentStatus, hasSufficientBalance, generate, requestAirdrop, updateBalance, connectWallet } =
+        usePayment();
     const { publicKey, connecting } = useWallet();
     const { theme, currencyName } = useConfig();
     const { connection } = useConnection();

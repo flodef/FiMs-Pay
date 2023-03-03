@@ -62,16 +62,7 @@ export interface PaymentProviderProps {
 
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
-    const {
-        link,
-        recipient: recipientParam,
-        splToken,
-        decimals,
-        label,
-        message,
-        requiredConfirmations,
-        shouldConnectWallet,
-    } = useConfig();
+    const { link, recipient: recipientParam, splToken, decimals, label, message, requiredConfirmations } = useConfig();
     const { publicKey, sendTransaction, connect, disconnect, select, wallet } = useWallet();
     const { setVisible } = useWalletModal();
     const { processError } = useError();
@@ -371,7 +362,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [paymentStatus, shouldConnectWallet, publicKey, url, connection, sendTransaction, setPaymentStatus, sendError]);
+    }, [paymentStatus, publicKey, url, connection, sendTransaction, setPaymentStatus, sendError]);
 
     // When the status is pending, poll for the transaction using the reference key
     useEffect(() => {
