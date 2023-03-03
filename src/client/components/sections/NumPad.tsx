@@ -13,7 +13,7 @@ import { Amount } from './Amount';
 import css from './NumPad.module.css';
 import { SelectImage } from './SelectImage';
 import { ErrorMessage } from './ErrorMessage';
-import { usePayment } from '../../hooks/usePayment';
+import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 
 interface NumPadInputButton {
     input: Digits | '.';
@@ -47,7 +47,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
 
 export const NumPad: FC = () => {
     const { maxDecimals, maxValue, multiplier, theme, currencyName } = useConfig();
-    const { balance, hasSufficientBalance } = usePayment();
+    const { balance, hasSufficientBalance, paymentStatus } = usePayment();
     const { publicKey } = useWallet();
     const phone = useIsMobileSize();
 
@@ -74,8 +74,6 @@ export const NumPad: FC = () => {
         [setAmount, value, multiplier]
     );
 
-    const hasBalance = useMemo(() => balance !== undefined && balance.gte(0), [balance]);
-
     const [currency, setCurrency] = useState(currencyName);
     const getCurrencyImage = (value: string) => React.createElement(CURRENCY_LIST[value].icon);
 
@@ -99,7 +97,7 @@ export const NumPad: FC = () => {
                     ) : null}
                 </div>
             ) : null}
-            {!IS_CUSTOMER_POS || publicKey ? (
+            {(!IS_CUSTOMER_POS || publicKey) && paymentStatus !== PaymentStatus.Error ? (
                 <div>
                     <div className={css.icon}>
                         <SelectImage
