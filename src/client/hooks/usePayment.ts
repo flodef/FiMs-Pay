@@ -16,6 +16,7 @@ export enum PaymentStatus {
 }
 
 export enum AirdropStatus {
+    DecryptingAccount = 'decryptingAccount',
     RetrievingRecipient = 'retrievingRecipient',
     TransferingSOL = 'transferingSOL',
     ConfirmingSOLTransfer = 'confirmingSOLTransfer',

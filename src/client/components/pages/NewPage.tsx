@@ -18,19 +18,22 @@ const NewPage: NextPage = () => {
     const generateId = IS_CUSTOMER_POS ? 'pay' : 'generateCode';
 
     const value = useMemo(() => {
+        const count = 7;
         switch (airdropStatus) {
+            case AirdropStatus.DecryptingAccount:
+                return 1 / count;
             case AirdropStatus.RetrievingRecipient:
-                return 1 / 6;
+                return 2 / count;
             case AirdropStatus.TransferingSOL:
-                return 2 / 6;
+                return 3 / count;
             case AirdropStatus.ConfirmingSOLTransfer:
-                return 3 / 6;
+                return 4 / count;
             case AirdropStatus.RetrievingTokenAccount:
-                return 4 / 6;
+                return 5 / count;
             case AirdropStatus.TransferingToken:
-                return 5 / 6;
+                return 6 / count;
             case AirdropStatus.ConfirmingTokenTransfer:
-                return 1;
+                return 7 / count;
             default:
                 return 0;
         }

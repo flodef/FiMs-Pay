@@ -16,21 +16,22 @@ const ProcessingPage: NextPage = () => {
     const { reset, paymentStatus, confirmationProgress, isPaidStatus } = usePayment();
 
     const [value, text] = useMemo(() => {
+        const count = 6;
         switch (paymentStatus) {
             case PaymentStatus.Pending:
-                return [1 / 6, 'createTransaction'];
+                return [1 / count, 'createTransaction'];
             case PaymentStatus.Creating:
-                return [2 / 6, 'approveTransaction'];
+                return [2 / count, 'approveTransaction'];
             case PaymentStatus.Sent:
-                return [3 / 6, 'sendTransaction'];
+                return [3 / count, 'sendTransaction'];
             case PaymentStatus.Confirmed:
-                return [4 / 6, 'verifyTransaction'];
+                return [4 / count, 'verifyTransaction'];
             case PaymentStatus.Valid:
-                return [5 / 6 + Math.max(confirmationProgress, 1) / 6, paymentStatus];
+                return [5 / count + Math.max(confirmationProgress, 1) / 6, paymentStatus];
             case PaymentStatus.Finalized:
-                return [1, PaymentStatus.Valid];
+                return [6 / count, PaymentStatus.Valid];
             case PaymentStatus.Error:
-                return [1, paymentStatus];
+                return [6 / count, paymentStatus];
             default:
                 return [0, undefined];
         }
