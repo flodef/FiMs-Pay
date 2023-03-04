@@ -1,9 +1,8 @@
 import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import React, { FC, useCallback, useMemo, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
-import { useError } from '../../hooks/useError';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { FAUCET, FAUCET_ENCODED_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { AlertDialogPopup } from '../sections/AlertDialogPopup';
@@ -25,11 +24,6 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         usePayment();
     const { publicKey, connecting, autoConnect } = useWallet();
     const { theme, currencyName } = useConfig();
-    const { connection } = useConnection();
-    const { processError } = useError();
-
-    const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
-    const balanceIsEmpty = useTranslate('balanceIsEmpty');
 
     const [needRefresh, setNeedRefresh] = useState(false);
 
