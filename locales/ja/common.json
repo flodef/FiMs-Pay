@@ -33,6 +33,8 @@
     "invalid": "無効",
     "finalized": "終了",
     "error": "エラー",
+    "encryptAccount": "アカウントを暗号化",
+    "decryptingAccount": "アカウントを解読中",
     "retrifyingRecipient": "受信者情報を取得しています",
     "transferingSOL": "SOLの転送",
     "confirmingSOLTransfer": "SOL転送確認中",

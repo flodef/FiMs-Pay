@@ -33,6 +33,8 @@
     "invalid": "Invalide",
     "finalized": "Terminé",
     "error": "Erreur",
+    "encryptAccount": "Chiffrer le compte",
+    "decryptingAccount": "Déchiffrement du compte",
     "retrievingRecipient": "Récupération des informations sur le destinataire",
     "transferingSOL": "Transfert de SOL",
     "confirmingSOLTransfer": "Confirmation du transfert SOL",

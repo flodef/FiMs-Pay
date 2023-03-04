@@ -33,6 +33,8 @@
     "invalid": "Nevalida",
     "finalized": "Finita",
     "error": "Eraro",
+    "encryptAccount": "Ĉifri Konton",
+    "decryptingAccount": "Malĉifranto konton",
     "retrievingRecipient": "Reprenante informojn pri ricevanto",
     "transferingSOL": "Transdono de SOL",
     "confirmingSOLTransfer": "Konfirmante SOL-translokigon",
