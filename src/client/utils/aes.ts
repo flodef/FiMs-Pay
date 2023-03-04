@@ -1,4 +1,19 @@
-export async function encrypt(message: string, password: string, iterations = 500000) {
+import CryptoJS from 'crypto-js';
+
+export async function encrypt(message: string, password: string, key: string, useCustomCrypto = false) {
+    const encrypted = await simpleEncrypt(message, password, useCustomCrypto);
+    return await simpleEncrypt(encrypted, key, useCustomCrypto);
+}
+
+export async function decrypt(message: string, password: string, key: string, useCustomCrypto = false) {
+    const decrypted = await simpleDecrypt(message, key, useCustomCrypto);
+    return await simpleDecrypt(decrypted, password, useCustomCrypto);
+}
+
+async function simpleEncrypt(message: string, password: string, useCustomCrypto = false) {
+    if (!useCustomCrypto) return CryptoJS.AES.encrypt(message, password).toString();
+
+    const iterations = 500000;
     const iterationsHash = btoa(iterations.toString());
 
     const msg = new TextEncoder().encode(message);
@@ -108,7 +123,9 @@ export async function encrypt(message: string, password: string, iterations = 50
     return encrypted + '.' + sigHash;
 }
 
-export async function decrypt(encrypted: string, password: string) {
+async function simpleDecrypt(encrypted: string, password: string, useCustomCrypto = false) {
+    if (!useCustomCrypto) return CryptoJS.AES.decrypt(encrypted, password).toString(CryptoJS.enc.Utf8);
+
     const parts = encrypted.split('.');
 
     const rounds = parseInt(atob(parts[0]));

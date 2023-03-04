@@ -49,8 +49,8 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
 import { DEVNET_DUMMY_MINT } from '../../utils/constants';
-import CryptoJS from 'crypto-js';
 import { decrypt } from '../../utils/aes';
+import { LoadKey } from '../../utils/key';
 
 export class PaymentError extends Error {
     name = 'PaymentError';
@@ -192,7 +192,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 ? () => {
                       try {
                           connect().catch(() => setTimeout(() => select(defaultWallet), 100));
-                      } catch {}
+                      } catch (error: any) {
+                          processError(error);
+                      }
                   }
                 : () => {};
             if (!wallet) {
@@ -207,7 +209,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         } else {
             setVisible(true);
         }
-    }, [connect, select, wallet, setVisible, publicKey]);
+    }, [connect, select, wallet, setVisible, publicKey, processError]);
 
     const connectWallet = useCallback(() => {
         setPaymentStatus(PaymentStatus.New);
@@ -266,9 +268,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 if (connection.rpcEndpoint !== clusterApiUrl('devnet'))
                     throw new Error('Airdrop available only on Devnet');
 
-                const value = USE_CUSTOM_CRYPTO
-                    ? await decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET)
-                    : CryptoJS.AES.decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET).toString(CryptoJS.enc.Utf8);
+                setAirdropStatus(AirdropStatus.DecryptingAccount);
+                const key = await LoadKey(-1);
+                const value = await decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET, key, USE_CUSTOM_CRYPTO);
                 const list = value.split(',').map(Number);
                 const array = Uint8Array.from(list);
                 const keypair = Keypair.fromSecretKey(array);
