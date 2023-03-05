@@ -35,7 +35,6 @@ import {
     IS_DEV,
     IS_CUSTOMER_POS,
     DEFAULT_WALLET,
-    AUTO_CONNECT,
     POS_USE_WALLET,
     FAUCET_ENCODED_KEY,
     CRYPTO_SECRET,
@@ -188,28 +187,16 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         if (publicKey) return;
         if (DEFAULT_WALLET) {
             const defaultWallet = DEFAULT_WALLET as WalletName;
-            const a = AUTO_CONNECT
-                ? () => {
-                      try {
-                          connect().catch(() => setTimeout(() => select(defaultWallet), 100));
-                      } catch (error: any) {
-                          processError(error);
-                      }
-                  }
-                : () => {};
+            const a = (wallet: any) => setTimeout(() => select(wallet), 100);
             if (!wallet) {
-                const walletName = isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet;
-                setTimeout(() => {
-                    select(walletName);
-                    a();
-                }, 100);
+                a(isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet);
             } else {
-                a();
+                connect().catch(() => a(defaultWallet));
             }
         } else {
             setVisible(true);
         }
-    }, [connect, select, wallet, setVisible, publicKey, processError]);
+    }, [connect, select, wallet, setVisible, publicKey]);
 
     const connectWallet = useCallback(() => {
         setPaymentStatus(PaymentStatus.New);

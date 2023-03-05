@@ -334,7 +334,6 @@ Here is the list of all availables settings with their explanation and default v
 -   NEXT_PUBLIC_USE_HTTP=false : Whether the Web protocol used is HTTP or HTTPS (in dev, HTTPS needs a proxy to run in background while HTTP do not).
 -   NEXT_PUBLIC_USE_LINK=false : Whether to use Transaction Requests (true) or Transfer Requests (false).
 -   NEXT_PUBLIC_USE_WEB_WALLET=false : Whether to connect to a Web wallet first or use Mobile Wallet Adapter.
--   NEXT_PUBLIC_AUTO_CONNECT=false : Whether to connect automatically when the application starts or wait for the user interaction.
 -   NEXT_PUBLIC_USE_CUSTOM_CRYPTO=false : Whether to use a custom cryptographic algorithm (slower but more secure) or an external library (faster but less secure)
 -   NEXT_PUBLIC_DEFAULT_WALLET : The default wallet to connect to (for example, if you are sure that all of your customers are only using one wallet). Leave empty for user to choose among different wallets.
 -   NEXT_PUBLIC_APP_TITLE=FiMs Pay : The app default title, that will be displayed in the web page and use as default merchant label.
