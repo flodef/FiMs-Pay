@@ -55,22 +55,6 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
         [label, maxValue, recipient, index, currency, navigate, merchantInfoList]
     );
 
-    const onInput = useCallback<React.FormEventHandler<HTMLInputElement>>((event) => {
-        const a = (x: string) => {
-            switch (event.currentTarget.id) {
-                case 'label':
-                    return () => setLabel(x);
-                case 'recipient':
-                    return () => setRecipient(x);
-                case 'maxValue':
-                    return () => setMaxValue(x);
-                default:
-                    return () => {};
-            }
-        };
-        a(event.currentTarget.value)();
-    }, []);
-
     const getMerchantData = (item: MerchantInfo) => {
         return { key: item.index, value: item.index.toString(), text: item.company };
     };
@@ -139,7 +123,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                     className={css.Input}
                                     id="label"
                                     value={label}
-                                    onInput={onInput}
+                                    onInput={(x) => setLabel(x.currentTarget.value)}
                                     placeholder={myShopName}
                                     pattern=".{0,50}"
                                 />
@@ -153,7 +137,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                         className={css.Input}
                                         id="recipient"
                                         value={recipient}
-                                        onInput={onInput}
+                                        onInput={(x) => setRecipient(x.currentTarget.value)}
                                         placeholder={myShopWalletAddress}
                                         pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$"
                                     />
@@ -179,7 +163,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                     className={css.Input}
                                     id="maxValue"
                                     value={maxValue}
-                                    onInput={onInput}
+                                    onInput={(x) => setMaxValue(x.currentTarget.value)}
                                     placeholder={maximumReceivableValue}
                                     pattern="^$|^[1-9]\d{0,4}(\.\d{1,2})?\s*$"
                                 />
