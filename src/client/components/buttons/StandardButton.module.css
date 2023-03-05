@@ -1,0 +1,75 @@
+.root,
+.rootBW,
+.rootColor,
+.rootEmpty {
+    margin: 24px auto;
+    padding: 12px 24px;
+    border: 0;
+    display: block;
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 500;
+    cursor: pointer;
+    visibility: visible;
+    background: black;
+    text-align: center;
+}
+.root {
+    border-radius: 8px;
+}
+.rootBW,
+.rootColor {
+    border-radius: 24px 24px 24px 0;
+}
+.rootEmpty {
+    cursor: default;
+}
+
+.root[disabled],
+.rootBW[disabled],
+.rootColor[disabled],
+.rootEmpty[disabled] {
+    cursor: default;
+    opacity: 0.5;
+    visibility: hidden;
+}
+
+:global(html.light) .root {
+    background: var(--theme-light-button-background);
+    color: var(--theme-light-button-color);
+}
+
+:global(html.dark) .root {
+    background: var(--theme-dark-button-background);
+    color: var(--theme-dark-button-color);
+}
+
+:global(html.light) .rootBW {
+    background: var(--theme-light-button-background);
+    color: var(--theme-light-button-color);
+}
+
+:global(html.dark) .rootBW {
+    background: var(--theme-dark-button-background);
+    color: var(--theme-dark-button-color);
+}
+
+:global(html.light) .rootColor {
+    background-image: var(--theme-button-grandient-background);
+    color: var(--theme-dark-gradient-button-color);
+}
+
+:global(html.dark) .rootColor {
+    background-image: var(--theme-button-grandient-background);
+    color: var(--theme-light-gradient-button-color);
+}
+
+:global(html.light) .rootEmpty {
+    background-color: var(--theme-light-background);
+    color: var(--theme-light-color);
+}
+
+:global(html.dark) .rootEmpty {
+    background-color: var(--theme-dark-background);
+    color: var(--theme-dark-color);
+}

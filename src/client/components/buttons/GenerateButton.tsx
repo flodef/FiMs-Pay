@@ -7,6 +7,7 @@ import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { FAUCET, FAUCET_ENCODED_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { AlertDialogPopup } from '../sections/AlertDialogPopup';
 import css from './GenerateButton.module.css';
+import { StandardButton } from './StandardButton';
 
 enum State {
     Connecting = 'connecting',
@@ -93,19 +94,11 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
 
     const button = useMemo(
         () =>
-            action ? (
-                <button
-                    className={
-                        action === State.Connecting
-                            ? css.rootEmpty
-                            : theme === Theme.Color
-                            ? css.rootColor
-                            : theme === Theme.BlackWhite
-                            ? css.rootBW
-                            : css.root
-                    }
-                    type="button"
+            action && (
+                <StandardButton
+                    messageId={action}
                     onClick={!alert ? handleClick : undefined}
+                    styleless={action === State.Connecting}
                     disabled={
                         (!IS_CUSTOMER_POS && isInvalidAmount) ||
                         (IS_CUSTOMER_POS &&
@@ -114,11 +107,9 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                             hasSufficientBalance &&
                             (isInvalidAmount || paymentStatus !== PaymentStatus.New))
                     }
-                >
-                    <FormattedMessage id={action} />
-                </button>
-            ) : null,
-        [action, connecting, handleClick, hasSufficientBalance, isInvalidAmount, publicKey, paymentStatus, theme, alert]
+                />
+            ),
+        [action, connecting, handleClick, hasSufficientBalance, isInvalidAmount, publicKey, paymentStatus, alert]
     );
 
     return <AlertDialogPopup button={button} onClick={handleClick} alert={alert} />;
