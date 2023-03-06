@@ -189,7 +189,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             const defaultWallet = DEFAULT_WALLET as WalletName;
             const a = (wallet: any) => setTimeout(() => select(wallet), 100);
             if (!wallet) {
-                a(isMobileDevice() ? SolanaMobileWalletAdapterWalletName : defaultWallet);
+                a(defaultWallet);
             } else {
                 connect().catch(() => a(defaultWallet));
             }
