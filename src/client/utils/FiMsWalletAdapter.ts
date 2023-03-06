@@ -1,10 +1,10 @@
-import { WalletAdapterNetwork, WalletName } from '@solana/wallet-adapter-base';
 import {
     BaseMessageSignerWalletAdapter,
     WalletConfigError,
     WalletConnectionError,
     WalletDisconnectedError,
     WalletDisconnectionError,
+    WalletName,
     WalletNotConnectedError,
     WalletNotReadyError,
     WalletPublicKeyError,
@@ -12,8 +12,7 @@ import {
     WalletSignMessageError,
     WalletSignTransactionError,
 } from '@solana/wallet-adapter-base';
-import { Transaction, TransactionVersion, VersionedTransaction } from '@solana/web3.js';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, Transaction, TransactionVersion, VersionedTransaction } from '@solana/web3.js';
 import FiMsWallet from './FiMsWallet';
 
 export const FiMsWalletName = 'FiMs' as WalletName<'FiMs'>;
@@ -28,8 +27,8 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
         0 as TransactionVersion,
     ]);
 
+    private static _wallet: FiMsWallet | null;
     private _connecting: boolean;
-    private _wallet: FiMsWallet | null;
     private _publicKey: PublicKey | null;
     private _readyState: WalletReadyState =
         typeof window === 'undefined' || typeof document === 'undefined'
@@ -40,7 +39,7 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
         super();
         this._connecting = false;
         this._publicKey = null;
-        this._wallet = null;
+        FiMsWalletAdapter._wallet = null;
 
         if (this._readyState !== WalletReadyState.Unsupported) {
             this._readyState = WalletReadyState.Installed;
@@ -53,11 +52,11 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
     }
 
     get connecting() {
-        return this._connecting;
+        return this._connecting || FiMsWallet.isConnecting;
     }
 
     get connected() {
-        return !!this._wallet?.isConnected;
+        return !!FiMsWalletAdapter._wallet?.isConnected;
     }
 
     get readyState() {
@@ -76,7 +75,7 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
 
             let wallet: FiMsWallet;
             try {
-                wallet = new FiMsWallet();
+                wallet = FiMsWalletAdapter._wallet || new FiMsWallet(this);
             } catch (error: any) {
                 throw new WalletConfigError(error?.message, error);
             }
@@ -91,6 +90,9 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
                 }
             }
 
+            FiMsWalletAdapter._wallet = wallet;
+
+            if (FiMsWallet.isConnecting) return;
             if (!wallet.publicKey) throw new WalletConnectionError();
 
             let publicKey: PublicKey;
@@ -103,7 +105,6 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
             wallet.on('disconnect', this._disconnected);
             wallet.on('accountChanged', this._accountChanged);
 
-            this._wallet = wallet;
             this._publicKey = publicKey;
 
             this.emit('connect', publicKey);
@@ -116,12 +117,12 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
     }
 
     async disconnect(): Promise<void> {
-        const wallet = this._wallet;
+        const wallet = FiMsWalletAdapter._wallet;
         if (wallet) {
             wallet.off('disconnect', this._disconnected);
             wallet.off('accountChanged', this._accountChanged);
 
-            this._wallet = null;
+            FiMsWalletAdapter._wallet = null;
             this._publicKey = null;
 
             try {
@@ -136,7 +137,7 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
 
     async signTransaction<T extends Transaction | VersionedTransaction>(transaction: T): Promise<T> {
         try {
-            const wallet = this._wallet;
+            const wallet = FiMsWalletAdapter._wallet;
             if (!wallet) throw new WalletNotConnectedError();
 
             try {
@@ -152,7 +153,7 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
 
     async signAllTransactions<T extends Transaction | VersionedTransaction>(transactions: T[]): Promise<T[]> {
         try {
-            const wallet = this._wallet;
+            const wallet = FiMsWalletAdapter._wallet;
             if (!wallet) throw new WalletNotConnectedError();
 
             try {
@@ -168,7 +169,7 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
 
     async signMessage(message: Uint8Array): Promise<Uint8Array> {
         try {
-            const wallet = this._wallet;
+            const wallet = FiMsWalletAdapter._wallet;
             if (!wallet) throw new WalletNotConnectedError();
 
             try {
@@ -183,11 +184,11 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
     }
 
     private _disconnected = () => {
-        const wallet = this._wallet;
+        const wallet = FiMsWalletAdapter._wallet;
         if (wallet) {
             wallet.off('disconnect', this._disconnected);
 
-            this._wallet = null;
+            FiMsWalletAdapter._wallet = null;
             this._publicKey = null;
 
             this.emit('error', new WalletDisconnectedError());
