@@ -43,7 +43,7 @@ export const CURRENCY_LIST: currencyType =
               SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
               USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
               EUR_Dev: { splToken: DEVNET_DUMMY_MINT, icon: EURIcon, decimals: 6, minDecimals: 2, symbol: 'EUR' },
-              HEOL_Dev: { splToken: DEVNET_DUMMY_MINT, icon: HEOLIcon, decimals: 6, minDecimals: 2, symbol: 'EUR' },
+              HEOL_Dev: { splToken: DEVNET_DUMMY_MINT, icon: HEOLIcon, decimals: 6, minDecimals: 2, symbol: 'Heol' },
           }
         : {
               SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
