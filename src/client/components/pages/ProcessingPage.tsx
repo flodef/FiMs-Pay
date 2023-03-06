@@ -1,10 +1,10 @@
 import { NextPage } from 'next';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { IS_CUSTOMER_POS } from '../../utils/env';
-import { BackButton } from '../buttons/BackButton';
 import { GenerateButton } from '../buttons/GenerateButton';
+import { BackButton } from '../buttons/StandardButton';
 import { ErrorMessage } from '../sections/ErrorMessage';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Progress, ProgresShape } from '../sections/Progress';
@@ -44,9 +44,7 @@ const ProcessingPage: NextPage = () => {
     return (
         <div className={css.root}>
             <div className={css.header}>
-                <BackButton onClick={reset} disabled={!isPaidStatus}>
-                    <FormattedMessage id="newPayment" />
-                </BackButton>
+                <BackButton messageId="newPayment" onClick={reset} disabled={!isPaidStatus} />
             </div>
             <div className={css.main}>
                 <TransactionInfo />

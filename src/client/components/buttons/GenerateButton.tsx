@@ -1,12 +1,10 @@
 import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 import { useWallet } from '@solana/wallet-adapter-react';
 import React, { FC, useCallback, useMemo, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Theme, useConfig } from '../../hooks/useConfig';
+import { useConfig } from '../../hooks/useConfig';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { FAUCET, FAUCET_ENCODED_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { AlertDialogPopup } from '../sections/AlertDialogPopup';
-import css from './GenerateButton.module.css';
 import { StandardButton } from './StandardButton';
 
 enum State {
@@ -24,7 +22,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const { amount, paymentStatus, hasSufficientBalance, generate, requestAirdrop, updateBalance, connectWallet } =
         usePayment();
     const { publicKey, connecting, autoConnect } = useWallet();
-    const { theme, currencyName } = useConfig();
+    const { currencyName } = useConfig();
 
     const [needRefresh, setNeedRefresh] = useState(false);
 
@@ -98,7 +96,8 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 <StandardButton
                     messageId={action}
                     onClick={!alert ? handleClick : undefined}
-                    styleless={action === State.Connecting}
+                    hasTheme={action !== State.Connecting}
+                    style={{ cursor: action === State.Connecting ? 'default' : 'pointer' }}
                     disabled={
                         (!IS_CUSTOMER_POS && isInvalidAmount) ||
                         (IS_CUSTOMER_POS &&

@@ -1,20 +1,16 @@
-import React, { FC, useCallback } from 'react';
-import css from './TopBar.module.css';
-import { FormattedMessage } from 'react-intl';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { FC } from 'react';
 import { useConfig } from '../../hooks/useConfig';
-import { BackButton } from '../buttons/BackButton';
 import { SHOW_MERCHANT_LIST } from '../../utils/env';
+import { BackButton } from '../buttons/StandardButton';
 import { ActionMenu } from './ActionMenu';
+import css from './TopBar.module.css';
 
 export const TopBar: FC = () => {
     const { reset } = useConfig();
 
     return (
         <div className={css.root}>
-            <BackButton onClick={reset}>
-                <FormattedMessage id={SHOW_MERCHANT_LIST ? 'merchants' : 'back'} />
-            </BackButton>
+            <BackButton messageId={SHOW_MERCHANT_LIST ? 'merchants' : 'back'} onClick={reset} />
             <ActionMenu />
         </div>
     );

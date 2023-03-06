@@ -1,5 +1,4 @@
-import React, { FC, useMemo } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FC, useMemo } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { Amount } from './Amount';

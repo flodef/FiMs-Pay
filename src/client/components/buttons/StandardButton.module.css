@@ -11,8 +11,11 @@
     font-weight: 500;
     cursor: pointer;
     visibility: visible;
-    background: black;
     text-align: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
 }
 .root {
     border-radius: 8px;
@@ -20,9 +23,6 @@
 .rootBW,
 .rootColor {
     border-radius: 24px 24px 24px 0;
-}
-.rootEmpty {
-    cursor: default;
 }
 
 .root[disabled],
@@ -32,6 +32,10 @@
     cursor: default;
     opacity: 0.5;
     visibility: hidden;
+}
+
+.circular {
+    margin: 25px;
 }
 
 :global(html.light) .root {
