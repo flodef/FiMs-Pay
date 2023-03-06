@@ -5,8 +5,7 @@
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
+    display: block;
 }
 
 @media (min-width: 768px) {
