@@ -1,21 +1,29 @@
+import { useWallet } from '@solana/wallet-adapter-react';
 import { NextPage } from 'next';
-import React, { useCallback, useMemo } from 'react';
-import { IS_CUSTOMER_POS, SHOW_MERCHANT_LIST } from '../../utils/env';
-import { useConfig } from '../../hooks/useConfig';
+import { useEffect, useMemo } from 'react';
+import { AirdropStatus, usePayment } from '../../hooks/usePayment';
+import { DEFAULT_WALLET, IS_CUSTOMER_POS } from '../../utils/env';
+import { useIsMobileSize } from '../../utils/mobile';
 import { GenerateButton } from '../buttons/GenerateButton';
 import { NumPad } from '../sections/NumPad';
 import { PoweredBy } from '../sections/PoweredBy';
-import { Summary } from '../sections/Summary';
-import css from './NewPage.module.css';
-import { useIsMobileSize } from '../../utils/mobile';
-import { TopBar } from '../sections/TopBar';
-import { AirdropStatus, usePayment } from '../../hooks/usePayment';
 import { Progress, ProgresShape } from '../sections/Progress';
+import { Summary } from '../sections/Summary';
+import { TopBar } from '../sections/TopBar';
+import css from './NewPage.module.css';
 
 const NewPage: NextPage = () => {
-    const { airdropStatus } = usePayment();
+    const { airdropStatus, connectWallet } = usePayment();
     const phone = useIsMobileSize() || IS_CUSTOMER_POS;
     const generateId = IS_CUSTOMER_POS ? 'pay' : 'generateCode';
+
+    // Adding default wallet to localstorage if not already set by user ==> automatically connect to the wallet set in the settings
+    useEffect(() => {
+        const walletNameLabel = 'walletName';
+        if (!localStorage.getItem(walletNameLabel) && DEFAULT_WALLET) {
+            connectWallet();
+        }
+    }, [connectWallet]);
 
     const value = useMemo(() => {
         const count = 7;
