@@ -9,7 +9,9 @@ import { LoadKey } from './key';
 
 export default class FiMsWallet extends EventEmitter {
     private static _stateLabel = 'FiMsReady';
+    private static _frameId = 'FiMsWalletIFrame';
     private static _timeLabel = 'Time';
+    private static _counter = 0;
     private _keypair: Keypair | undefined;
     private _adapter: Adapter;
     constructor(adapter: Adapter) {
@@ -18,10 +20,10 @@ export default class FiMsWallet extends EventEmitter {
     }
 
     private _buildPage() {
-        sessionStorage.setItem(FiMsWallet._stateLabel, 'false');
+        FiMsWallet.incrementLoadingCounter();
 
         const div = document.createElement('div');
-        div.setAttribute('id', 'walletIFrame');
+        div.setAttribute('id', FiMsWallet._frameId);
         window.document.body.appendChild(div);
 
         const iframe = document.createElement('iframe');
@@ -36,15 +38,21 @@ export default class FiMsWallet extends EventEmitter {
         this._cleanPage(div);
     }
     private _cleanPage(element: HTMLElement) {
-        if (sessionStorage.getItem(FiMsWallet._stateLabel) !== 'false') {
-            FiMsWallet.finishConnecting();
+        if (sessionStorage.getItem(FiMsWallet._stateLabel) === null) {
             window.document.body.removeChild(element);
             this._adapter.connect();
         } else {
+            FiMsWallet.incrementLoadingCounter();
             setTimeout(() => this._cleanPage(element), 100);
         }
     }
-    private async getPrivateKey(stored: string, time: number) {
+    static get loadingCounter() {
+        return Number(sessionStorage.getItem(FiMsWallet._stateLabel));
+    }
+    private static incrementLoadingCounter() {
+        sessionStorage.setItem(FiMsWallet._stateLabel, (++FiMsWallet._counter).toString());
+    }
+    private async decryptPrivateKey(stored: string, time: number) {
         const key = await LoadKey(Number(time));
         return await decrypt(stored, CRYPTO_SECRET, key, USE_CUSTOM_CRYPTO);
     }
@@ -61,36 +69,38 @@ export default class FiMsWallet extends EventEmitter {
     static finishConnecting() {
         sessionStorage.removeItem(FiMsWallet._stateLabel);
     }
-    static set privateKey([key, time]) {
+    static set privateKey({ key, time }) {
         if (key) {
             localStorage.setItem(FiMsWalletName, key);
             localStorage.setItem(FiMsWallet._timeLabel, time.toString());
         }
     }
-    static get privateKey(): [string | null, number] {
-        return [localStorage.getItem(FiMsWalletName), Number(localStorage.getItem(FiMsWallet._timeLabel))];
+    static get privateKey(): { key: string | null; time: number } {
+        return { key: localStorage.getItem(FiMsWalletName), time: Number(localStorage.getItem(FiMsWallet._timeLabel)) };
     }
 
     async connect(): Promise<void> {
-        const [stored, time] = FiMsWallet.privateKey;
-        if (stored) {
+        const { key, time } = FiMsWallet.privateKey;
+        if (key && time) {
             FiMsWallet.finishConnecting();
             let value = '';
             try {
-                value = await this.getPrivateKey(stored, time);
+                value = await this.decryptPrivateKey(key, time);
             } catch {
-                value = await this.getPrivateKey(stored, time + 1000 * 3600 * 24); // Try the next day because of time zone offset
+                value = await this.decryptPrivateKey(key, time + 1000 * 3600 * 24); // Try the next day because of time zone offset
             } finally {
                 const list = value.split(',').map(Number);
                 const array = Uint8Array.from(list);
                 this._keypair = Keypair.fromSecretKey(array);
             }
-        } else {
+        } else if (!FiMsWallet.isConnecting) {
             this._buildPage();
-            const key = await LoadKey();
-            const value = Keypair.generate();
-            const cipher = await encrypt(value.secretKey.toString(), CRYPTO_SECRET, key, USE_CUSTOM_CRYPTO);
-            FiMsWallet.privateKey = [cipher, Date.now()];
+            if (!key) {
+                const key = await LoadKey();
+                const value = Keypair.generate();
+                const cipher = await encrypt(value.secretKey.toString(), CRYPTO_SECRET, key, USE_CUSTOM_CRYPTO);
+                FiMsWallet.privateKey = { key: cipher, time: 0 };
+            }
         }
     }
     async disconnect(): Promise<void> {

@@ -39,9 +39,8 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
         super();
         this._connecting = false;
         this._publicKey = null;
-        FiMsWalletAdapter._wallet = null;
 
-        if (this._readyState !== WalletReadyState.Unsupported) {
+        if (this._readyState !== WalletReadyState.Unsupported && this._readyState !== WalletReadyState.Installed) {
             this._readyState = WalletReadyState.Installed;
             this.emit('readyStateChange', this._readyState);
         }
@@ -64,7 +63,18 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
     }
 
     async autoConnect(): Promise<void> {
-        await this.connect();
+        if (this.connecting) {
+            const initCount = FiMsWallet.loadingCounter;
+            setTimeout(() => {
+                const count = FiMsWallet.loadingCounter;
+                if (count === initCount) {
+                    FiMsWallet.finishConnecting();
+                    this.connect();
+                }
+            }, 300);
+        } else {
+            await this.connect();
+        }
     }
 
     async connect(): Promise<void> {
