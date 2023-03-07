@@ -1,5 +1,4 @@
 import { WalletNotReadyError } from '@solana/wallet-adapter-base';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { NextPage } from 'next';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -21,13 +20,18 @@ const WalletPage: NextPage = () => {
     const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
     const enterPhrase = useTranslate('enterPhrase');
     const pasteMyPhrase = useTranslate('pasteMyPhrase');
-    const { connect } = useWallet();
 
+    const currentDate = new Date();
+    const timezoneOffset = currentDate.getTimezoneOffset() * 60 * 1000;
     const initPattern = '\\S+ +\\S+.*';
     const [phrasePattern, setPhrasePattern] = useState(initPattern);
     const [phase, setPhase] = useState(Phase.Select);
     const [phrase, setPhrase] = useState('');
-    const [date, setDate] = useState(new Date().toDateString());
+    const [date, setDate] = useState(
+        `${currentDate.getFullYear()}-${('0' + (currentDate.getMonth() + 1)).slice(-2)}-${(
+            '0' + currentDate.getDate()
+        ).slice(-2)}`
+    );
     const [time, setTime] = useState(0);
     const [loading, setLoading] = useState(false);
     const [invalid, setInvalid] = useState(false);
@@ -48,6 +52,8 @@ const WalletPage: NextPage = () => {
     const verifyPhrase = useCallback(
         async (phrase: string, time = 0) => {
             setLoading(true);
+            setPhrase(phrase);
+
             let magic = '';
             let key: string | null = '';
             if (time === 0) {
@@ -68,13 +74,26 @@ const WalletPage: NextPage = () => {
         [stegcloak]
     );
 
+    const storePhrase = useCallback(() => {
+        if (time) {
+            FiMsWallet.privateKey = { key: magic, time };
+        }
+        FiMsWallet.finishConnecting();
+    }, [magic, time]);
+
     return (
         <div className={css.root}>
             <div className={css.container}>
                 <div className={css.popup} style={{ display: 'block' }}>
                     {phase === Phase.Select ? (
                         <div className={css.btnWrapper}>
-                            <StandardButton messageId="aleadyHaveWallet" onClick={() => setPhase(Phase.Retrieve)} />
+                            <StandardButton
+                                messageId="aleadyHaveWallet"
+                                onClick={() => {
+                                    setPhase(Phase.Retrieve);
+                                    setTime(new Date(date).getTime());
+                                }}
+                            />
                             <div className={css.title}>
                                 <FormattedMessage id="or" />
                             </div>
@@ -95,7 +114,6 @@ const WalletPage: NextPage = () => {
                                     setDate(x.currentTarget.value);
                                     setTime(new Date(x.currentTarget.value).getTime());
                                 }}
-                                placeholder={pasteMyPhrase}
                             />
                             <div className={css.divider}></div>
                             <div className={css.btnWrapper}>
@@ -110,7 +128,9 @@ const WalletPage: NextPage = () => {
                                         setPhase(Phase.Verify);
                                         setPhrase('');
                                     }}
-                                    disabled={!time || time < 1677628800000 || time > Date.now()}
+                                    disabled={
+                                        !time || time < 1677628800000 || time > currentDate.getTime() - timezoneOffset
+                                    }
                                     style={{ float: 'right' }}
                                 />
                             </div>
@@ -125,6 +145,9 @@ const WalletPage: NextPage = () => {
                                 id="phrase"
                                 autoFocus
                                 value={phrase}
+                                onKeyUp={(x) => {
+                                    if (x.key == 'Enter' && !invalid) generatePhrase();
+                                }}
                                 onInput={(x) => setPhrase(x.currentTarget.value)}
                                 placeholder={enterPhrase}
                                 pattern={initPattern} //at least one space
@@ -150,7 +173,12 @@ const WalletPage: NextPage = () => {
                                 <FormattedMessage id="test2" />
                                 <br />
                                 <br />
-                                <FormattedMessage id="test3" values={{ date: new Date().toLocaleDateString() }} />
+                                <FormattedMessage
+                                    id="test3"
+                                    values={{
+                                        date: new Date(currentDate.getTime() + timezoneOffset).toLocaleDateString(),
+                                    }}
+                                />
                             </div>
                             <div className={css.divider}></div>
                             <div className={css.btnWrapper}>
@@ -184,8 +212,10 @@ const WalletPage: NextPage = () => {
                                 id="phrase"
                                 autoFocus
                                 value={phrase}
+                                onKeyUp={(x) => {
+                                    if (x.key == 'Enter' && !invalid) storePhrase();
+                                }}
                                 onInput={(x) => {
-                                    setPhrase(x.currentTarget.value);
                                     verifyPhrase(x.currentTarget.value, time);
                                 }}
                                 placeholder={pasteMyPhrase}
@@ -198,8 +228,6 @@ const WalletPage: NextPage = () => {
                                     onClick={() => {
                                         setPhase(time ? Phase.Retrieve : Phase.Create);
                                         setPhrase('');
-                                        setDate('');
-                                        setTime(0);
                                         setPhrasePattern(initPattern);
                                     }}
                                     disabled={loading}
@@ -207,12 +235,7 @@ const WalletPage: NextPage = () => {
                                 />
                                 <StandardButton
                                     messageId="finalized"
-                                    onClick={() => {
-                                        if (time) {
-                                            FiMsWallet.privateKey = { key: magic, time };
-                                        }
-                                        FiMsWallet.finishConnecting();
-                                    }}
+                                    onClick={storePhrase}
                                     disabled={invalid}
                                     loading={loading}
                                     style={{ float: 'right' }}
