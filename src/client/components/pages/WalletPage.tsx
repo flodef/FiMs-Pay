@@ -22,6 +22,7 @@ const WalletPage: NextPage = () => {
     const pasteMyPhrase = useTranslate('pasteMyPhrase');
 
     const currentDate = new Date();
+    const currentTime = currentDate.getTime();
     const timezoneOffset = currentDate.getTimezoneOffset() * 60 * 1000;
     const initPattern = '\\S+ +\\S+.*';
     const [phrasePattern, setPhrasePattern] = useState(initPattern);
@@ -75,11 +76,9 @@ const WalletPage: NextPage = () => {
     );
 
     const storePhrase = useCallback(() => {
-        if (time) {
-            FiMsWallet.privateKey = { key: magic, time };
-        }
+        FiMsWallet.privateKey = { key: magic, time: time || currentTime };
         FiMsWallet.finishConnecting();
-    }, [magic, time]);
+    }, [magic, time, currentTime]);
 
     return (
         <div className={css.root}>
@@ -128,9 +127,7 @@ const WalletPage: NextPage = () => {
                                         setPhase(Phase.Verify);
                                         setPhrase('');
                                     }}
-                                    disabled={
-                                        !time || time < 1677628800000 || time > currentDate.getTime() - timezoneOffset
-                                    }
+                                    disabled={!time || time < 1677628800000 || time > currentTime - timezoneOffset}
                                     style={{ float: 'right' }}
                                 />
                             </div>
@@ -176,7 +173,7 @@ const WalletPage: NextPage = () => {
                                 <FormattedMessage
                                     id="test3"
                                     values={{
-                                        date: new Date(currentDate.getTime() + timezoneOffset).toLocaleDateString(),
+                                        date: new Date(currentTime + timezoneOffset).toLocaleDateString(),
                                     }}
                                 />
                             </div>
