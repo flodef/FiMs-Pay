@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import StegCloak from 'stegcloak';
 import FiMsWallet from '../../utils/FiMsWallet';
-import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
 import { LoadKey } from '../../utils/key';
 import { BackButton, StandardButton } from '../buttons/StandardButton';
 import css from './WalletPage.module.css';
@@ -40,9 +39,9 @@ const WalletPage: NextPage = () => {
     const generatePhrase = useCallback(async () => {
         setPhase(Phase.Store);
         setLoading(true);
-        const stored = localStorage.getItem(FiMsWalletName);
-        if (!stored) throw new WalletNotReadyError('Wallet key not found');
-        setMagic(stegcloak.hide(stored, await LoadKey(), phrase));
+        const key = FiMsWallet.privateKey.key;
+        if (!key) throw new WalletNotReadyError('Wallet key not found');
+        setMagic(stegcloak.hide(key, await LoadKey(), phrase));
         setLoading(false);
     }, [phrase, stegcloak]);
 
@@ -50,16 +49,16 @@ const WalletPage: NextPage = () => {
         async (phrase: string, time = 0) => {
             setLoading(true);
             let magic = '';
-            let stored: string | null = '';
+            let key: string | null = '';
             if (time === 0) {
-                stored = localStorage.getItem(FiMsWalletName);
-                if (!stored) throw new WalletNotReadyError('Wallet key not found');
+                key = FiMsWallet.privateKey.key;
+                if (!key) throw new WalletNotReadyError('Wallet key not found');
             }
             try {
                 magic = stegcloak.reveal(phrase, await LoadKey(time));
             } catch {
             } finally {
-                const valid = magic && (!stored || magic === stored);
+                const valid = magic && (!key || magic === key);
                 setLoading(false);
                 setInvalid(!valid);
                 setMagic(magic);
@@ -210,7 +209,7 @@ const WalletPage: NextPage = () => {
                                     messageId="finalized"
                                     onClick={() => {
                                         if (time) {
-                                            FiMsWallet.privateKey = [magic, time];
+                                            FiMsWallet.privateKey = { key: magic, time };
                                         }
                                         FiMsWallet.finishConnecting();
                                     }}
@@ -221,18 +220,6 @@ const WalletPage: NextPage = () => {
                             </div>
                         </>
                     ) : null}
-                    {/* {hasWallet !== undefined && (
-                        <>
-                            <div className={css.divider}></div>
-                            <div className={css.btnWrapper}>
-                                <StandardButton
-                                    messageId='letsgo'
-                                    onClick={() => sessionStorage.setItem('FiMsReady', 'true')}
-                                    styleless
-                                />
-                            </div>
-                        </>
-                    )} */}
                 </div>
             </div>
         </div>
@@ -240,16 +227,3 @@ const WalletPage: NextPage = () => {
 };
 
 export default WalletPage;
-
-{
-    /* <TextField
-                                id="phrase"
-                                autoFocus
-                                fullWidth
-                                label="Helper text"
-                                defaultValue="Ma phrase"
-                                variant="standard"
-                                value={phrase}
-                                onChange={(event) => setPhrase(event.target.value)}
-                            /> */
-}
