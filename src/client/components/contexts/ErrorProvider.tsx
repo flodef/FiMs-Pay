@@ -13,6 +13,9 @@ export const ErrorProvider: FC<ErrorProviderProps> = ({ children }) => {
         }
         setError(error);
     }, []);
+    const compareErrorType = useCallback((error: Error | undefined, type: Error) => {
+        return error !== undefined && error.name === type.name;
+    }, []);
 
-    return <ErrorContext.Provider value={{ error, processError }}>{children}</ErrorContext.Provider>;
+    return <ErrorContext.Provider value={{ error, processError, compareErrorType }}>{children}</ErrorContext.Provider>;
 };

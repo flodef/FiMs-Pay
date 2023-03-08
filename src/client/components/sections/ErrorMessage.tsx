@@ -1,10 +1,10 @@
-import { TokenAccountNotFoundError } from '@solana/spl-token';
+import { TokenAccountNotFoundError, TokenInvalidAccountError } from '@solana/spl-token';
 import {
     WalletNotConnectedError,
     WalletSendTransactionError,
     WalletSignTransactionError,
 } from '@solana/wallet-adapter-base';
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { CreateTransferError } from '../../../server/core/createTransfer';
 import { ValidateTransferError } from '../../../server/core/validateTransfer';
@@ -30,17 +30,23 @@ export const ErrorMessage: FC = () => {
                     return error.name;
                 case new CreateTransferError().name:
                 case new ValidateTransferError().name:
+                case new TokenInvalidAccountError().name:
                 case new PaymentError().name:
                 case new TypeError().name:
                     return error.message;
                 case new Error().name:
-                    const e = error.toString().split(': ');
-                    return e[1].trim() === '429'
+                    const e = error
+                        .toString()
+                        .split(': ')
+                        .map((x) => x.trim());
+                    return e[1] === '429'
                         ? 'NetworkBusyError'
-                        : e[2].trim() === TypeError.name
+                        : e[2] === TypeError.name
                         ? e[3]
-                        : e[3].trim() === '401'
+                        : e[3] === '401'
                         ? 'RPCError'
+                        : e[2] === 'Internal error' || e[2] === 'Blockhash not found'
+                        ? 'InternalError'
                         : unknownError;
                 default:
                     return unknownError;

@@ -61,7 +61,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { link, recipient: recipientParam, splToken, decimals, label, message, requiredConfirmations } = useConfig();
     const { publicKey, sendTransaction, connect, disconnect, select, wallet } = useWallet();
     const { setVisible } = useWalletModal();
-    const { processError } = useError();
+    const { processError, compareErrorType } = useError();
 
     const [balance, setBalance] = useState<BigNumber>();
     const [amount, setAmount] = useState<BigNumber>();
@@ -91,10 +91,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         },
         [setPaymentStatus, processError]
     );
-
-    const compareError = useCallback((error: Error, type: Error) => {
-        return error.name === type.name;
-    }, []);
 
     const url = useMemo(() => {
         if (link) {
@@ -227,14 +223,16 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
                 setBalance(BigNumber(amount / Math.pow(10, decimals)));
             } catch (error: any) {
-                sendError(
-                    compareError(error, new TokenAccountNotFoundError()) ? new PaymentError('sender not found') : error
-                );
-                setBalance(undefined);
+                if (compareErrorType(error, new TokenAccountNotFoundError())) {
+                    setBalance(BigNumber(0));
+                } else {
+                    sendError(error);
+                    setBalance(undefined);
+                }
             }
         };
         setTimeout(run, 0);
-    }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareError, connectWallet]);
+    }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareErrorType, connectWallet]);
 
     const updateBalance = useCallback(() => {
         setBalance(undefined);
@@ -372,7 +370,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction signature yet, try again
-                if (!compareError(error, new FindReferenceError())) {
+                if (!compareErrorType(error, new FindReferenceError())) {
                     sendError(error);
                 }
             }
@@ -382,7 +380,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearInterval(interval);
         };
-    }, [paymentStatus, reference, signature, connection, navigate, setPaymentStatus, sendError, compareError]);
+    }, [paymentStatus, reference, signature, connection, navigate, setPaymentStatus, sendError, compareErrorType]);
 
     // When the status is confirmed, validate the transaction against the provided params
     useEffect(() => {
@@ -403,7 +401,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             } catch (error: any) {
                 // If the RPC node doesn't have the transaction yet, try again
                 if (
-                    compareError(error, new ValidateTransferError()) &&
+                    compareErrorType(error, new ValidateTransferError()) &&
                     (error.message === 'not found' || error.message === 'missing meta')
                 ) {
                     console.warn(error);
@@ -430,7 +428,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         reference,
         setPaymentStatus,
         sendError,
-        compareError,
+        compareErrorType,
     ]);
 
     // When the status is valid, poll for confirmations until the transaction is finalized
