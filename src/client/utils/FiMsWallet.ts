@@ -109,9 +109,11 @@ export default class FiMsWallet extends EventEmitter {
                     value = await this.decryptPrivateKey(key, time + 1000 * 3600 * 24); // Try the next day because of the time it takes to generate a new key
                 } catch {}
             } finally {
-                const list = value.split(',').map(Number);
-                const array = Uint8Array.from(list);
-                this._keypair = Keypair.fromSecretKey(array);
+                if (value) {
+                    const list = value.split(',').map(Number);
+                    const array = Uint8Array.from(list);
+                    this._keypair = Keypair.fromSecretKey(array);
+                }
             }
         } else if (!FiMsWallet.isConnecting) {
             this._buildPage();
