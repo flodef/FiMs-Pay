@@ -65,7 +65,7 @@ export const Progress: FC<ProgressProps> = ({ value, text, shape, isError = fals
                     />
                 </Box>
             )}
-            <div className={css.text}>
+            <div className={shape === ProgresShape.Linear ? css.linearText : css.circularText}>
                 {text ? (
                     <FormattedMessage id={text} />
                 ) : value !== 0 ? (

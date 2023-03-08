@@ -1,18 +1,20 @@
 .linearRoot,
 .circularRoot {
     position: relative;
-    margin: auto auto 24px auto;
 }
 .linearRoot {
     width: 80%;
     height: 100px;
+    margin: auto;
 }
 .circularRoot {
     width: 200px;
     height: 200px;
+    margin: auto auto 24px auto;
 }
 
-.text {
+.linearText,
+.circularText {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -20,4 +22,8 @@
     font-weight: 600;
     font-size: 18px;
     text-align: center;
+}
+
+.linearText {
+    width: 100%;
 }
