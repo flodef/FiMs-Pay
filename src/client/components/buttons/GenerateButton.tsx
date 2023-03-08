@@ -1,7 +1,8 @@
 import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 import { useWallet } from '@solana/wallet-adapter-react';
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
+import { useError } from '../../hooks/useError';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { FAUCET, FAUCET_ENCODED_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { AlertDialogPopup } from '../sections/AlertDialogPopup';
@@ -23,6 +24,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         usePayment();
     const { publicKey, connecting, autoConnect } = useWallet();
     const { currencyName } = useConfig();
+    const { error } = useError();
 
     const [needRefresh, setNeedRefresh] = useState(false);
 
@@ -37,8 +39,10 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 ? State.Reload
                 : hasSufficientBalance
                 ? id
+                : error && error.message.toLowerCase().includes('failed to fetch')
+                ? State.Reload
                 : State.Supply,
-        [connecting, hasSufficientBalance, id, needRefresh, publicKey, autoConnect]
+        [connecting, hasSufficientBalance, id, error, needRefresh, publicKey, autoConnect]
     );
 
     // TODO Translate
