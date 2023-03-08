@@ -2,6 +2,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
+import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
 import { CURRENCY_LIST } from '../../utils/constants';
 import { IS_CUSTOMER_POS } from '../../utils/env';
@@ -10,10 +11,9 @@ import { isMobileDevice, useIsMobileSize } from '../../utils/mobile';
 import { getMultiplierInfo } from '../../utils/multiplier';
 import { BackspaceIcon } from '../images/BackspaceIcon';
 import { Amount } from './Amount';
+import { ErrorMessage } from './ErrorMessage';
 import css from './NumPad.module.css';
 import { SelectImage } from './SelectImage';
-import { ErrorMessage } from './ErrorMessage';
-import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 
 interface NumPadInputButton {
     input: Digits | '.';
@@ -24,7 +24,7 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
     const { theme } = useConfig();
 
     const onClick = useCallback(() => {
-        if (IS_CUSTOMER_POS && !isFullscreen() && isMobileDevice()) {
+        if (!isFullscreen() && isMobileDevice()) {
             requestFullscreen();
         }
         onInput(input);

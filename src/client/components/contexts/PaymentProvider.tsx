@@ -46,9 +46,7 @@ import {
     POS_USE_WALLET,
     USE_CUSTOM_CRYPTO,
 } from '../../utils/env';
-import { exitFullscreen, isFullscreen } from '../../utils/fullscreen';
 import { LoadKey } from '../../utils/key';
-import { isMobileDevice } from '../../utils/mobile';
 
 export class PaymentError extends Error {
     name = 'PaymentError';
@@ -177,9 +175,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         navigate(PaymentStatus.Processing);
         setReference(Keypair.generate().publicKey);
         setTimeout(() => setPaymentStatus(PaymentStatus.Pending), 800);
-        if (IS_CUSTOMER_POS && isFullscreen() && isMobileDevice()) {
-            exitFullscreen();
-        }
     }, [paymentStatus, reference, navigate, setPaymentStatus]);
 
     const selectWallet = useCallback(() => {

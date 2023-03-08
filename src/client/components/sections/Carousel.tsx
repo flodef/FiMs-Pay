@@ -1,10 +1,12 @@
-import React, { FC } from 'react';
-import 'react-responsive-carousel/lib/styles/carousel.min.css'; // requires a loader
+import { FC, useCallback } from 'react';
 import { Carousel } from 'react-responsive-carousel';
-import { Merchant, MerchantInfo } from './Merchant';
-import css from './Carousel.module.css';
-import { useNavigateToMerchant } from '../../utils/merchant';
+import 'react-responsive-carousel/lib/styles/carousel.min.css'; // requires a loader
 import { usePayment } from '../../hooks/usePayment';
+import { isFullscreen, requestFullscreen } from '../../utils/fullscreen';
+import { useNavigateToMerchant } from '../../utils/merchant';
+import { isMobileDevice } from '../../utils/mobile';
+import css from './Carousel.module.css';
+import { Merchant, MerchantInfo } from './Merchant';
 
 export interface MerchantsProps {
     merchants: MerchantInfo[];
@@ -15,6 +17,15 @@ export interface MerchantsProps {
 export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => {
     const { updateBalance } = usePayment();
     const navigate = useNavigateToMerchant(updateBalance);
+    const handleClick = useCallback(
+        (index: number) => {
+            if (!isFullscreen() && isMobileDevice()) {
+                requestFullscreen();
+            }
+            navigate(merchants[index]);
+        },
+        [merchants, navigate]
+    );
     const selectedItem = id && merchants.length > 0 ? parseInt(id.toString()) - merchants[0].index : 0;
 
     return (
@@ -23,7 +34,7 @@ export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => 
             infiniteLoop={true}
             showThumbs={false}
             statusFormatter={(c, t) => c + ' / ' + t}
-            onClickItem={(index) => navigate(merchants[index])}
+            onClickItem={handleClick}
             selectedItem={selectedItem}
         >
             {merchants.map((merchant) => (
