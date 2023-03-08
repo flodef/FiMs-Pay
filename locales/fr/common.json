@@ -80,7 +80,7 @@
     "letsgo": "C'est parti !",
     "aleadyHaveWallet": "J'ai déjà un porte-monnaie",
     "createWallet": "Je veux créer un porte-monnaie",
-    "test": "Afin de pouvoir récupérer votre porte-monnaie ultérieurement, il va d'abord vous falloir entrez un nom / prénom ou bien une phrase d'au moins deux mots (séparés par un espace) :",
+    "test": "Afin de pouvoir récupérer votre porte-monnaie ultérieurement, il va d'abord vous falloir entrez une phrase d'au moins deux mots séparés par un espace (par exemple : un nom / prénom) :",
     "test2": "Vous devez à présent sauvegarder NUMERIQUEMENT votre phrase en la copiant / collant sur un support sécurisé (dans vos contacts, une note, un email, un message, un tweet,...)",
     "test3": "Il est également important de conserver la date du jour ({date}) car elle vous sera demandée en cas de perte de votre porte-monnaie.",
     "test4": "Pour confirmer que vous avez bien sauvegardé votre phrase, veuillez la coller ci-dessous (appui-long puis 'Coller' sur mobile/tablette, click droit puis 'Coller' sur ordinateur) :",
@@ -111,5 +111,6 @@
     "RPCError": "Le serveur de connexion a renvoyé une erreur",
     "CreateTransferError": "Erreur de transfert !",
     "NetworkBusyError": "Le réseau est momentanément saturé, merci de réessayer !",
+    "InternalError": "Erreur interne au réseau, merci de réessayer !",
     "UnknownError": "Erreur inconnue : {error}"
 }
