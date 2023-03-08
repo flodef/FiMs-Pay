@@ -3,6 +3,7 @@ import { NextPage } from 'next';
 import { useEffect, useMemo } from 'react';
 import { AirdropStatus, usePayment } from '../../hooks/usePayment';
 import { DEFAULT_WALLET, IS_CUSTOMER_POS } from '../../utils/env';
+import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
 import { useIsMobileSize } from '../../utils/mobile';
 import { GenerateButton } from '../buttons/GenerateButton';
 import { NumPad } from '../sections/NumPad';
@@ -14,16 +15,20 @@ import css from './NewPage.module.css';
 
 const NewPage: NextPage = () => {
     const { airdropStatus, connectWallet } = usePayment();
+    const { connected } = useWallet();
     const phone = useIsMobileSize() || IS_CUSTOMER_POS;
     const generateId = IS_CUSTOMER_POS ? 'pay' : 'generateCode';
 
     // Adding default wallet to localstorage if not already set by user ==> automatically connect to the wallet set in the settings
     useEffect(() => {
         const walletNameLabel = 'walletName';
-        if (!localStorage.getItem(walletNameLabel) && DEFAULT_WALLET) {
+        if (
+            !connected &&
+            (DEFAULT_WALLET === FiMsWalletName || (!localStorage.getItem(walletNameLabel) && DEFAULT_WALLET))
+        ) {
             connectWallet();
         }
-    }, [connectWallet]);
+    }, [connectWallet, connected]);
 
     const value = useMemo(() => {
         const count = 7;

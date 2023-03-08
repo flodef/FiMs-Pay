@@ -5,39 +5,40 @@ import { GlowWalletAdapter, PhantomWalletAdapter, SolflareWalletAdapter } from '
 import { PublicKey } from '@solana/web3.js';
 import { AppContext, AppProps as NextAppProps, default as NextApp } from 'next/app';
 import { AppInitialProps } from 'next/dist/shared/lib/utils';
-import React, { useState, useEffect, FC, useCallback, useMemo, useRef } from 'react';
+import { Inter } from 'next/font/google';
+import { useRouter } from 'next/router';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { IntlProvider } from 'react-intl';
+import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
+import { Digits } from '../../types';
 import { CURRENCY_LIST, DEVNET_ENDPOINT, MAINNET_ENDPOINT } from '../../utils/constants';
-import { ConfigProvider } from '../contexts/ConfigProvider';
-import { FullscreenProvider } from '../contexts/FullscreenProvider';
-import { PaymentProvider } from '../contexts/PaymentProvider';
-import { ThemeProvider } from '../contexts/ThemeProvider';
-import { TransactionsProvider } from '../contexts/TransactionsProvider';
+import { createURLWithParams } from '../../utils/createURLWithQuery';
 import {
     APP_TITLE,
     CURRENCY,
+    DEFAULT_LANGUAGE,
+    DEFAULT_WALLET,
+    IS_CUSTOMER_POS,
     IS_DEV,
+    MAX_VALUE,
+    POS_USE_WALLET,
     SHOW_SYMBOL,
     USE_HTTP,
     USE_LINK,
     USE_WEB_WALLET,
-    DEFAULT_LANGUAGE,
-    MAX_VALUE,
-    IS_CUSTOMER_POS,
-    POS_USE_WALLET,
 } from '../../utils/env';
-import css from './App.module.css';
-import { ErrorProvider } from '../contexts/ErrorProvider';
-import { useRouter } from 'next/router';
-import { IntlProvider } from 'react-intl';
-import { Digits } from '../../types';
-import { isMobileDevice } from '../../utils/mobile';
-import { Header } from '../sections/Header';
-import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
-import { Inter } from 'next/font/google';
-import { MerchantInfo } from '../sections/Merchant';
-import { LoadMerchantData } from '../../utils/merchant';
-import { createURLWithParams } from '../../utils/createURLWithQuery';
 import { FiMsWalletAdapter } from '../../utils/FiMsWalletAdapter';
+import { LoadMerchantData } from '../../utils/merchant';
+import { isMobileDevice } from '../../utils/mobile';
+import { ConfigProvider } from '../contexts/ConfigProvider';
+import { ErrorProvider } from '../contexts/ErrorProvider';
+import { FullscreenProvider } from '../contexts/FullscreenProvider';
+import { PaymentProvider } from '../contexts/PaymentProvider';
+import { ThemeProvider } from '../contexts/ThemeProvider';
+import { TransactionsProvider } from '../contexts/TransactionsProvider';
+import { Header } from '../sections/Header';
+import { MerchantInfo } from '../sections/Merchant';
+import css from './App.module.css';
 
 const inter = Inter({
     subsets: ['latin'],

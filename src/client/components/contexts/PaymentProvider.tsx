@@ -12,7 +12,9 @@ import {
     getOrCreateAssociatedTokenAccount,
     TokenAccountNotFoundError,
 } from '@solana/spl-token';
+import { WalletName } from '@solana/wallet-adapter-base';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import {
     clusterApiUrl,
     ConfirmedSignatureInfo,
@@ -25,31 +27,28 @@ import {
     TransactionSignature,
 } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { createTransfer } from '../../../server/core/createTransfer';
+import { validateTransfer } from '../../../server/core/validateTransfer';
 import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { AirdropStatus, PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
+import { decrypt } from '../../utils/aes';
+import { DEVNET_DUMMY_MINT } from '../../utils/constants';
 import {
-    IS_DEV,
-    IS_CUSTOMER_POS,
-    DEFAULT_WALLET,
-    POS_USE_WALLET,
-    FAUCET_ENCODED_KEY,
     CRYPTO_SECRET,
+    DEFAULT_WALLET,
+    FAUCET_ENCODED_KEY,
+    IS_CUSTOMER_POS,
+    IS_DEV,
+    POS_USE_WALLET,
     USE_CUSTOM_CRYPTO,
 } from '../../utils/env';
 import { exitFullscreen, isFullscreen } from '../../utils/fullscreen';
-import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-adapter-mobile';
-import { WalletName } from '@solana/wallet-adapter-base';
-import { isMobileDevice } from '../../utils/mobile';
-import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { createTransfer } from '../../../server/core/createTransfer';
-import { validateTransfer } from '../../../server/core/validateTransfer';
-import { DEVNET_DUMMY_MINT } from '../../utils/constants';
-import { decrypt } from '../../utils/aes';
 import { LoadKey } from '../../utils/key';
+import { isMobileDevice } from '../../utils/mobile';
 
 export class PaymentError extends Error {
     name = 'PaymentError';
@@ -215,7 +214,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         const run = async () => {
             try {
                 if (recipient.toString() === publicKey.toString()) {
-                    connectWallet();
+                    connectWallet(); // Disconnect wallet
                     throw new PaymentError('sender is also recipient');
                 }
 
