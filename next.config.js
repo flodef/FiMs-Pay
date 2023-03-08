@@ -20,10 +20,6 @@ const nextConfig = {
                         type: 'query',
                         key: 'recipient',
                     },
-                    // {
-                    //     type: 'query',
-                    //     key: 'label',
-                    // },
                 ],
             },
             {

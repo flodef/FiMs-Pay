@@ -16,7 +16,8 @@
         "lint": "next lint",
         "fmt": "prettier --write '{*,**/*}.{js,ts,jsx,tsx,json}'",
         "nuke": "shx rm -rf node_modules package-lock.json || true",
-        "proxy": "local-ssl-proxy --source 3001 --target 3000"
+        "proxy": "local-ssl-proxy --source 3001 --target 3000",
+        "ngrok": "ngrok http https://localhost:3001"
     },
     "dependencies": {
         "@emotion/react": "^11.10.6",
