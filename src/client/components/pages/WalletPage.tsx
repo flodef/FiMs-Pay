@@ -114,6 +114,15 @@ const WalletPage: NextPage = () => {
                                 messageId={FiMsWallet.isSavingRestoring ? 'saveWallet' : 'createWallet'}
                                 onClick={() => setPhase(Phase.Create)}
                             />
+                            <div className={css.divider}></div>
+                            <StandardButton
+                                messageId={FiMsWallet.isSavingRestoring ? 'cancel' : 'skipStep'}
+                                hasTheme={false}
+                                onClick={() => {
+                                    FiMsWallet.privateKey = { key: FiMsWallet.privateKey.key, time: currentTime };
+                                    FiMsWallet.finishConnecting();
+                                }}
+                            />
                         </div>
                     ) : phase === Phase.Retrieve ? (
                         <>
