@@ -64,6 +64,9 @@ const WalletPage: NextPage = () => {
             try {
                 magic = stegcloak.reveal(phrase, await LoadKey(time));
             } catch {
+                try {
+                    magic = stegcloak.reveal(phrase, await LoadKey(time + 1000 * 3600 * 24)); // Try the next day because of the time it takes to generate a new key
+                } catch {}
             } finally {
                 const valid = magic && (!key || magic === key);
                 setLoading(false);
@@ -80,6 +83,16 @@ const WalletPage: NextPage = () => {
         FiMsWallet.finishConnecting();
     }, [magic, time, currentTime]);
 
+    const goToVerify = useCallback(() => {
+        setPhase(Phase.Verify);
+        setPhrase('');
+    }, []);
+
+    const timeInvalid = useMemo(
+        () => !time || time < 1677628800000 || time > currentTime - timezoneOffset,
+        [time, currentTime, timezoneOffset]
+    );
+
     return (
         <div className={css.root}>
             <div className={css.container}>
@@ -87,7 +100,7 @@ const WalletPage: NextPage = () => {
                     {phase === Phase.Select ? (
                         <div className={css.btnWrapper}>
                             <StandardButton
-                                messageId="aleadyHaveWallet"
+                                messageId={FiMsWallet.isSavingRestoring ? 'restoreWallet' : 'aleadyHaveWallet'}
                                 onClick={() => {
                                     setPhase(Phase.Retrieve);
                                     setTime(new Date(date).getTime());
@@ -96,7 +109,10 @@ const WalletPage: NextPage = () => {
                             <div className={css.title}>
                                 <FormattedMessage id="or" />
                             </div>
-                            <StandardButton messageId="createWallet" onClick={() => setPhase(Phase.Create)} />
+                            <StandardButton
+                                messageId={FiMsWallet.isSavingRestoring ? 'saveWallet' : 'createWallet'}
+                                onClick={() => setPhase(Phase.Create)}
+                            />
                         </div>
                     ) : phase === Phase.Retrieve ? (
                         <>
@@ -109,9 +125,12 @@ const WalletPage: NextPage = () => {
                                 autoFocus
                                 type="date"
                                 value={date}
+                                onKeyUp={(x) => {
+                                    if (x.key === 'Enter' && !timeInvalid) goToVerify();
+                                }}
                                 onInput={(x) => {
                                     setDate(x.currentTarget.value);
-                                    setTime(new Date(x.currentTarget.value).getTime());
+                                    setTime(new Date(x.currentTarget.value).getTime() + timezoneOffset);
                                 }}
                             />
                             <div className={css.divider}></div>
@@ -123,11 +142,8 @@ const WalletPage: NextPage = () => {
                                 />
                                 <StandardButton
                                     messageId="next"
-                                    onClick={() => {
-                                        setPhase(Phase.Verify);
-                                        setPhrase('');
-                                    }}
-                                    disabled={!time || time < 1677628800000 || time > currentTime - timezoneOffset}
+                                    onClick={goToVerify}
+                                    disabled={timeInvalid}
                                     style={{ float: 'right' }}
                                 />
                             </div>
@@ -143,7 +159,7 @@ const WalletPage: NextPage = () => {
                                 autoFocus
                                 value={phrase}
                                 onKeyUp={(x) => {
-                                    if (x.key == 'Enter' && !invalid) generatePhrase();
+                                    if (x.key === 'Enter' && !invalid) generatePhrase();
                                 }}
                                 onInput={(x) => setPhrase(x.currentTarget.value)}
                                 placeholder={enterPhrase}
@@ -189,9 +205,8 @@ const WalletPage: NextPage = () => {
                                     messageId="copy"
                                     onClick={() => {
                                         navigator.clipboard.writeText(magic);
-                                        setPhase(Phase.Verify);
-                                        setPhrase('');
                                         setTime(0);
+                                        goToVerify();
                                     }}
                                     disabled={invalid}
                                     loading={loading}
@@ -210,7 +225,7 @@ const WalletPage: NextPage = () => {
                                 autoFocus
                                 value={phrase}
                                 onKeyUp={(x) => {
-                                    if (x.key == 'Enter' && !invalid) storePhrase();
+                                    if (x.key === 'Enter' && !invalid) storePhrase();
                                 }}
                                 onInput={(x) => {
                                     verifyPhrase(x.currentTarget.value, time);

@@ -41,8 +41,10 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
         this._publicKey = null;
 
         if (this._readyState !== WalletReadyState.Unsupported && this._readyState !== WalletReadyState.Installed) {
-            this._readyState = WalletReadyState.Installed;
-            this.emit('readyStateChange', this._readyState);
+            this.restorePreviousConnection().then(() => {
+                this._readyState = WalletReadyState.Installed;
+                this.emit('readyStateChange', this._readyState);
+            });
         }
     }
 
@@ -62,19 +64,22 @@ export class FiMsWalletAdapter extends BaseMessageSignerWalletAdapter {
         return this._readyState;
     }
 
-    async autoConnect(): Promise<void> {
+    private sleep = (ms: number) => {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    };
+    private async restorePreviousConnection() {
         if (this.connecting) {
             const initCount = FiMsWallet.loadingCounter;
-            setTimeout(() => {
-                const count = FiMsWallet.loadingCounter;
-                if (count === initCount) {
-                    FiMsWallet.finishConnecting();
-                    this.connect();
-                }
-            }, 300);
-        } else {
-            await this.connect();
+            await this.sleep(300);
+            const count = FiMsWallet.loadingCounter;
+            if (count === initCount) {
+                FiMsWallet.finishConnecting();
+            }
         }
+    }
+
+    async autoConnect(): Promise<void> {
+        await this.connect();
     }
 
     async connect(): Promise<void> {

@@ -1,25 +1,27 @@
-import React, { FC, useState } from 'react';
-import css from './ActionMenu.module.css';
+import WalletIcon from '@mui/icons-material/Wallet';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { CopyIcon, DotFilledIcon, HamburgerMenuIcon, LockClosedIcon } from '@radix-ui/react-icons';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { FC, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { Theme, useConfig } from '../../hooks/useConfig';
+import { useFullscreen } from '../../hooks/useFullscreen';
+import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
+import { usePayment } from '../../hooks/usePayment';
+import { encrypt } from '../../utils/aes';
+import { CRYPTO_SECRET, DEFAULT_WALLET, IS_CUSTOMER_POS, USE_CUSTOM_CRYPTO } from '../../utils/env';
+import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
+import { LoadKey } from '../../utils/key';
+import { ActivityIcon } from '../images/ActivityIcon';
 import { ConnectIcon } from '../images/ConnectIcon';
 import { DisconnectIcon } from '../images/DisconnectIcon';
-import { HamburgerMenuIcon, DotFilledIcon, CopyIcon, LockClosedIcon } from '@radix-ui/react-icons';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { usePayment } from '../../hooks/usePayment';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
-import { ActivityIcon } from '../images/ActivityIcon';
-import { useFullscreen } from '../../hooks/useFullscreen';
 import { MaximizeIcon } from '../images/MaximizeIcon';
 import { MinimizeIcon } from '../images/MinimizeIcon';
-import { CRYPTO_SECRET, IS_CUSTOMER_POS, USE_CUSTOM_CRYPTO } from '../../utils/env';
-import { Theme, useConfig } from '../../hooks/useConfig';
+import css from './ActionMenu.module.css';
 import { ActionSnackbar } from './ActionSnackbar';
-import { encrypt } from '../../utils/aes';
-import { LoadKey } from '../../utils/key';
 
 export const ActionMenu: FC = () => {
-    const { connected, publicKey } = useWallet();
+    const { connected, connecting, publicKey } = useWallet();
     const { fullscreen, toggleFullscreen } = useFullscreen();
     const { connectWallet } = usePayment();
     const { theme, setTheme } = useConfig();
@@ -59,9 +61,27 @@ export const ActionMenu: FC = () => {
                             <DropdownMenu.Separator className={css.DropdownMenuSeparator} />
                         </>
                     )}
-                    <DropdownMenu.Item className={css.DropdownMenuItem} onClick={connectWallet}>
-                        <FormattedMessage id={!connected ? 'connect' : 'disconnect'} />
-                        <div className={css.RightSlot}>{!connected ? <ConnectIcon /> : <DisconnectIcon />}</div>
+                    <DropdownMenu.Item className={css.DropdownMenuItem} onClick={connectWallet} disabled={connecting}>
+                        <FormattedMessage
+                            id={
+                                connecting
+                                    ? 'connecting'
+                                    : !connected
+                                    ? 'connect'
+                                    : DEFAULT_WALLET === FiMsWalletName
+                                    ? 'saveRestore'
+                                    : 'disconnect'
+                            }
+                        />
+                        <div className={css.RightSlot}>
+                            {connecting ? null : !connected ? (
+                                <ConnectIcon />
+                            ) : DEFAULT_WALLET === FiMsWalletName ? (
+                                <WalletIcon />
+                            ) : (
+                                <DisconnectIcon />
+                            )}
+                        </div>
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
                         className={css.DropdownMenuItem}
