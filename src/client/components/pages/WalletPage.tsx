@@ -1,6 +1,6 @@
 import { WalletNotReadyError } from '@solana/wallet-adapter-base';
 import { NextPage } from 'next';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import StegCloak from 'stegcloak';
 import FiMsWallet from '../../utils/FiMsWallet';
@@ -35,10 +35,7 @@ const WalletPage: NextPage = () => {
     );
     const [time, setTime] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [invalid, setInvalid] = useState(false);
     const [magic, setMagic] = useState('');
-
-    useEffect(() => setInvalid(!phrase || !new RegExp(phrasePattern, 'gm').test(phrase)), [phrase, phrasePattern]);
 
     const stegcloak = useMemo(() => new StegCloak(true, true), []);
     const generatePhrase = useCallback(async () => {
@@ -51,10 +48,10 @@ const WalletPage: NextPage = () => {
     }, [phrase, stegcloak]);
 
     const verifyPhrase = useCallback(
-        async (phrase: string, time = 0) => {
-            setLoading(true);
-            setPhrase(phrase);
+        async (phrase: string) => {
+            if (!phrase || !new RegExp(initPattern, 'gm').test(phrase)) return;
 
+            setLoading(true);
             let magic = '';
             let key: string | null = '';
             if (time === 0) {
@@ -70,12 +67,11 @@ const WalletPage: NextPage = () => {
             } finally {
                 const valid = magic && (!key || magic === key);
                 setLoading(false);
-                setInvalid(!valid);
                 setMagic(magic);
                 setPhrasePattern(valid ? initPattern : 'a{55}b{88}c{33}');
             }
         },
-        [stegcloak]
+        [stegcloak, time]
     );
 
     const storePhrase = useCallback(() => {
@@ -87,6 +83,11 @@ const WalletPage: NextPage = () => {
         setPhase(Phase.Verify);
         setPhrase('');
     }, []);
+
+    const phraseInvalid = useMemo(
+        () => !phrase || !new RegExp(phrasePattern, 'gm').test(phrase),
+        [phrase, phrasePattern]
+    );
 
     const timeInvalid = useMemo(
         () => !time || time < 1677628800000 || time > currentTime - timezoneOffset,
@@ -159,7 +160,7 @@ const WalletPage: NextPage = () => {
                                 autoFocus
                                 value={phrase}
                                 onKeyUp={(x) => {
-                                    if (x.key === 'Enter' && !invalid) generatePhrase();
+                                    if (x.key === 'Enter' && !phraseInvalid) generatePhrase();
                                 }}
                                 onInput={(x) => setPhrase(x.currentTarget.value)}
                                 placeholder={enterPhrase}
@@ -175,7 +176,7 @@ const WalletPage: NextPage = () => {
                                 <StandardButton
                                     messageId="next"
                                     onClick={generatePhrase}
-                                    disabled={invalid}
+                                    disabled={phraseInvalid}
                                     style={{ float: 'right' }}
                                 />
                             </div>
@@ -208,7 +209,7 @@ const WalletPage: NextPage = () => {
                                         setTime(0);
                                         goToVerify();
                                     }}
-                                    disabled={invalid}
+                                    disabled={phraseInvalid}
                                     loading={loading}
                                     style={{ float: 'right' }}
                                 />
@@ -225,10 +226,11 @@ const WalletPage: NextPage = () => {
                                 autoFocus
                                 value={phrase}
                                 onKeyUp={(x) => {
-                                    if (x.key === 'Enter' && !invalid) storePhrase();
+                                    if (x.key === 'Enter' && !phraseInvalid) storePhrase();
                                 }}
                                 onInput={(x) => {
-                                    verifyPhrase(x.currentTarget.value, time);
+                                    setPhrase(x.currentTarget.value);
+                                    verifyPhrase(x.currentTarget.value);
                                 }}
                                 placeholder={pasteMyPhrase}
                                 pattern={phrasePattern}
@@ -248,7 +250,7 @@ const WalletPage: NextPage = () => {
                                 <StandardButton
                                     messageId="finalized"
                                     onClick={storePhrase}
-                                    disabled={invalid}
+                                    disabled={phraseInvalid}
                                     loading={loading}
                                     style={{ float: 'right' }}
                                 />
