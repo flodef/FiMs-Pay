@@ -6,6 +6,7 @@
 
 .header {
     display: block;
+    margin: 0px 24px;
 }
 
 @media (min-width: 768px) {

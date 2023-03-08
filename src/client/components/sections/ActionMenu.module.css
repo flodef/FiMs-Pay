@@ -89,12 +89,13 @@
     fill: white;
 }
 
-.IconButton {
+.IconButton,
+.IconButtonColor {
     font-family: inherit;
     border-radius: 100%;
     width: 48px;
     height: 48px;
-    margin: 24px;
+    margin: 24px 0px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -110,6 +111,19 @@
 /* .IconButton:focus {
   box-shadow: 0 0 0 2px black;
 } */
+:global(html.light) .IconButtonColor {
+    background-color: var(--theme-backspacebutton-background);
+}
+:global(html.dark) .IconButtonColor {
+    background-color: var(--theme-backspacebutton-background);
+}
+
+:global(html.light) .menuIcon {
+    color: var(--theme-dark-color);
+}
+:global(html.dark) .menuIcon {
+    color: var(--theme-light-color);
+}
 
 .RightSlot {
     margin-left: auto;

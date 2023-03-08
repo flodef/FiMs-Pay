@@ -117,7 +117,7 @@ const WalletPage: NextPage = () => {
                         </div>
                     ) : phase === Phase.Retrieve ? (
                         <>
-                            <div className={css.title}>
+                            <div className={css.text}>
                                 <FormattedMessage id="test5" />
                             </div>
                             <input
@@ -151,7 +151,7 @@ const WalletPage: NextPage = () => {
                         </>
                     ) : phase === Phase.Create ? (
                         <>
-                            <div className={css.title}>
+                            <div className={css.text}>
                                 <FormattedMessage id="test" />
                             </div>
                             <input
@@ -183,7 +183,7 @@ const WalletPage: NextPage = () => {
                         </>
                     ) : phase === Phase.Store ? (
                         <>
-                            <div className={css.title}>
+                            <div className={css.text}>
                                 <FormattedMessage id="test2" />
                                 <br />
                                 <br />
@@ -217,7 +217,7 @@ const WalletPage: NextPage = () => {
                         </>
                     ) : phase === Phase.Verify ? (
                         <>
-                            <div className={css.title}>
+                            <div className={css.text}>
                                 <FormattedMessage id="test4" />
                             </div>
                             <input

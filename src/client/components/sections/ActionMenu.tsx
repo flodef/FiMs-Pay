@@ -1,6 +1,7 @@
+import MenuIcon from '@mui/icons-material/Menu';
 import WalletIcon from '@mui/icons-material/Wallet';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { CopyIcon, DotFilledIcon, HamburgerMenuIcon, LockClosedIcon } from '@radix-ui/react-icons';
+import { CopyIcon, DotFilledIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { FC, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -36,8 +37,11 @@ export const ActionMenu: FC = () => {
         <DropdownMenu.Root>
             <ActionSnackbar message={message} setMessage={setMessage} />
             <DropdownMenu.Trigger asChild>
-                <button className={css.IconButton} aria-label="Customise options">
-                    <HamburgerMenuIcon />
+                <button
+                    className={theme === Theme.Color ? css.IconButtonColor : css.IconButton}
+                    aria-label="Customise options"
+                >
+                    <MenuIcon className={css.menuIcon} />
                 </button>
             </DropdownMenu.Trigger>
 

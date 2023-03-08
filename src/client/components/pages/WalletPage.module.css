@@ -45,12 +45,25 @@
     height: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
+:global(html.light) .divider {
+    border-bottom: 1px solid var(--theme-light-color);
+}
+:global(html.dark) .divider {
+    border-bottom: 1px solid var(--theme-dark-color);
+}
 
 .title {
     font-weight: 600;
     font-size: 20px;
     line-height: 28px;
     margin: 16px;
+}
+
+.text {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 24px;
+    margin: 16px 0px;
 }
 
 .btn-wrapper {

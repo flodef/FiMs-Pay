@@ -2,9 +2,10 @@
 .rootBW,
 .rootColor,
 .rootEmpty {
-    margin: 24px auto;
-    padding: 12px 24px;
+    margin: 24px 0px;
+    padding: 0px 24px;
     border: 0;
+    height: 48px;
     display: block;
     font-size: 18px;
     line-height: 24px;
@@ -23,6 +24,9 @@
 .rootBW,
 .rootColor {
     border-radius: 24px 24px 24px 0;
+}
+.rootEmpty {
+    padding: 0px;
 }
 
 .root[disabled],
@@ -76,4 +80,12 @@
 :global(html.dark) .rootEmpty {
     background-color: var(--theme-dark-background);
     color: var(--theme-dark-color);
+}
+
+:global(html.light) .buttonColor {
+    color: var(--theme-backspacebutton-background);
+}
+
+:global(html.dark) .buttonColor {
+    color: var(--theme-number-button-background);
 }
