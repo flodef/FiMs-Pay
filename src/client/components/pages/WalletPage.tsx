@@ -20,6 +20,7 @@ const WalletPage: NextPage = () => {
     const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
     const enterPhrase = useTranslate('enterPhrase');
     const pasteMyPhrase = useTranslate('pasteMyPhrase');
+    const or = useTranslate('or').toUpperCase();
 
     const currentDate = new Date();
     const currentTime = currentDate.getTime();
@@ -107,9 +108,7 @@ const WalletPage: NextPage = () => {
                                     setTime(new Date(date).getTime());
                                 }}
                             />
-                            <div className={css.title}>
-                                <FormattedMessage id="or" />
-                            </div>
+                            <div className={css.title}>{or}</div>
                             <StandardButton
                                 messageId={FiMsWallet.isSavingRestoring ? 'saveWallet' : 'createWallet'}
                                 onClick={() => setPhase(Phase.Create)}
@@ -127,7 +126,7 @@ const WalletPage: NextPage = () => {
                     ) : phase === Phase.Retrieve ? (
                         <>
                             <div className={css.text}>
-                                <FormattedMessage id="test5" />
+                                <FormattedMessage id="selectWalletCreationDate" />
                             </div>
                             <input
                                 className={css.Input}
@@ -161,7 +160,7 @@ const WalletPage: NextPage = () => {
                     ) : phase === Phase.Create ? (
                         <>
                             <div className={css.text}>
-                                <FormattedMessage id="test" />
+                                <FormattedMessage id="enterRecoveryPhrase" />
                             </div>
                             <input
                                 className={css.Input}
@@ -193,11 +192,11 @@ const WalletPage: NextPage = () => {
                     ) : phase === Phase.Store ? (
                         <>
                             <div className={css.text}>
-                                <FormattedMessage id="test2" />
+                                <FormattedMessage id="howToSavePhrase" />
                                 <br />
                                 <br />
                                 <FormattedMessage
-                                    id="test3"
+                                    id="howToSaveDate"
                                     values={{
                                         date: new Date(currentTime + timezoneOffset).toLocaleDateString(),
                                     }}
@@ -227,7 +226,7 @@ const WalletPage: NextPage = () => {
                     ) : phase === Phase.Verify ? (
                         <>
                             <div className={css.text}>
-                                <FormattedMessage id="test4" />
+                                <FormattedMessage id="verifyRecoveryPhrase" />
                             </div>
                             <input
                                 className={css.Input}
