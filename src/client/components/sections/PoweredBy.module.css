@@ -4,10 +4,22 @@
     justify-content: center;
     align-items: center;
     gap: 10px;
-    line-height: 0px;
     font-weight: 500;
 }
 
+.link {
+    display: flex;
+    text-decoration: none;
+}
+
+:global(html.light) .link {
+    color: var(--theme-light-color);
+}
+:global(html.dark) .link {
+    color: var(--theme-dark-color);
+}
+
 .text {
-    margin-bottom: -2px;
+    vertical-align: top;
+    line-height: 22px;
 }
