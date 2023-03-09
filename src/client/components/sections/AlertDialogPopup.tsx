@@ -32,7 +32,7 @@ export const AlertDialogPopup: FC<AlertDialogPopupProps> = ({ button, onClick, a
         : undefined;
 
     return !alert ? (
-        <div>{button}</div>
+        <div className={css.buttonLayout}>{button}</div>
     ) : (
         <AlertDialog.Root>
             <AlertDialog.Trigger asChild>{button}</AlertDialog.Trigger>
