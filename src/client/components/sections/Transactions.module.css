@@ -18,6 +18,11 @@
     box-shadow: var(--theme-dark-separator);
 }
 
+.icon {
+    width: 48px;
+    margin-top: 6px;
+}
+
 .left {
     flex: 1;
 }
