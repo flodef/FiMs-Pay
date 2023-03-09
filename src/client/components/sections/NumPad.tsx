@@ -150,7 +150,7 @@ export const NumPad: FC = () => {
                     </div>
                 </div>
             ) : null}
-            {publicKey ? <ErrorMessage /> : null}
+            <ErrorMessage />
         </div>
     );
 };
