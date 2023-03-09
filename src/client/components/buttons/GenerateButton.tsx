@@ -20,8 +20,16 @@ export interface GenerateButtonProps {
 }
 
 export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
-    const { amount, paymentStatus, hasSufficientBalance, generate, requestAirdrop, updateBalance, connectWallet } =
-        usePayment();
+    const {
+        amount,
+        balance,
+        paymentStatus,
+        hasSufficientBalance,
+        generate,
+        requestAirdrop,
+        updateBalance,
+        connectWallet,
+    } = usePayment();
     const { publicKey, connecting, autoConnect } = useWallet();
     const { currencyName } = useConfig();
     const { error } = useError();
@@ -35,14 +43,14 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 ? connecting || autoConnect
                     ? State.Connecting
                     : State.Connect
-                : needRefresh
+                : needRefresh || (error && error.message.toLowerCase().includes('failed to fetch'))
                 ? State.Reload
-                : hasSufficientBalance
+                : balance?.gt(0) && amount !== undefined && balance.gte(amount)
                 ? id
-                : error && error.message.toLowerCase().includes('failed to fetch')
-                ? State.Reload
-                : State.Supply,
-        [connecting, hasSufficientBalance, id, error, needRefresh, publicKey, autoConnect]
+                : balance?.eq(0)
+                ? State.Supply
+                : null,
+        [connecting, balance, amount, id, error, needRefresh, publicKey, autoConnect]
     );
 
     // TODO Translate
