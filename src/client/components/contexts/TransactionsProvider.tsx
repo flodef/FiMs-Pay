@@ -9,7 +9,7 @@ import {
     TransactionSignature,
 } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import React, { FC, ReactNode, useEffect, useState } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
 import { PaymentStatus } from '../../hooks/usePayment';
@@ -17,7 +17,6 @@ import { Transaction, TransactionsContext } from '../../hooks/useTransactions';
 import { Confirmations } from '../../types';
 import { arraysEqual } from '../../utils/arraysEqual';
 import { MAX_CONFIRMATIONS } from '../../utils/constants';
-import { IS_CUSTOMER_POS } from '../../utils/env';
 
 export interface TransactionsProviderProps {
     children: ReactNode;
@@ -38,9 +37,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
 
     // Get the ATA for the recipient and token
     useEffect(() => {
-        if (!splToken) {
-            return;
-        }
+        if (!splToken) return;
 
         let changed = false;
 
@@ -59,7 +56,6 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
 
     // Poll for signatures referencing the associated token account
     useEffect(() => {
-        if (IS_CUSTOMER_POS) return;
         let changed = false;
 
         const run = async () => {

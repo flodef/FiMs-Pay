@@ -10,7 +10,7 @@ import { useFullscreen } from '../../hooks/useFullscreen';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { usePayment } from '../../hooks/usePayment';
 import { encrypt } from '../../utils/aes';
-import { CRYPTO_SECRET, DEFAULT_WALLET, IS_CUSTOMER_POS, USE_CUSTOM_CRYPTO } from '../../utils/env';
+import { CRYPTO_SECRET, DEFAULT_WALLET, USE_CUSTOM_CRYPTO } from '../../utils/env';
 import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
 import { LoadKey } from '../../utils/key';
 import { ActivityIcon } from '../images/ActivityIcon';
@@ -87,11 +87,7 @@ export const ActionMenu: FC = () => {
                             )}
                         </div>
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                        className={css.DropdownMenuItem}
-                        onClick={() => navigate('/transactions')}
-                        disabled={IS_CUSTOMER_POS}
-                    >
+                    <DropdownMenu.Item className={css.DropdownMenuItem} onClick={() => navigate('/transactions')}>
                         <FormattedMessage id="recentTransactions" />
                         <div className={css.RightSlot}>
                             <ActivityIcon />
