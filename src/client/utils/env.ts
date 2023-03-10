@@ -17,6 +17,7 @@ export const DEFAULT_THEME = process.env.NEXT_PUBLIC_DEFAULT_THEME || 'classic';
 export const MERCHANT_IMAGE_PATH = process.env.NEXT_PUBLIC_MERCHANT_IMAGE_PATH || '/Img/Merchant/';
 export const FAUCET = (!IS_DEV ? process.env.NEXT_PUBLIC_FAUCET : null) || 'https://spl-token-faucet.com';
 export const ABOUT = process.env.NEXT_PUBLIC_ABOUT || 'https://fims.fi/';
+export const FAUCET_ADDRESS = process.env.NEXT_PUBLIC_FAUCET_ADDRESS;
 export const GOOGLE_SPREADSHEET_ID = process.env.NEXT_PUBLIC_GOOGLE_SPREADSHEET_ID;
 export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 export const CRYPTO_SECRET = process.env.NEXT_PUBLIC_CRYPTO_SECRET || APP_TITLE;
