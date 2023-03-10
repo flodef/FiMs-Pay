@@ -17,7 +17,6 @@ import {
     APP_TITLE,
     CURRENCY,
     DEFAULT_LANGUAGE,
-    DEFAULT_WALLET,
     IS_CUSTOMER_POS,
     IS_DEV,
     MAX_VALUE,
@@ -103,7 +102,6 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
 
     const navigate = useNavigateWithQuery();
     const merchantInfoList = useRef<MerchantInfo[]>();
-    const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[] }>();
     const {
         id: idParam,
         message,
