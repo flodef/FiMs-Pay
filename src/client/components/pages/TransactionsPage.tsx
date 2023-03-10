@@ -20,14 +20,16 @@ const TransactionsPage: NextPage = () => {
     return (
         <div className={css.root}>
             <div className={css.header}>
-                <BackButton messageId="back" onClick={handleClick} />
+                <BackButton messageId="back" onClick={handleClick} disabled={disabled} />
             </div>
             {!disabled ? (
-                <div className={css.main}>
-                    <Transactions />
-                </div>
+                <>
+                    <div className={css.main}>
+                        <Transactions />
+                    </div>
+                    <PoweredBy />
+                </>
             ) : null}
-            <PoweredBy />
         </div>
     );
 };
