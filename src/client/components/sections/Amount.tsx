@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useConfig } from '../../hooks/useConfig';
 import { NON_BREAKING_SPACE } from '../../utils/constants';
@@ -18,12 +18,8 @@ export const Amount: FC<AmountProps> = ({ value, showZero }) => {
         if (isNaN(num) || (num <= 0 && !showZero)) return NON_BREAKING_SPACE;
         if (typeof value === 'string') return value;
         const bignumber = new BigNumber(value ? value : 0);
-        if (bignumber.isGreaterThan(0)) {
-            const decimals = bignumber.decimalPlaces() ?? 0;
-            return bignumber.toFormat(decimals < minDecimals ? minDecimals : decimals);
-        } else {
-            return '0';
-        }
+        const decimals = bignumber.decimalPlaces() ?? 0;
+        return bignumber.toFormat(decimals < minDecimals ? minDecimals : decimals);
     }, [value, minDecimals, showZero]);
 
     return (

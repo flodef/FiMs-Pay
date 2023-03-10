@@ -4,6 +4,9 @@ import { Confirmations } from '../types';
 
 export interface Transaction {
     signature: TransactionSignature;
+    source: string;
+    destination: string;
+    mint: string;
     amount: string;
     timestamp: number;
     error: TransactionError | null;

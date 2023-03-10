@@ -1,5 +1,5 @@
 import { getAssociatedTokenAddress } from '@solana/spl-token';
-import { useConnection } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
     LAMPORTS_PER_SOL,
     ParsedTransactionWithMeta,
@@ -17,6 +17,7 @@ import { Transaction, TransactionsContext } from '../../hooks/useTransactions';
 import { Confirmations } from '../../types';
 import { arraysEqual } from '../../utils/arraysEqual';
 import { MAX_CONFIRMATIONS } from '../../utils/constants';
+import { IS_CUSTOMER_POS } from '../../utils/env';
 
 export interface TransactionsProviderProps {
     children: ReactNode;
@@ -30,19 +31,24 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
 
     const { connection } = useConnection();
     const { recipient, splToken } = useConfig();
+    const { publicKey } = useWallet();
     const [associatedToken, setAssociatedToken] = useState<PublicKey>();
     const [signatures, setSignatures] = useState<TransactionSignature[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(false);
+    const [owner, setOwner] = useState<PublicKey>();
 
     // Get the ATA for the recipient and token
     useEffect(() => {
-        if (!splToken) return;
+        const owner = IS_CUSTOMER_POS ? publicKey : recipient;
+        if (!splToken || !owner) return;
+
+        setOwner(IS_CUSTOMER_POS ? owner : recipient);
 
         let changed = false;
 
         (async () => {
-            const associatedToken = await getAssociatedTokenAddress(splToken, recipient);
+            const associatedToken = await getAssociatedTokenAddress(splToken, owner);
             if (changed) return;
 
             setAssociatedToken(associatedToken);
@@ -52,10 +58,11 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
             changed = true;
             setAssociatedToken(undefined);
         };
-    }, [splToken, recipient]);
+    }, [splToken, recipient, publicKey]);
 
     // Poll for signatures referencing the associated token account
     useEffect(() => {
+        if (!owner) return;
         let changed = false;
 
         const run = async () => {
@@ -63,8 +70,8 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                 setLoading(true);
 
                 const confirmedSignatureInfos = await connection.getSignaturesForAddress(
-                    associatedToken || recipient,
-                    { limit: 10 },
+                    associatedToken || owner,
+                    { limit: 1000 },
                     PaymentStatus.Confirmed
                 );
                 if (changed) return;
@@ -88,11 +95,11 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
             clearInterval(interval);
             setSignatures([]);
         };
-    }, [connection, associatedToken, recipient, processError]);
+    }, [connection, associatedToken, owner, processError]);
 
     // When the signatures change, poll and update the transactions
     useEffect(() => {
-        if (!signatures.length) return;
+        if (!signatures.length || !owner) return;
         let changed = false;
 
         const run = async () => {
@@ -132,21 +139,22 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                         const program = instruction.program;
                         const type = instruction.parsed?.type;
                         const info = instruction.parsed.info;
+                        const accountKeys = parsedTransaction.transaction.message.accountKeys;
 
                         let preAmount: BigNumber, postAmount: BigNumber;
                         if (!associatedToken) {
                             // Include only SystemProgram.transfer instructions
                             if (!(program === 'system' && type === 'transfer')) return;
 
-                            // Include only transfers to the recipient
-                            if (info?.destination !== recipient.toBase58()) return;
+                            if (!IS_CUSTOMER_POS) {
+                                // Include only transfers to the recipient
+                                if (info?.destination !== owner.toBase58()) return;
 
-                            // Exclude self-transfers
-                            if (info.source === recipient.toBase58()) return;
+                                // Exclude self-transfers
+                                if (info.source === owner.toBase58()) return;
+                            }
 
-                            const accountIndex = parsedTransaction.transaction.message.accountKeys.findIndex(
-                                ({ pubkey }) => pubkey.equals(recipient)
-                            );
+                            const accountIndex = accountKeys.findIndex(({ pubkey }) => pubkey.equals(owner));
                             if (accountIndex === -1) return;
 
                             const preBalance = parsedTransaction.meta.preBalances[accountIndex];
@@ -159,15 +167,15 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                             if (!(program === 'spl-token' && (type === 'transfer' || type === 'transferChecked')))
                                 return;
 
-                            // Include only transfers to the recipient ATA
-                            if (info?.destination !== associatedToken.toBase58()) return;
+                            if (!IS_CUSTOMER_POS) {
+                                // Include only transfers to the recipient ATA
+                                if (info?.destination !== associatedToken.toBase58()) return;
 
-                            // Exclude self-transfers
-                            if (info.source === associatedToken.toBase58()) return;
+                                // Exclude self-transfers
+                                if (info.source === associatedToken.toBase58()) return;
+                            }
 
-                            const accountIndex = parsedTransaction.transaction.message.accountKeys.findIndex(
-                                ({ pubkey }) => pubkey.equals(associatedToken)
-                            );
+                            const accountIndex = accountKeys.findIndex(({ pubkey }) => pubkey.equals(associatedToken));
                             if (accountIndex === -1) return;
 
                             const preBalance = parsedTransaction.meta.preTokenBalances?.find(
@@ -185,8 +193,13 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                         }
 
                         // Exclude negative amounts
-                        if (postAmount.lt(preAmount)) return;
+                        if (!IS_CUSTOMER_POS && postAmount.lt(preAmount)) return;
 
+                        const source =
+                            parsedTransaction.meta.preTokenBalances?.at(0)?.owner || accountKeys[0].pubkey.toString();
+                        const destination =
+                            parsedTransaction.meta.preTokenBalances?.at(1)?.owner || accountKeys[1].pubkey.toString();
+                        const mint = info.mint;
                         const amount = postAmount.minus(preAmount).toString();
                         const confirmations =
                             status === 'finalized'
@@ -195,6 +208,9 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
 
                         return {
                             signature,
+                            source,
+                            destination,
+                            mint,
                             amount,
                             timestamp,
                             error,
@@ -213,7 +229,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
             changed = true;
             clearInterval(interval);
         };
-    }, [signatures, connection, associatedToken, recipient, pollInterval, processError]);
+    }, [signatures, connection, associatedToken, owner, pollInterval, processError]);
 
     return <TransactionsContext.Provider value={{ transactions, loading }}>{children}</TransactionsContext.Provider>;
 };
