@@ -248,8 +248,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     throw new Error('Airdrop available only on Devnet');
 
                 setAirdropStatus(AirdropStatus.DecryptingAccount);
-                const key = await LoadKey(-1);
-                const value = await decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET, key, USE_CUSTOM_CRYPTO);
+                const value = await decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET, await LoadKey(-1), USE_CUSTOM_CRYPTO);
                 const list = value.split(',').map(Number);
                 const array = Uint8Array.from(list);
                 const keypair = Keypair.fromSecretKey(array);

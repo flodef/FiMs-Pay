@@ -81,15 +81,13 @@ export default class FiMsWallet extends EventEmitter {
     }
 
     private async decryptPrivateKey(key: string, time: number) {
-        const unique = await LoadKey(Number(time));
-        return await decrypt(key, CRYPTO_SECRET, unique, USE_CUSTOM_CRYPTO);
+        return await decrypt(key, CRYPTO_SECRET, await LoadKey(time), USE_CUSTOM_CRYPTO);
     }
     private async encryptPrivateKey(key?: Keypair) {
-        const unique = await LoadKey();
         const cipher = await encrypt(
             (key || Keypair.generate()).secretKey.toString(),
             CRYPTO_SECRET,
-            unique,
+            await LoadKey(),
             USE_CUSTOM_CRYPTO
         );
         FiMsWallet.privateKey = { key: cipher, time: 0 };
@@ -100,13 +98,13 @@ export default class FiMsWallet extends EventEmitter {
         if (key && time) {
             FiMsWallet.finishConnecting();
             sessionStorage.removeItem(FiMsWallet._saveRestore);
-
+            const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
             let value = '';
             try {
-                value = await this.decryptPrivateKey(key, time);
+                value = await this.decryptPrivateKey(key, time + timezoneOffset);
             } catch {
                 try {
-                    value = await this.decryptPrivateKey(key, time + 1000 * 3600 * 24); // Try the next day because of the time it takes to generate a new key
+                    value = await this.decryptPrivateKey(key, time + timezoneOffset + 1000 * 3600 * 24); // Try the next day because of the time it takes to generate a new key
                 } catch {}
             } finally {
                 if (value) {
