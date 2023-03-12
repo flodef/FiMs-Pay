@@ -79,7 +79,7 @@ export const NumPad: FC = () => {
 
     return (
         <div className={css.root}>
-            {(phone || IS_CUSTOMER_POS) && publicKey ? (
+            {(phone || IS_CUSTOMER_POS) && publicKey && paymentStatus !== PaymentStatus.Error ? (
                 <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined ? (
                         balance.gt(0) ? (
