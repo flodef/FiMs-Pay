@@ -1,7 +1,7 @@
-import React, { Dispatch, FC, forwardRef, SetStateAction, SyntheticEvent, useEffect, useRef, useState } from 'react';
-import Stack from '@mui/material/Stack';
-import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar';
+import { FC, forwardRef, SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { useMessage } from '../../hooks/useMessage';
 import css from './ActionSnackbar.module.css';
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
@@ -9,20 +9,17 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) 
 });
 
 export interface ActionSnackbarProps {
-    message: string;
-    setMessage: Dispatch<SetStateAction<string>>;
     duration?: number;
     vertical?: SnackbarOrigin['vertical'];
     horizontal?: SnackbarOrigin['horizontal'];
 }
 
 export const ActionSnackbar: FC<ActionSnackbarProps> = ({
-    message,
-    setMessage,
     duration = 3000,
     vertical = 'top',
     horizontal = 'center',
 }) => {
+    const { message, displayMessage } = useMessage();
     const [open, setOpen] = useState(false);
     const alertMessage = useRef(message);
 
@@ -37,7 +34,7 @@ export const ActionSnackbar: FC<ActionSnackbarProps> = ({
     const handleClose = (event?: SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') return;
 
-        setMessage('');
+        displayMessage('');
     };
 
     return (

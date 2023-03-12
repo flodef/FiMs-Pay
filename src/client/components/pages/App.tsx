@@ -32,6 +32,7 @@ import { isMobileDevice } from '../../utils/mobile';
 import { ConfigProvider } from '../contexts/ConfigProvider';
 import { ErrorProvider } from '../contexts/ErrorProvider';
 import { FullscreenProvider } from '../contexts/FullscreenProvider';
+import { MessageProvider } from '../contexts/MessageProvider';
 import { PaymentProvider } from '../contexts/PaymentProvider';
 import { ThemeProvider } from '../contexts/ThemeProvider';
 import { TransactionsProvider } from '../contexts/TransactionsProvider';
@@ -233,38 +234,40 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
             <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
                 <ThemeProvider>
                     <ErrorProvider>
-                        <FullscreenProvider>
-                            <ConnectionProvider endpoint={endpoint}>
-                                <WalletProvider wallets={wallets} autoConnect={shouldConnectWallet}>
-                                    <WalletModalProvider>
-                                        <ConfigProvider
-                                            link={link}
-                                            recipient={recipient}
-                                            label={label}
-                                            message={message}
-                                            splToken={splToken}
-                                            symbol={symbol}
-                                            icon={React.createElement(icon)}
-                                            decimals={decimals}
-                                            minDecimals={minDecimals}
-                                            maxDecimals={maxDecimals}
-                                            maxValue={maxValue}
-                                            multiplier={multiplier}
-                                            currencyName={currencyName}
-                                            id={id}
-                                            reset={reset}
-                                        >
-                                            <TransactionsProvider>
-                                                <PaymentProvider>
-                                                    <Header label={label} />
-                                                    <Component {...pageProps} />
-                                                </PaymentProvider>
-                                            </TransactionsProvider>
-                                        </ConfigProvider>
-                                    </WalletModalProvider>
-                                </WalletProvider>
-                            </ConnectionProvider>
-                        </FullscreenProvider>
+                        <MessageProvider>
+                            <FullscreenProvider>
+                                <ConnectionProvider endpoint={endpoint}>
+                                    <WalletProvider wallets={wallets} autoConnect={shouldConnectWallet}>
+                                        <WalletModalProvider>
+                                            <ConfigProvider
+                                                link={link}
+                                                recipient={recipient}
+                                                label={label}
+                                                message={message}
+                                                splToken={splToken}
+                                                symbol={symbol}
+                                                icon={React.createElement(icon)}
+                                                decimals={decimals}
+                                                minDecimals={minDecimals}
+                                                maxDecimals={maxDecimals}
+                                                maxValue={maxValue}
+                                                multiplier={multiplier}
+                                                currencyName={currencyName}
+                                                id={id}
+                                                reset={reset}
+                                            >
+                                                <TransactionsProvider>
+                                                    <PaymentProvider>
+                                                        <Header label={label} />
+                                                        <Component {...pageProps} />
+                                                    </PaymentProvider>
+                                                </TransactionsProvider>
+                                            </ConfigProvider>
+                                        </WalletModalProvider>
+                                    </WalletProvider>
+                                </ConnectionProvider>
+                            </FullscreenProvider>
+                        </MessageProvider>
                     </ErrorProvider>
                 </ThemeProvider>
             </IntlProvider>
