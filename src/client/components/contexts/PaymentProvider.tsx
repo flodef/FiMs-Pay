@@ -9,6 +9,7 @@ import {
 import {
     getAccount,
     getAssociatedTokenAddress,
+    getMint,
     getOrCreateAssociatedTokenAccount,
     TokenAccountNotFoundError,
 } from '@solana/spl-token';
@@ -36,11 +37,11 @@ import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
 import { AirdropStatus, PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
 import { decrypt } from '../../utils/aes';
-import { DEVNET_DUMMY_MINT } from '../../utils/constants';
 import {
     CRYPTO_SECRET,
     DEFAULT_WALLET,
     FAUCET_ENCODED_KEY,
+    FAUCET_LINK,
     IS_CUSTOMER_POS,
     IS_DEV,
     POS_USE_WALLET,
@@ -58,7 +59,16 @@ export interface PaymentProviderProps {
 
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
-    const { link, recipient: recipientParam, splToken, decimals, label, message, requiredConfirmations } = useConfig();
+    const {
+        link,
+        recipient: recipientParam,
+        splToken,
+        decimals,
+        label,
+        message,
+        requiredConfirmations,
+        currencyName,
+    } = useConfig();
     const { publicKey, sendTransaction, connect, disconnect, select, wallet } = useWallet();
     const { setVisible } = useWalletModal();
     const { processError, compareErrorType } = useError();
@@ -71,6 +81,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [paymentStatus, setPaymentStatus] = useState(PaymentStatus.New);
     const [airdropStatus, setAirdropStatus] = useState<AirdropStatus>();
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
+    const [needRefresh, setNeedRefresh] = useState(false);
+
     const navigate = useNavigateWithQuery();
     const confirmationProgress = useMemo(
         () => confirmations / requiredConfirmations,
@@ -199,93 +211,99 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         }
     }, [disconnect, publicKey, selectWallet]);
 
-    const loadBalance = useCallback(() => {
+    const loadBalance = useCallback(async () => {
         if (!(connection && publicKey && balance === undefined)) return;
 
-        const run = async () => {
-            try {
-                if (recipient.toString() === publicKey.toString()) {
-                    connectWallet(); // Disconnect wallet
-                    throw new PaymentError('sender is also recipient');
-                }
-
-                setPaymentStatus(PaymentStatus.New); // Remove error if any
-                setBalance(BigNumber(-1)); // Set balance status to loading
-
-                let amount = 0;
-                if (splToken) {
-                    const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
-                    const senderAccount = await getAccount(connection, senderATA);
-                    amount = Number(senderAccount.amount);
-                } else {
-                    const senderInfo = await connection.getAccountInfo(publicKey);
-                    amount = senderInfo ? senderInfo.lamports : 0;
-                }
-                setBalance(BigNumber(amount / Math.pow(10, decimals)));
-            } catch (error: any) {
-                if (compareErrorType(error, new TokenAccountNotFoundError())) {
-                    setBalance(BigNumber(0));
-                } else {
-                    sendError(error);
-                    setBalance(undefined);
-                }
+        try {
+            if (recipient.toString() === publicKey.toString()) {
+                connectWallet(); // Disconnect wallet
+                throw new PaymentError('sender is also recipient');
             }
-        };
-        setTimeout(run, 0);
+
+            setPaymentStatus(PaymentStatus.New); // Remove error if any
+            setBalance(BigNumber(-1)); // Set balance status to loading
+
+            let amount = 0;
+            if (splToken) {
+                const senderATA = await getAssociatedTokenAddress(splToken, publicKey);
+                const senderAccount = await getAccount(connection, senderATA);
+                amount = Number(senderAccount.amount);
+            } else {
+                const senderInfo = await connection.getAccountInfo(publicKey);
+                amount = senderInfo ? senderInfo.lamports : 0;
+            }
+            setBalance(BigNumber(amount / Math.pow(10, decimals)));
+        } catch (error: any) {
+            if (compareErrorType(error, new TokenAccountNotFoundError())) {
+                setBalance(BigNumber(0));
+            } else {
+                sendError(error);
+                setBalance(undefined);
+            }
+        }
     }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareErrorType, connectWallet]);
 
-    const updateBalance = useCallback(() => {
+    const updateBalance = useCallback(async () => {
         setBalance(undefined);
-        loadBalance();
+        await loadBalance();
+        setNeedRefresh(false);
     }, [loadBalance]);
 
-    const requestAirdrop = useCallback(() => {
+    const requestAirdrop = useCallback(async () => {
         // TODO : translate
-        const run = async () => {
-            try {
-                if (!(FAUCET_ENCODED_KEY && publicKey)) return;
-                if (connection.rpcEndpoint !== clusterApiUrl('devnet'))
-                    throw new Error('Airdrop available only on Devnet');
+        try {
+            if (!(FAUCET_ENCODED_KEY && publicKey)) return;
+            if (connection.rpcEndpoint !== clusterApiUrl('devnet')) throw new Error('Airdrop available only on Devnet');
 
+            setAirdropStatus(AirdropStatus.RetrievingRecipient);
+            const recipientInfo = await connection.getAccountInfo(publicKey);
+            if (!recipientInfo || recipientInfo.lamports < 0.1 * LAMPORTS_PER_SOL) {
+                setAirdropStatus(AirdropStatus.TransferingSOL);
+                const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
+                setAirdropStatus(AirdropStatus.ConfirmingSOLTransfer);
+                await connection.confirmTransaction({
+                    signature,
+                } as TransactionConfirmationStrategy);
+            }
+            if (splToken) {
                 setAirdropStatus(AirdropStatus.DecryptingAccount);
                 const value = await decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET, await LoadKey(-1), USE_CUSTOM_CRYPTO);
                 const list = value.split(',').map(Number);
                 const array = Uint8Array.from(list);
                 const keypair = Keypair.fromSecretKey(array);
-
-                setAirdropStatus(AirdropStatus.RetrievingRecipient);
-                const recipientInfo = await connection.getAccountInfo(publicKey);
-                if (!recipientInfo || recipientInfo.lamports < 0.1 * LAMPORTS_PER_SOL) {
-                    setAirdropStatus(AirdropStatus.TransferingSOL);
-                    const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
-                    setAirdropStatus(AirdropStatus.ConfirmingSOLTransfer);
-                    await connection.confirmTransaction({
-                        signature,
-                    } as TransactionConfirmationStrategy);
-                }
                 setAirdropStatus(AirdropStatus.RetrievingTokenAccount);
-                await getOrCreateAssociatedTokenAccount(connection, keypair, DEVNET_DUMMY_MINT, publicKey);
+                const mint = await getMint(connection, splToken);
+                const tokenAccount = await getOrCreateAssociatedTokenAccount(connection, keypair, splToken, publicKey);
                 setAirdropStatus(AirdropStatus.TransferingToken);
+                const currentAmount = Number(tokenAccount.amount / BigInt(Math.pow(10, mint.decimals)));
                 const transaction = await createTransfer(connection, keypair.publicKey, {
                     recipient: publicKey,
-                    amount: BigNumber(5.55),
-                    splToken: DEVNET_DUMMY_MINT,
+                    amount: BigNumber((5.55 / Math.max(currentAmount, 1)).toFixed(2)),
+                    splToken: splToken,
                 });
                 setAirdropStatus(AirdropStatus.ConfirmingTokenTransfer);
                 await sendAndConfirmTransaction(connection, transaction, [keypair], {
                     commitment: 'confirmed',
                 });
-
-                updateBalance();
-            } catch (error: any) {
-                sendError(error);
-            } finally {
-                setAirdropStatus(undefined);
             }
-        };
-        setTimeout(run, 0);
-    }, [publicKey, connection, updateBalance, sendError]);
-    [publicKey, connection];
+            await updateBalance();
+        } catch (error: any) {
+            sendError(error);
+        } finally {
+            setAirdropStatus(undefined);
+        }
+    }, [publicKey, connection, splToken, updateBalance, sendError]);
+
+    const supply = useCallback(async () => {
+        if (!publicKey) return;
+        if (!FAUCET_ENCODED_KEY && IS_DEV) {
+            navigator.clipboard.writeText(publicKey.toString());
+            window.open(FAUCET_LINK + '/?token-name=' + currencyName, '_blank');
+            setNeedRefresh(true);
+        } else {
+            await requestAirdrop();
+        }
+    }, [currencyName, publicKey, requestAirdrop]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
@@ -478,9 +496,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 url,
                 hasSufficientBalance,
                 isPaidStatus,
+                needRefresh,
                 reset,
                 generate,
-                requestAirdrop,
+                supply,
                 updateBalance,
                 selectWallet,
                 connectWallet,

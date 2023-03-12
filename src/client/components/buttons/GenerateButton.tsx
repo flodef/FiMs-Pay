@@ -1,10 +1,8 @@
-import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { FC, useCallback, useMemo, useState } from 'react';
-import { useConfig } from '../../hooks/useConfig';
+import { FC, useCallback, useMemo } from 'react';
 import { useError } from '../../hooks/useError';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { FAUCET, FAUCET_ENCODED_KEY, IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
+import { IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { AlertDialogPopup } from '../sections/AlertDialogPopup';
 import { StandardButton } from './StandardButton';
 
@@ -25,16 +23,14 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         balance,
         paymentStatus,
         hasSufficientBalance,
+        needRefresh,
         generate,
-        requestAirdrop,
+        supply,
         updateBalance,
         connectWallet,
     } = usePayment();
     const { publicKey, connecting, autoConnect } = useWallet();
-    const { currencyName } = useConfig();
     const { error } = useError();
-
-    const [needRefresh, setNeedRefresh] = useState(false);
 
     const isInvalidAmount = useMemo(() => !amount || amount.isLessThanOrEqualTo(0), [amount]);
     const action = useMemo(
@@ -45,12 +41,23 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     : State.Connect
                 : needRefresh || (error && error.message.toLowerCase().includes('failed to fetch'))
                 ? State.Reload
-                : balance?.gt(0) && amount !== undefined && balance.gte(amount)
+                : balance?.gt(0) && amount !== undefined && balance.gte(amount) && paymentStatus !== PaymentStatus.Error
                 ? id
-                : balance?.eq(0)
+                : !hasSufficientBalance
                 ? State.Supply
                 : null,
-        [connecting, balance, amount, id, error, needRefresh, publicKey, autoConnect]
+        [
+            connecting,
+            balance,
+            amount,
+            id,
+            error,
+            needRefresh,
+            publicKey,
+            autoConnect,
+            paymentStatus,
+            hasSufficientBalance,
+        ]
     );
 
     // TODO Translate
@@ -69,7 +76,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         //           type: AlertType.Message,
         //       }
         //     : undefined,
-        // [action, currencyName, balanceIsEmpty]
+        // [action, currencyName, balanceIsEmpty]hasSufficientBalance
     );
 
     const handleClick = useCallback(() => {
@@ -80,27 +87,15 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 case 'connect':
                     return () => connectWallet();
                 case 'reload':
-                    return () => {
-                        updateBalance();
-                        setNeedRefresh(false);
-                    };
+                    return () => updateBalance();
                 case 'supply':
-                    return () => {
-                        if (!publicKey) throw new WalletNotConnectedError();
-                        if (!FAUCET_ENCODED_KEY) {
-                            navigator.clipboard.writeText(publicKey.toString());
-                            window.open(FAUCET + '/?token-name=' + currencyName, '_blank');
-                            setNeedRefresh(true);
-                        } else {
-                            requestAirdrop();
-                        }
-                    };
+                    return () => supply();
                 default:
                     return () => {};
             }
         };
         a()();
-    }, [id, action, publicKey, currencyName, generate, connectWallet, updateBalance, requestAirdrop]);
+    }, [id, action, generate, connectWallet, updateBalance, supply]);
 
     const button = useMemo(
         () =>

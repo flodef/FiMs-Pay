@@ -1,7 +1,6 @@
 import { PublicKey, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import { createContext, useContext, useMemo } from 'react';
-import { Confirmations } from '../types';
+import { createContext, useContext } from 'react';
 
 export enum PaymentStatus {
     New = 'new',
@@ -16,10 +15,10 @@ export enum PaymentStatus {
 }
 
 export enum AirdropStatus {
-    DecryptingAccount = 'decryptingAccount',
     RetrievingRecipient = 'retrievingRecipient',
     TransferingSOL = 'transferingSOL',
     ConfirmingSOLTransfer = 'confirmingSOLTransfer',
+    DecryptingAccount = 'decryptingAccount',
     RetrievingTokenAccount = 'retrievingTokenAccount',
     TransferingToken = 'transferingToken',
     ConfirmingTokenTransfer = 'confirmingTokenTransfer',
@@ -39,9 +38,10 @@ export interface PaymentContextState {
     url: URL;
     hasSufficientBalance: boolean;
     isPaidStatus: boolean;
+    needRefresh: boolean;
     reset(): void;
     generate(): void;
-    requestAirdrop(): void;
+    supply(): void;
     updateBalance(): void;
     selectWallet(): void;
     connectWallet(): void;
