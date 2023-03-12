@@ -1,7 +1,7 @@
 import { useLocalStorage } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import React, { FC, ReactElement, ReactNode, useState } from 'react';
-import { ConfigContext } from '../../hooks/useConfig';
+import { FC, ReactElement, ReactNode, useCallback } from 'react';
+import { ConfigContext, Theme } from '../../hooks/useConfig';
 import { Confirmations, Digits } from '../../types';
 import { DEFAULT_THEME } from '../../utils/env';
 import { Multiplier } from '../../utils/multiplier';
@@ -46,6 +46,11 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     reset,
 }) => {
     const [theme, setTheme] = useLocalStorage('Theme', DEFAULT_THEME);
+    const changeTheme = useCallback(() => {
+        const themeList = Object.values(Theme);
+        const currentThemeIndex = themeList.indexOf(theme as Theme);
+        setTheme(themeList[(currentThemeIndex + 1) % themeList.length]);
+    }, [theme, setTheme]);
 
     return (
         <ConfigContext.Provider
@@ -66,7 +71,7 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
                 requiredConfirmations,
                 id,
                 theme,
-                setTheme,
+                changeTheme,
                 reset,
             }}
         >

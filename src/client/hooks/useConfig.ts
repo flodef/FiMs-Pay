@@ -26,7 +26,7 @@ export interface ConfigContextState {
     requiredConfirmations: Confirmations;
     id?: number;
     theme: string;
-    setTheme: (theme: string) => void;
+    changeTheme: () => void;
     reset: () => void;
 }
 
