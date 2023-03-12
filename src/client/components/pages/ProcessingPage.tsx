@@ -3,8 +3,7 @@ import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { IS_CUSTOMER_POS } from '../../utils/env';
-import { GenerateButton } from '../buttons/GenerateButton';
-import { BackButton } from '../buttons/StandardButton';
+import { BackButton, StandardButton } from '../buttons/StandardButton';
 import { ErrorMessage } from '../sections/ErrorMessage';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Progress, ProgresShape } from '../sections/Progress';
@@ -13,7 +12,7 @@ import { TransactionInfo } from '../sections/TransactionInfo';
 import css from './ProcessingPage.module.css';
 
 const ProcessingPage: NextPage = () => {
-    const { reset, paymentStatus, confirmationProgress, isPaidStatus } = usePayment();
+    const { reset, generate, paymentStatus, confirmationProgress, isPaidStatus } = usePayment();
 
     const [value, text] = useMemo(() => {
         const count = 6;
@@ -62,11 +61,16 @@ const ProcessingPage: NextPage = () => {
                     </div>
                 ) : (
                     <div>
-                        <Progress value={value} text={text} shape={ProgresShape.Circular} isError={isErrorStatus} />
+                        <Progress
+                            value={value}
+                            messageId={text}
+                            shape={ProgresShape.Circular}
+                            isError={isErrorStatus}
+                        />
                         {isErrorStatus ? (
                             <div>
                                 <ErrorMessage />
-                                <GenerateButton id="retry" />
+                                <StandardButton messageId="retry" onClick={generate} />
                             </div>
                         ) : null}
                     </div>

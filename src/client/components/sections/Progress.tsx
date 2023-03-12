@@ -1,8 +1,8 @@
+import { Box, CircularProgress, LinearProgress } from '@mui/material';
 import interpolate from 'color-interpolate';
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, FormattedNumber } from 'react-intl';
 import css from './Progress.module.css';
-import { Box, CircularProgress, LinearProgress } from '@mui/material';
 
 export enum ProgresShape {
     Linear,
@@ -11,12 +11,13 @@ export enum ProgresShape {
 
 export interface ProgressProps {
     value: number;
-    text: string | undefined;
+    messageId: string | undefined;
+    messageValues?: Record<string, string | number | boolean>;
     shape: ProgresShape;
     isError?: boolean;
 }
 
-export const Progress: FC<ProgressProps> = ({ value, text, shape, isError = false }) => {
+export const Progress: FC<ProgressProps> = ({ value, messageId, messageValues, shape, isError = false }) => {
     const interpolated = useMemo(() => interpolate(['#8752f3', '#5497d5', '#43b4ca', '#28e0b9', '#19fb9b']), []);
     const color = useMemo(() => (!isError ? interpolated(value) : '#FF0000'), [interpolated, value, isError]);
     const backgroundColor = 'rgba(0, 0, 0, 0.1)';
@@ -66,8 +67,8 @@ export const Progress: FC<ProgressProps> = ({ value, text, shape, isError = fals
                 </Box>
             )}
             <div className={shape === ProgresShape.Linear ? css.linearText : css.circularText}>
-                {text ? (
-                    <FormattedMessage id={text} />
+                {messageId ? (
+                    <FormattedMessage id={messageId} values={messageValues} />
                 ) : value !== 0 ? (
                     <FormattedNumber value={value} style="percent" />
                 ) : null}

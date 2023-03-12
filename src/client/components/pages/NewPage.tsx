@@ -1,6 +1,7 @@
 import { useWallet } from '@solana/wallet-adapter-react';
 import { NextPage } from 'next';
 import { useEffect, useMemo } from 'react';
+import { useConfig } from '../../hooks/useConfig';
 import { AirdropStatus, usePayment } from '../../hooks/usePayment';
 import { DEFAULT_WALLET, IS_CUSTOMER_POS } from '../../utils/env';
 import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
@@ -15,6 +16,7 @@ import css from './NewPage.module.css';
 
 const NewPage: NextPage = () => {
     const { airdropStatus, connectWallet } = usePayment();
+    const { currencyName } = useConfig();
     const { connected } = useWallet();
     const phone = useIsMobileSize() || IS_CUSTOMER_POS;
     const generateId = IS_CUSTOMER_POS ? 'pay' : 'generateCode';
@@ -33,13 +35,13 @@ const NewPage: NextPage = () => {
     const value = useMemo(() => {
         const count = 7;
         switch (airdropStatus) {
-            case AirdropStatus.DecryptingAccount:
-                return 1 / count;
             case AirdropStatus.RetrievingRecipient:
-                return 2 / count;
+                return 1 / count;
             case AirdropStatus.TransferingSOL:
-                return 3 / count;
+                return 2 / count;
             case AirdropStatus.ConfirmingSOLTransfer:
+                return 3 / count;
+            case AirdropStatus.DecryptingAccount:
                 return 4 / count;
             case AirdropStatus.RetrievingTokenAccount:
                 return 5 / count;
@@ -54,7 +56,12 @@ const NewPage: NextPage = () => {
 
     return airdropStatus ? (
         <div className={css.root}>
-            <Progress value={value} text={airdropStatus} shape={ProgresShape.Linear} />
+            <Progress
+                value={value}
+                messageId={airdropStatus}
+                messageValues={{ currency: currencyName }}
+                shape={ProgresShape.Linear}
+            />
         </div>
     ) : phone ? (
         <div className={css.root}>
