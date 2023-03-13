@@ -5,6 +5,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import StegCloak from 'stegcloak';
 import FiMsWallet from '../../utils/FiMsWallet';
 import { LoadKey } from '../../utils/key';
+import { useIsMobileSize } from '../../utils/mobile';
 import { BackButton, StandardButton } from '../buttons/StandardButton';
 import css from './WalletPage.module.css';
 
@@ -17,6 +18,7 @@ enum Phase {
 }
 
 const WalletPage: NextPage = () => {
+    const isPhone = useIsMobileSize();
     const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
     const enterPhrase = useTranslate('enterPhrase');
     const pasteMyPhrase = useTranslate('pasteMyPhrase');
@@ -97,8 +99,12 @@ const WalletPage: NextPage = () => {
 
     return (
         <div className={css.root}>
-            <div className={css.container}>
-                <div className={css.popup} style={{ display: 'block' }}>
+            <div
+                className={
+                    isPhone && (phase === Phase.Create || phase === Phase.Verify) ? css.containerTop : css.container
+                }
+            >
+                <div className={css.popup}>
                     {phase === Phase.Select ? (
                         <div className={css.btnWrapper}>
                             <StandardButton
