@@ -86,13 +86,13 @@
 
 :global(html.light) .inputColor[type='checkbox']:checked ~ div {
     color: var(--theme-light-numpad-button-color);
-    text-shadow: 0 0 15px var(--theme-number-button-background), 0 0 25px var(--theme-number-button-background);
+    text-shadow: 0 0 15px var(--theme-number-button-color-primary), 0 0 25px var(--theme-number-button-color-primary);
     animation: glow 3s linear 1;
 }
 
 :global(html.dark) .inputColor[type='checkbox']:checked ~ div {
     color: var(--theme-dark-numpad-button-color);
-    text-shadow: 0 0 15px var(--theme-number-button-background), 0 0 25px var(--theme-number-button-background);
+    text-shadow: 0 0 15px var(--theme-number-button-color-primary), 0 0 25px var(--theme-number-button-color-primary);
     animation: glow 3s linear 1;
 }
 
@@ -119,7 +119,7 @@
 }
 
 :global(html.light) .divColor {
-    background: var(--theme-number-button-background);
+    background: var(--theme-number-button-color-primary);
     color: var(--theme-light-numpad-button-color);
 
     /* &:hover {
@@ -132,7 +132,7 @@
 }
 
 :global(html.dark) .divColor {
-    background: var(--theme-number-button-background);
+    background: var(--theme-number-button-color-primary);
     color: var(--theme-dark-numpad-button-color);
 
     /* &:hover {
@@ -145,7 +145,7 @@
 }
 
 :global(html.light) .buttonColor {
-    background: var(--theme-backspacebutton-background);
+    background: var(--theme-number-button-color-secondary);
     color: var(--theme-dark-numpad-button-color);
 
     /* &:hover {
@@ -158,7 +158,7 @@
 }
 
 :global(html.dark) .buttonColor {
-    background: var(--theme-backspacebutton-background);
+    background: var(--theme-number-button-color-secondary);
     color: var(--theme-light-numpad-button-color);
 
     /* &:hover {

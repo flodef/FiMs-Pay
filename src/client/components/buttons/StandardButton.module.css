@@ -84,9 +84,9 @@
 }
 
 :global(html.light) .buttonColor {
-    color: var(--theme-backspacebutton-background);
+    color: var(--theme-number-button-color-secondary);
 }
 
 :global(html.dark) .buttonColor {
-    color: var(--theme-number-button-background);
+    color: var(--theme-number-button-color-primary);
 }
