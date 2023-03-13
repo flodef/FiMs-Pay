@@ -18,7 +18,7 @@ const NewPage: NextPage = () => {
     const { airdropStatus, connectWallet } = usePayment();
     const { currencyName } = useConfig();
     const { connected } = useWallet();
-    const phone = useIsMobileSize() || IS_CUSTOMER_POS;
+    const isPhone = useIsMobileSize() || IS_CUSTOMER_POS;
     const generateId = IS_CUSTOMER_POS ? 'pay' : 'generateCode';
 
     // Adding default wallet to localstorage if not already set by user ==> automatically connect to the wallet set in the settings
@@ -63,7 +63,7 @@ const NewPage: NextPage = () => {
                 shape={ProgresShape.Linear}
             />
         </div>
-    ) : phone ? (
+    ) : isPhone ? (
         <div className={css.root}>
             <div className={css.main}>
                 <TopBar />

@@ -49,7 +49,7 @@ export const NumPad: FC = () => {
     const { maxDecimals, maxValue, multiplier, theme, currencyName } = useConfig();
     const { balance, hasSufficientBalance, paymentStatus } = usePayment();
     const { publicKey } = useWallet();
-    const phone = useIsMobileSize();
+    const isPhone = useIsMobileSize();
 
     const regExp = useMemo(() => new RegExp('^\\d*([.,]\\d{0,' + maxDecimals + '})?$'), [maxDecimals]);
 
@@ -79,7 +79,7 @@ export const NumPad: FC = () => {
 
     return (
         <div className={css.root}>
-            {(phone || IS_CUSTOMER_POS) && publicKey && paymentStatus !== PaymentStatus.Error ? (
+            {(isPhone || IS_CUSTOMER_POS) && publicKey && paymentStatus !== PaymentStatus.Error ? (
                 <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined ? (
                         balance.gt(0) ? (

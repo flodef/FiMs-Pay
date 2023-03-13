@@ -9,12 +9,12 @@ import { useIsMobileSize } from '../../utils/mobile';
 
 export const TransactionsLink: FC = () => {
     const to = useLinkWithQuery('/transactions');
-    const phone = useIsMobileSize();
+    const isPhone = useIsMobileSize();
 
     return !IS_CUSTOMER_POS ? (
         <Link href={to} passHref className={css.link}>
             <ActivityIcon />
-            {!phone ? <FormattedMessage id="recentTransactions" /> : null}
+            {!isPhone ? <FormattedMessage id="recentTransactions" /> : null}
         </Link>
     ) : null;
 };
