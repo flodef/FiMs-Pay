@@ -297,7 +297,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const supply = useCallback(async () => {
         if (!publicKey) return;
         if (!FAUCET_ENCODED_KEY || !IS_DEV) {
-            navigator.clipboard.writeText(publicKey.toString());
+            await navigator.clipboard.writeText(publicKey.toString());
             window.open(FAUCET_LINK + '/?token-name=' + currencyName, '_blank');
             setNeedRefresh(true);
         } else {
