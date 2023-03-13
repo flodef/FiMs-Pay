@@ -1,3 +1,5 @@
+import { useMediaQuery } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
@@ -34,7 +36,7 @@ import { ErrorProvider } from '../contexts/ErrorProvider';
 import { FullscreenProvider } from '../contexts/FullscreenProvider';
 import { MessageProvider } from '../contexts/MessageProvider';
 import { PaymentProvider } from '../contexts/PaymentProvider';
-import { ThemeProvider } from '../contexts/ThemeProvider';
+// import { ThemeProvider } from '../contexts/ThemeProvider';
 import { TransactionsProvider } from '../contexts/TransactionsProvider';
 import { Header } from '../sections/Header';
 import { MerchantInfo } from '../sections/Merchant';
@@ -44,6 +46,24 @@ const inter = Inter({
     subsets: ['latin'],
 });
 const className = process.env.NEXT_PUBLIC_VERCEL_ENV ? inter.className : css.mainLocal;
+
+declare module '@mui/material/styles' {
+    interface Palette {
+        tertiary: Palette['primary'];
+    }
+
+    // allow configuration using `createTheme`
+    interface PaletteOptions {
+        tertiary?: PaletteOptions['primary'];
+    }
+}
+
+// Update the Button's color prop options
+declare module '@mui/material/Button' {
+    interface ButtonPropsColorOverrides {
+        neutral: true;
+    }
+}
 
 interface AppProps extends NextAppProps {
     host: string;
@@ -229,10 +249,45 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         }
     }, [currency, symbol, language, messages]);
 
+    const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+    const mode = prefersDarkMode ? 'dark' : 'light';
+
+    useEffect(() => {
+        document.documentElement.classList.add(mode);
+        document.documentElement.style.visibility = 'visible';
+        return () => document.documentElement.classList.remove(mode);
+    }, [mode]);
+
+    const theme = React.useMemo(
+        () =>
+            createTheme({
+                palette: {
+                    mode: mode,
+                    primary: {
+                        main: '#34a5ff',
+                    },
+                    secondary: {
+                        main: '#14f195',
+                    },
+                    tertiary: {
+                        main: '#9945ff',
+                    },
+                    // Used by `getContrastText()` to maximize the contrast between
+                    // the background and the text.
+                    contrastThreshold: 3,
+                    // Used by the functions below to shift a color's luminance by approximately
+                    // two indexes within its tonal palette.
+                    // E.g., shift from Red 500 to Red 300 or Red 700.
+                    tonalOffset: 0.2,
+                },
+            }),
+        [mode]
+    );
+
     return messages.about ? (
         <main className={className}>
             <IntlProvider locale={language} messages={messages} defaultLocale={DEFAULT_LANGUAGE}>
-                <ThemeProvider>
+                <ThemeProvider theme={theme}>
                     <ErrorProvider>
                         <MessageProvider>
                             <FullscreenProvider>
