@@ -83,10 +83,6 @@
     color: var(--theme-dark-color);
 }
 
-:global(html.light) .buttonColor {
-    color: var(--theme-number-button-color-secondary);
-}
-
-:global(html.dark) .buttonColor {
-    color: var(--theme-number-button-color-primary);
+.buttonColor {
+    color: var(--theme-number-button-color-tertiary);
 }
