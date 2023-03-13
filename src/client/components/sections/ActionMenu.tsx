@@ -5,6 +5,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LockIcon from '@mui/icons-material/Lock';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import SearchIcon from '@mui/icons-material/Search';
 import WalletIcon from '@mui/icons-material/Wallet';
 import { SwipeableDrawer } from '@mui/material';
@@ -32,13 +33,12 @@ import { encrypt } from '../../utils/aes';
 import { CRYPTO_SECRET, DEFAULT_WALLET, IS_CUSTOMER_POS, POS_USE_WALLET, USE_CUSTOM_CRYPTO } from '../../utils/env';
 import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
 import { LoadKey } from '../../utils/key';
-import { ActivityIcon } from '../images/ActivityIcon';
+import { useIsMobileSize } from '../../utils/mobile';
 import { ConnectIcon } from '../images/ConnectIcon';
 import { DisconnectIcon } from '../images/DisconnectIcon';
 import { MaximizeIcon } from '../images/MaximizeIcon';
 import { MinimizeIcon } from '../images/MinimizeIcon';
 import css from './ActionMenu.module.css';
-import { useIsMobileSize } from '../../utils/mobile';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 type Direction = 'up' | 'down' | 'left' | 'right';
@@ -95,10 +95,10 @@ export const ActionMenu: FC = () => {
         right: false,
     });
 
-    const phone = useIsMobileSize();
-    const direction = (phone ? 'right' : 'down') as Direction;
-    const anchor = (phone ? 'right' : 'left') as Anchor;
-    const tooltipPlacement = (phone ? 'bottom' : 'right') as Placement;
+    const isPhone = useIsMobileSize();
+    const direction = (isPhone ? 'right' : 'down') as Direction;
+    const anchor = (isPhone ? 'right' : 'left') as Anchor;
+    const tooltipPlacement = (isPhone ? 'bottom' : 'right') as Placement;
 
     const toggleDrawer = (anchor: Anchor, open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
@@ -123,7 +123,7 @@ export const ActionMenu: FC = () => {
     const list = (anchor: Anchor) => (
         <Box
             sx={{ width: 'auto' }}
-            role="presentation"
+            role="action menu"
             onClick={toggleDrawer(anchor, false)}
             onKeyDown={toggleDrawer(anchor, false)}
         >
@@ -132,11 +132,11 @@ export const ActionMenu: FC = () => {
                     (publicKey && (
                         <>
                             <ActionListItem
-                                icon={<ActivityIcon />}
+                                icon={<ReceiptLongIcon />}
                                 messageId="recentTransactions"
                                 onClick={() => navigate('/transactions')}
                             />
-                            <ActionListItem icon={<AddCardIcon />} messageId="supply" onClick={supply} />
+                            {/* <ActionListItem icon={<AddCardIcon />} messageId="supply" onClick={supply} /> */}
                             <ActionListItem
                                 icon={<ContentCopyIcon />}
                                 messageId="copyAddress"
@@ -236,8 +236,8 @@ export const ActionMenu: FC = () => {
                         <SpeedDialAction
                             key={action.name}
                             icon={action.icon}
-                            tooltipTitle={action.name}
-                            tooltipOpen={!phone}
+                            tooltipTitle={<FormattedMessage id={action.name} />}
+                            tooltipOpen={!isPhone}
                             tooltipPlacement={tooltipPlacement}
                             onClick={action.onClick}
                         />
