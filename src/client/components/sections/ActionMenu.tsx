@@ -1,9 +1,14 @@
 import AddCardIcon from '@mui/icons-material/AddCard';
 import AppShortcutIcon from '@mui/icons-material/AppShortcut';
+import CallReceivedIcon from '@mui/icons-material/CallReceived';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LockIcon from '@mui/icons-material/Lock';
-import MenuIcon from '@mui/icons-material/Menu';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import SearchIcon from '@mui/icons-material/Search';
 import WalletIcon from '@mui/icons-material/Wallet';
+import { SwipeableDrawer } from '@mui/material';
+import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
@@ -11,11 +16,14 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { FC, Fragment, MouseEventHandler, ReactNode, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { Theme, useConfig } from '../../hooks/useConfig';
+import * as React from 'react';
+import { FC, MouseEventHandler, ReactNode, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useConfig } from '../../hooks/useConfig';
 import { useFullscreen } from '../../hooks/useFullscreen';
 import { useMessage } from '../../hooks/useMessage';
 import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
@@ -30,10 +38,25 @@ import { DisconnectIcon } from '../images/DisconnectIcon';
 import { MaximizeIcon } from '../images/MaximizeIcon';
 import { MinimizeIcon } from '../images/MinimizeIcon';
 import css from './ActionMenu.module.css';
+import { useIsMobileSize } from '../../utils/mobile';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
+type Direction = 'up' | 'down' | 'left' | 'right';
+type Placement =
+    | 'bottom-end'
+    | 'bottom-start'
+    | 'bottom'
+    | 'left-end'
+    | 'left-start'
+    | 'left'
+    | 'right-end'
+    | 'right-start'
+    | 'right'
+    | 'top-end'
+    | 'top-start'
+    | 'top';
 
-export interface ActionListItemProps {
+interface ActionListItemProps {
     icon: ReactNode;
     messageId: string;
     onClick: MouseEventHandler<HTMLDivElement>;
@@ -56,13 +79,14 @@ const ActionListItem: FC<ActionListItemProps> = ({ icon, messageId, onClick, dis
 export const ActionMenu: FC = () => {
     const { connected, connecting, publicKey } = useWallet();
     const { fullscreen, toggleFullscreen } = useFullscreen();
-    const { connectWallet, supply } = usePayment();
+    const { connectWallet, supply, reset } = usePayment();
     const { theme, changeTheme } = useConfig();
     const navigate = useNavigateWithQuery();
     const { displayMessage } = useMessage();
 
-    const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
-    const walletAddressCopied = useTranslate('walletAddressCopied');
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     const [state, setState] = useState({
         top: false,
@@ -70,6 +94,11 @@ export const ActionMenu: FC = () => {
         bottom: false,
         right: false,
     });
+
+    const phone = useIsMobileSize();
+    const direction = (phone ? 'right' : 'down') as Direction;
+    const anchor = (phone ? 'right' : 'left') as Anchor;
+    const tooltipPlacement = (phone ? 'bottom' : 'right') as Placement;
 
     const toggleDrawer = (anchor: Anchor, open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
@@ -82,6 +111,14 @@ export const ActionMenu: FC = () => {
 
         setState({ ...state, [anchor]: open });
     };
+
+    const actions = [
+        { icon: <QrCodeScannerIcon />, name: 'scan' },
+        { icon: <SearchIcon />, name: 'search', onClick: () => navigate('/merchants') },
+        { icon: <CallReceivedIcon />, name: 'receive' },
+        { icon: <AddCardIcon />, name: 'supply', onClick: () => supply() },
+        { icon: <MoreHorizIcon />, name: 'more', onClick: toggleDrawer(anchor, true) },
+    ];
 
     const list = (anchor: Anchor) => (
         <Box
@@ -105,7 +142,7 @@ export const ActionMenu: FC = () => {
                                 messageId="copyAddress"
                                 onClick={() => {
                                     navigator.clipboard.writeText(publicKey.toString());
-                                    displayMessage(walletAddressCopied);
+                                    displayMessage('walletAddressCopied');
                                 }}
                             />
                         </>
@@ -168,26 +205,53 @@ export const ActionMenu: FC = () => {
         </Box>
     );
 
-    const anchor = 'right' as Anchor;
     return (
-        <div className={css.root}>
-            <Fragment key={anchor}>
-                <button
-                    className={theme === Theme.Color ? css.iconButtonColor : css.iconButton}
-                    onClick={toggleDrawer(anchor, true)}
-                    aria-label="Action menu"
+        <Box
+            sx={
+                direction === 'down' || direction === 'right'
+                    ? { height: 80, transform: 'translateZ(0px)', flexGrow: 1 }
+                    : { height: 320, transform: 'translateZ(0px)', flexGrow: 1 }
+            }
+        >
+            <Backdrop className={css.backdrop} open={open} />
+            {publicKey && (
+                <SpeedDial
+                    ariaLabel="SpeedDial tooltip"
+                    sx={
+                        direction === 'down' || direction === 'right'
+                            ? {
+                                  position: 'absolute',
+                                  top: 16,
+                                  left: 16,
+                              }
+                            : { position: 'absolute', bottom: 16, right: 16 }
+                    }
+                    icon={<SpeedDialIcon />}
+                    onClose={handleClose}
+                    onOpen={handleOpen}
+                    open={open}
+                    direction={direction}
                 >
-                    <MenuIcon className={css.menuIcon} />
-                </button>
-                <SwipeableDrawer
-                    anchor={anchor}
-                    open={state[anchor]}
-                    onClose={toggleDrawer(anchor, false)}
-                    onOpen={toggleDrawer(anchor, true)}
-                >
-                    {list(anchor)}
-                </SwipeableDrawer>
-            </Fragment>
-        </div>
+                    {actions.map((action) => (
+                        <SpeedDialAction
+                            key={action.name}
+                            icon={action.icon}
+                            tooltipTitle={action.name}
+                            tooltipOpen={!phone}
+                            tooltipPlacement={tooltipPlacement}
+                            onClick={action.onClick}
+                        />
+                    ))}
+                </SpeedDial>
+            )}
+            <SwipeableDrawer
+                anchor={anchor}
+                open={state[anchor]}
+                onClose={toggleDrawer(anchor, false)}
+                onOpen={toggleDrawer(anchor, true)}
+            >
+                {list(anchor)}
+            </SwipeableDrawer>
+        </Box>
     );
 };

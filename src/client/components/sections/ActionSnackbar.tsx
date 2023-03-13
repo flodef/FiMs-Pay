@@ -1,6 +1,7 @@
-import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import MuiAlert, { AlertColor, AlertProps } from '@mui/material/Alert';
 import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar';
 import { FC, forwardRef, SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { useMessage } from '../../hooks/useMessage';
 import css from './ActionSnackbar.module.css';
 
@@ -10,12 +11,14 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) 
 
 export interface ActionSnackbarProps {
     duration?: number;
+    severity?: AlertColor;
     vertical?: SnackbarOrigin['vertical'];
     horizontal?: SnackbarOrigin['horizontal'];
 }
 
 export const ActionSnackbar: FC<ActionSnackbarProps> = ({
     duration = 3000,
+    severity = 'success',
     vertical = 'top',
     horizontal = 'center',
 }) => {
@@ -45,8 +48,8 @@ export const ActionSnackbar: FC<ActionSnackbarProps> = ({
             onClose={handleClose}
             anchorOrigin={{ vertical, horizontal }}
         >
-            <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                {alertMessage.current}
+            <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
+                <FormattedMessage id={alertMessage.current} />
             </Alert>
         </Snackbar>
     );
