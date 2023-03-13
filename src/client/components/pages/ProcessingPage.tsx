@@ -67,12 +67,12 @@ const ProcessingPage: NextPage = () => {
                             shape={ProgresShape.Circular}
                             isError={isErrorStatus}
                         />
-                        {isErrorStatus ? (
-                            <div>
+                        {isErrorStatus && (
+                            <div className={css.error}>
                                 <ErrorMessage />
                                 <StandardButton messageId="retry" onClick={generate} />
                             </div>
-                        ) : null}
+                        )}
                     </div>
                 )}
             </div>
