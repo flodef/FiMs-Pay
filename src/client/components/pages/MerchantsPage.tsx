@@ -1,17 +1,17 @@
 import { NextPage } from 'next';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ABOUT, APP_TITLE, SHOW_MERCHANT_LIST } from '../../utils/env';
-import css from './MerchantsPage.module.css';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { MerchantCarousel } from '../sections/Carousel';
 import { SOLANA_PAY } from '../../utils/constants';
-import { TextAnimation } from '../sections/TextAnimation';
+import { ABOUT_LINK, APP_TITLE, SHOW_MERCHANT_LIST } from '../../utils/env';
+import { LoadMerchantData } from '../../utils/merchant';
 import { SolanaPayLogo } from '../images/SolanaPayLogo';
-import { MerchantInfoMenu } from '../sections/MerchantInfoMenu';
+import { MerchantCarousel } from '../sections/Carousel';
 import { Header } from '../sections/Header';
 import { MerchantInfo } from '../sections/Merchant';
-import { LoadMerchantData } from '../../utils/merchant';
-import { useRouter } from 'next/router';
+import { MerchantInfoMenu } from '../sections/MerchantInfoMenu';
+import { TextAnimation } from '../sections/TextAnimation';
+import css from './MerchantsPage.module.css';
 
 const MerchantsPage: NextPage = () => {
     const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
@@ -59,7 +59,7 @@ const MerchantsPage: NextPage = () => {
                 ))}
             </div>
             <div className={css.bottom}>
-                <a className={css.link} href={ABOUT} target="_blank" rel="noreferrer">
+                <a className={css.link} href={ABOUT_LINK} target="_blank" rel="noreferrer">
                     <FormattedMessage id="about" />
                 </a>
             </div>
