@@ -84,5 +84,5 @@
 }
 
 .buttonColor {
-    color: var(--theme-number-button-color-tertiary);
+    color: var(--theme-color-primary);
 }
