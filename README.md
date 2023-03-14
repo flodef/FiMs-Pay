@@ -338,9 +338,13 @@ Here is the list of all availables settings with their explanation and default v
 -   NEXT_PUBLIC_DEFAULT_WALLET : The default wallet to connect to (for example, if you are sure that all of your customers are only using one wallet). Leave empty for user to choose among different wallets.
 -   NEXT_PUBLIC_APP_TITLE=FiMs Pay : The app default title, that will be displayed in the web page and use as default merchant label.
 -   NEXT_PUBLIC_DEFAULT_LANGUAGE=en : The app default language if the browser language is not found as a translated language (currently, english, esperanto, spanish, french, japanese and portuguese).
+-   NEXT_PUBLIC_DEFAULT_THEME=color : The app default theme (Possible value can be: classic, color, blackWhite)
 -   NEXT_PUBLIC_MERCHANT_IMAGE_PATH='/Img/Merchant/' : The path or Web address to where the merchant's logo is located
+-   NEXT_PUBLIC_ABOUT_LINK=https://fims.fi/pay : A web address to know more about the app / project
+-   NEXT_PUBLIC_HELP_LINK=https://fims.fi/faq : A web address to find help about the app / project
 -   NEXT_PUBLIC_FAUCET=https://spl-token-faucet.com : A web address to a SOL / SPL Token faucet
--   NEXT_PUBLIC_ABOUT=https://solanapay.com/ : A web address to know more about the app / project
+-   NEXT_PUBLIC_FAUCET_ADDRESS : The faucet's Solana public key
+-   NEXT_PUBLIC_FAUCET_SUPPLY_AMOUNT=1 : The initial amount provided by the faucet
 -   NEXT_PUBLIC_PRIVATE_PAYMENT : Whether to use Private payments or not
 
 These are your personnal Private Keys. You can use them in your private `.env.local` (on your own machine) and in Vercel Environment settings (encrypted).
