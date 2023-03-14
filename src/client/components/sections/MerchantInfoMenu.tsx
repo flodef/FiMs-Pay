@@ -1,16 +1,16 @@
-import React, { FC, MouseEvent, useCallback, useState } from 'react';
-import css from './MerchantInfoMenu.module.css';
+import { CaretDownIcon } from '@radix-ui/react-icons';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import classNames from 'classnames';
-import { CaretDownIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
+import React, { FC, MouseEvent, useCallback, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { usePayment } from '../../hooks/usePayment';
 import { CURRENCY_LIST } from '../../utils/constants';
 import { IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
-import { merchantImageSrc, MerchantInfo } from './Merchant';
-import { SelectImage } from './SelectImage';
-import Image from 'next/image';
 import { useNavigateToMerchant } from '../../utils/merchant';
-import { usePayment } from '../../hooks/usePayment';
+import { merchantImageSrc, MerchantInfo } from './Merchant';
+import css from './MerchantInfoMenu.module.css';
+import { SelectImage } from './SelectImage';
 
 export interface MerchantInfoMenuProps {
     merchantInfoList: MerchantInfo[];
@@ -128,7 +128,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                     pattern=".{0,50}"
                                 />
                             </fieldset>
-                            {IS_CUSTOMER_POS || !POS_USE_WALLET ? (
+                            {(IS_CUSTOMER_POS || !POS_USE_WALLET) && (
                                 <fieldset className={css.Fieldset}>
                                     <label className={css.Label} htmlFor="recipient">
                                         <FormattedMessage id="address" />
@@ -142,7 +142,7 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                         pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$"
                                     />
                                 </fieldset>
-                            ) : null}
+                            )}
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="currency">
                                     <FormattedMessage id="currency" />

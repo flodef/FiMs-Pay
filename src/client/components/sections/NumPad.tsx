@@ -79,7 +79,7 @@ export const NumPad: FC = () => {
 
     return (
         <div className={css.root}>
-            {(isPhone || IS_CUSTOMER_POS) && publicKey && paymentStatus !== PaymentStatus.Error ? (
+            {(isPhone || IS_CUSTOMER_POS) && publicKey && paymentStatus !== PaymentStatus.Error && (
                 <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined ? (
                         balance.gt(0) ? (
@@ -87,7 +87,7 @@ export const NumPad: FC = () => {
                                 <FormattedMessage id="yourBalance" />
                                 :&nbsp;
                                 <Amount value={balance} />
-                                {!hasSufficientBalance ? <FormattedMessage id="insufficient" /> : null}
+                                {!hasSufficientBalance && <FormattedMessage id="insufficient" />}
                             </div>
                         ) : balance.eq(0) ? (
                             <FormattedMessage id="emptyBalance" />
@@ -96,8 +96,8 @@ export const NumPad: FC = () => {
                         )
                     ) : null}
                 </div>
-            ) : null}
-            {(!IS_CUSTOMER_POS || publicKey) && paymentStatus !== PaymentStatus.Error ? (
+            )}
+            {(!IS_CUSTOMER_POS || publicKey) && paymentStatus !== PaymentStatus.Error && (
                 <div>
                     <div className={css.icon}>
                         <SelectImage
@@ -149,7 +149,7 @@ export const NumPad: FC = () => {
                         </div>
                     </div>
                 </div>
-            ) : null}
+            )}
             <ErrorMessage />
         </div>
     );

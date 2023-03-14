@@ -1,5 +1,5 @@
 import { useWallet } from '@solana/wallet-adapter-react';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
@@ -12,7 +12,7 @@ export const Summary: FC = () => {
 
     return (
         <div className={css.root}>
-            {POS_USE_WALLET || IS_CUSTOMER_POS ? (
+            {(POS_USE_WALLET || IS_CUSTOMER_POS) && (
                 <div>
                     <div className={css.title}>
                         <FormattedMessage id="yourBalance" />
@@ -35,7 +35,7 @@ export const Summary: FC = () => {
                         )}
                     </div>
                 </div>
-            ) : null}
+            )}
             <div className={css.total}>
                 <div className={css.totalLeft}>
                     <FormattedMessage id="total" />

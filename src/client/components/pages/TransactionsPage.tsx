@@ -22,14 +22,14 @@ const TransactionsPage: NextPage = () => {
             <div className={css.header}>
                 <BackButton messageId="back" onClick={handleClick} disabled={disabled} />
             </div>
-            {!disabled ? (
+            {!disabled && (
                 <>
                     <div className={css.main}>
                         <Transactions />
                     </div>
                     <PoweredBy />
                 </>
-            ) : null}
+            )}
         </div>
     );
 };
