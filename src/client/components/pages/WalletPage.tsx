@@ -1,3 +1,4 @@
+import { Step, StepLabel, Stepper } from '@mui/material';
 import { WalletNotReadyError } from '@solana/wallet-adapter-base';
 import { NextPage } from 'next';
 import { useCallback, useMemo, useState } from 'react';
@@ -11,11 +12,16 @@ import css from './WalletPage.module.css';
 
 enum Phase {
     Select,
-    Create,
     Retrieve,
+    Create,
     Store,
     Verify,
 }
+
+const currentDate = new Date();
+const currentTime = currentDate.getTime();
+const timezoneOffset = currentDate.getTimezoneOffset() * 60 * 1000;
+const initPattern = '\\S+ +\\S+.*';
 
 const WalletPage: NextPage = () => {
     const isPhone = useIsMobileSize();
@@ -24,10 +30,6 @@ const WalletPage: NextPage = () => {
     const pasteMyPhrase = useTranslate('pasteMyPhrase');
     const or = useTranslate('or').toUpperCase();
 
-    const currentDate = new Date();
-    const currentTime = currentDate.getTime();
-    const timezoneOffset = currentDate.getTimezoneOffset() * 60 * 1000;
-    const initPattern = '\\S+ +\\S+.*';
     const [phrasePattern, setPhrasePattern] = useState(initPattern);
     const [phase, setPhase] = useState(Phase.Select);
     const [phrase, setPhrase] = useState('');
@@ -80,7 +82,7 @@ const WalletPage: NextPage = () => {
     const storePhrase = useCallback(() => {
         FiMsWallet.privateKey = { key: magic, time: time || currentTime };
         FiMsWallet.finishConnecting();
-    }, [magic, time, currentTime]);
+    }, [magic, time]);
 
     const goToVerify = useCallback(() => {
         setPhase(Phase.Verify);
@@ -93,9 +95,21 @@ const WalletPage: NextPage = () => {
     );
 
     const timeInvalid = useMemo(
-        () => !time || time < 1677628800000 || time > currentTime - timezoneOffset,
-        [time, currentTime, timezoneOffset]
+        () => !time || time < new Date('2023-03-01').getTime() || time > currentTime - timezoneOffset,
+        [time]
     );
+
+    const stepIndex = useMemo(() => {
+        switch (phase) {
+            case Phase.Retrieve:
+            case Phase.Create:
+                return 0;
+            case Phase.Store:
+                return 1;
+            case Phase.Verify:
+                return !phraseInvalid && !loading ? 3 : !time ? 2 : 1;
+        }
+    }, [phase, time, loading, phraseInvalid]);
 
     return (
         <div className={css.root}>
@@ -105,6 +119,21 @@ const WalletPage: NextPage = () => {
                 }
             >
                 <div className={css.popup}>
+                    {phase !== Phase.Select && (
+                        <Stepper activeStep={stepIndex}>
+                            {new Array(time ? 2 : 3).fill('').map((label, index) => (
+                                <Step key={index}>
+                                    <StepLabel
+                                        error={
+                                            stepIndex === index &&
+                                            ((phrase !== '' && phase !== Phase.Retrieve && phraseInvalid) ||
+                                                (phase === Phase.Retrieve && timeInvalid))
+                                        }
+                                    />
+                                </Step>
+                            ))}
+                        </Stepper>
+                    )}
                     {phase === Phase.Select ? (
                         <div className={css.btnWrapper}>
                             <StandardButton
@@ -117,7 +146,10 @@ const WalletPage: NextPage = () => {
                             <div className={css.title}>{or}</div>
                             <StandardButton
                                 messageId={FiMsWallet.isSavingRestoring ? 'saveWallet' : 'createWallet'}
-                                onClick={() => setPhase(Phase.Create)}
+                                onClick={() => {
+                                    setPhase(Phase.Create);
+                                    setTime(0);
+                                }}
                             />
                             <div className={css.divider}></div>
                             <StandardButton
@@ -220,7 +252,6 @@ const WalletPage: NextPage = () => {
                                     messageId="copy"
                                     onClick={() => {
                                         navigator.clipboard.writeText(magic);
-                                        setTime(0);
                                         goToVerify();
                                     }}
                                     disabled={phraseInvalid}
@@ -229,48 +260,50 @@ const WalletPage: NextPage = () => {
                                 />
                             </div>
                         </>
-                    ) : phase === Phase.Verify ? (
-                        <>
-                            <div className={css.text}>
-                                <FormattedMessage id="verifyRecoveryPhrase" />
-                            </div>
-                            <input
-                                className={css.Input}
-                                id="phrase"
-                                autoFocus
-                                value={phrase}
-                                onKeyUp={(x) => {
-                                    if (x.key === 'Enter' && !phraseInvalid) storePhrase();
-                                }}
-                                onInput={(x) => {
-                                    setPhrase(x.currentTarget.value);
-                                    verifyPhrase(x.currentTarget.value);
-                                }}
-                                placeholder={pasteMyPhrase}
-                                pattern={phrasePattern}
-                            />
-                            <div className={css.divider}></div>
-                            <div className={css.btnWrapper}>
-                                <BackButton
-                                    messageId="back"
-                                    onClick={() => {
-                                        setPhase(time ? Phase.Retrieve : Phase.Create);
-                                        setPhrase('');
-                                        setPhrasePattern(initPattern);
+                    ) : (
+                        phase === Phase.Verify && (
+                            <>
+                                <div className={css.text}>
+                                    <FormattedMessage id="verifyRecoveryPhrase" />
+                                </div>
+                                <input
+                                    className={css.Input}
+                                    id="phrase"
+                                    autoFocus
+                                    value={phrase}
+                                    onKeyUp={(x) => {
+                                        if (x.key === 'Enter' && !phraseInvalid) storePhrase();
                                     }}
-                                    disabled={loading}
-                                    style={{ float: 'left' }}
+                                    onInput={(x) => {
+                                        setPhrase(x.currentTarget.value);
+                                        verifyPhrase(x.currentTarget.value);
+                                    }}
+                                    placeholder={pasteMyPhrase}
+                                    pattern={phrasePattern}
                                 />
-                                <StandardButton
-                                    messageId="finalized"
-                                    onClick={storePhrase}
-                                    disabled={phraseInvalid}
-                                    loading={loading}
-                                    style={{ float: 'right' }}
-                                />
-                            </div>
-                        </>
-                    ) : null}
+                                <div className={css.divider}></div>
+                                <div className={css.btnWrapper}>
+                                    <BackButton
+                                        messageId="back"
+                                        onClick={() => {
+                                            setPhase(time ? Phase.Retrieve : Phase.Create);
+                                            setPhrase('');
+                                            setPhrasePattern(initPattern);
+                                        }}
+                                        disabled={loading}
+                                        style={{ float: 'left' }}
+                                    />
+                                    <StandardButton
+                                        messageId="finalized"
+                                        onClick={storePhrase}
+                                        disabled={phraseInvalid}
+                                        loading={loading}
+                                        style={{ float: 'right' }}
+                                    />
+                                </div>
+                            </>
+                        )
+                    )}
                 </div>
             </div>
         </div>
