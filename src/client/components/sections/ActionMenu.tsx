@@ -2,6 +2,7 @@ import AddCardIcon from '@mui/icons-material/AddCard';
 import AppShortcutIcon from '@mui/icons-material/AppShortcut';
 import CallReceivedIcon from '@mui/icons-material/CallReceived';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LockIcon from '@mui/icons-material/Lock';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
@@ -27,10 +28,17 @@ import { FormattedMessage } from 'react-intl';
 import { useConfig } from '../../hooks/useConfig';
 import { useFullscreen } from '../../hooks/useFullscreen';
 import { useMessage } from '../../hooks/useMessage';
-import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
+import { useNavigate } from '../../hooks/useNavigate';
 import { usePayment } from '../../hooks/usePayment';
 import { encrypt } from '../../utils/aes';
-import { CRYPTO_SECRET, DEFAULT_WALLET, IS_CUSTOMER_POS, POS_USE_WALLET, USE_CUSTOM_CRYPTO } from '../../utils/env';
+import {
+    CRYPTO_SECRET,
+    DEFAULT_WALLET,
+    HELP_LINK,
+    IS_CUSTOMER_POS,
+    POS_USE_WALLET,
+    USE_CUSTOM_CRYPTO,
+} from '../../utils/env';
 import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
 import { LoadKey } from '../../utils/key';
 import { useIsMobileSize } from '../../utils/mobile';
@@ -79,9 +87,9 @@ const ActionListItem: FC<ActionListItemProps> = ({ icon, messageId, onClick, dis
 export const ActionMenu: FC = () => {
     const { connected, connecting, publicKey } = useWallet();
     const { fullscreen, toggleFullscreen } = useFullscreen();
-    const { connectWallet, supply, reset } = usePayment();
-    const { theme, changeTheme } = useConfig();
-    const navigate = useNavigateWithQuery();
+    const { connectWallet, supply } = usePayment();
+    const { changeTheme } = useConfig();
+    const navigate = useNavigate();
     const { displayMessage } = useMessage();
 
     const [open, setOpen] = React.useState(false);
@@ -139,7 +147,7 @@ export const ActionMenu: FC = () => {
                             {/* <ActionListItem icon={<AddCardIcon />} messageId="supply" onClick={supply} /> */}
                             <ActionListItem
                                 icon={<ContentCopyIcon />}
-                                messageId="copyAddress"
+                                messageId="shareAddress"
                                 onClick={() => {
                                     navigator.clipboard.writeText(publicKey.toString());
                                     displayMessage('walletAddressCopied');
@@ -178,6 +186,10 @@ export const ActionMenu: FC = () => {
                     onClick={toggleFullscreen}
                 />
                 <ActionListItem icon={<AppShortcutIcon />} messageId="changeTheme" onClick={changeTheme} />
+            </List>
+            <Divider />
+            <List>
+                <ActionListItem icon={<HelpOutlineIcon />} messageId={'help'} onClick={() => navigate(HELP_LINK)} />
             </List>
 
             {!process.env.NEXT_PUBLIC_VERCEL_ENV && (
