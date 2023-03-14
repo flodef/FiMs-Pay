@@ -11,7 +11,7 @@ import { Inter } from 'next/font/google';
 import { useRouter } from 'next/router';
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IntlProvider } from 'react-intl';
-import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
+import { useNavigate } from '../../hooks/useNavigate';
 import { Digits } from '../../types';
 import { CURRENCY_LIST, DEVNET_ENDPOINT, MAINNET_ENDPOINT } from '../../utils/constants';
 import { createURLWithParams } from '../../utils/createURLWithQuery';
@@ -121,7 +121,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         setLocation(merchant.location);
     }, []);
 
-    const navigate = useNavigateWithQuery();
+    const navigate = useNavigate();
     const merchantInfoList = useRef<MerchantInfo[]>();
     const {
         id: idParam,

@@ -33,7 +33,7 @@ import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
 import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
-import { useNavigateWithQuery } from '../../hooks/useNavigateWithQuery';
+import { useNavigate } from '../../hooks/useNavigate';
 import { AirdropStatus, PaymentContext, PaymentStatus } from '../../hooks/usePayment';
 import { Confirmations } from '../../types';
 import { decrypt } from '../../utils/aes';
@@ -83,7 +83,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
     const [needRefresh, setNeedRefresh] = useState(false);
 
-    const navigate = useNavigateWithQuery();
+    const navigate = useNavigate();
     const confirmationProgress = useMemo(
         () => confirmations / requiredConfirmations,
         [confirmations, requiredConfirmations]
@@ -298,12 +298,12 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         if (!publicKey) return;
         if (!FAUCET_ENCODED_KEY || !IS_DEV) {
             await navigator.clipboard.writeText(publicKey.toString());
-            window.open(FAUCET_LINK + '/?token-name=' + currencyName, '_blank');
+            navigate(FAUCET_LINK + '/?token-name=' + currencyName);
             setNeedRefresh(true);
         } else {
             await requestAirdrop();
         }
-    }, [currencyName, publicKey, requestAirdrop]);
+    }, [currencyName, publicKey, navigate, requestAirdrop]);
 
     // If there's a connected wallet, load it's token balance
     useEffect(() => {
