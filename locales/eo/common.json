@@ -94,6 +94,8 @@
     "enterPhrase": "Entajpu frazon",
     "pasteMyPhrase": "Algluu vian frazon",
     "skipStep": "Salti ĉi tiun paŝon",
+    "help": "Helpo",
+    "shareAddress": "Dividi mian adreson",
     "WalletNotConnectedError": "Monujo Ne Konektita!",
     "WalletSignTransactionError": "Vi malakceptis la transakcion!",
     "WalletSendTransactionError": "Vi daŭris tro longe por aprobi la transakcion!",

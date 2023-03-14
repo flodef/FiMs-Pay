@@ -94,6 +94,8 @@
     "enterPhrase": "Entrez une phrase",
     "pasteMyPhrase": "Coller votre phrase",
     "skipStep": "Passer cette étape",
+    "help": "Aide",
+    "shareAddress": "Partager mon adresse",
     "WalletNotConnectedError": "Porte-monnaie non connecté !",
     "WalletSignTransactionError": "Vous avez refusé la transaction !",
     "WalletSendTransactionError": "Vous avez trop tardé à approuver la transaction !",

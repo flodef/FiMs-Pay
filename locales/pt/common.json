@@ -94,6 +94,8 @@
     "enterPhrase": "Digite uma frase",
     "pasteMyPhrase": "Cole sua frase",
     "skipStep": "Ignorar esta etapa",
+    "help": "ajuda",
+    "shareAddress": "Compartilhe meu endereço",
     "WalletNotConnectedError": "Carteira não conectada!",
     "WalletSignTransactionError": "Você recusou a transação!",
     "WalletSendTransactionError": "Você demorou muito para aprovar a transação!",

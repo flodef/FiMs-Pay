@@ -94,6 +94,8 @@
     "enterPhrase": "Enter a phrase",
     "pasteMyPhrase": "Paste your phrase",
     "skipStep": "Skip this step",
+    "help": "Help",
+    "shareAddress": "Share my Address",
     "WalletNotConnectedError": "Wallet Not Connected!",
     "WalletSignTransactionError": "You declined the transaction!",
     "WalletSendTransactionError": "You took too long to approve the transaction!",

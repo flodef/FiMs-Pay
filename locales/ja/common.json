@@ -94,6 +94,8 @@
     "enterPhrase": "フレーズを入力してください",
     "pasteMyPhrase": "フレーズを貼り付け",
     "skipStep": "このステップをスキップ",
+    "help": "助けて",
+    "shareAddress": "私のアドレスを共有する",
     "WalletNotConnectedError": "ウォレットが接続されていません!",
     "WalletSignTransactionError": "取引を拒否しました!",
     "WalletSendTransactionError": "トランザクションの承認に時間がかかりすぎました!",
