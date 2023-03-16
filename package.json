@@ -16,8 +16,8 @@
         "lint": "next lint",
         "fmt": "prettier --write '{*,**/*}.{js,ts,jsx,tsx,json}'",
         "nuke": "shx rm -rf node_modules package-lock.json || true",
-        "proxy": "local-ssl-proxy --source 3001 --target 3000",
-        "ngrok": "ngrok http https://localhost:3001"
+        "proxy": "local-ssl-proxy --source 3002 --target 3001",
+        "ngrok": "ngrok http https://localhost:3002"
     },
     "dependencies": {
         "@emotion/react": "^11.10.6",
@@ -52,6 +52,7 @@
         "dexie-react-hooks": "^1.1.1",
         "express-rate-limit": "^6.7.0",
         "next-translate": "^2.0.2",
+        "qr-scanner": "^1.4.2",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-intl": "^6.2.10",

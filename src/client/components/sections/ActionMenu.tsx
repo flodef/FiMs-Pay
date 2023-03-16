@@ -121,7 +121,7 @@ export const ActionMenu: FC = () => {
     };
 
     const actions = [
-        { icon: <QrCodeScannerIcon />, name: 'scan' },
+        { icon: <QrCodeScannerIcon />, name: 'scan', onClick: () => navigate('/scanQR') },
         { icon: <SearchIcon />, name: 'search', onClick: () => navigate('/merchants') },
         { icon: <CallReceivedIcon />, name: 'receive' },
         { icon: <AddCardIcon />, name: 'supply', onClick: () => supply() },
@@ -148,8 +148,8 @@ export const ActionMenu: FC = () => {
                             <ActionListItem
                                 icon={<ContentCopyIcon />}
                                 messageId="shareAddress"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(publicKey.toString());
+                                onClick={async () => {
+                                    await navigator.clipboard.writeText(publicKey.toString());
                                     displayMessage('walletAddressCopied');
                                 }}
                             />
