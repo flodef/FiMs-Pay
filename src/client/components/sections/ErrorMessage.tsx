@@ -35,6 +35,7 @@ export const ErrorMessage: FC = () => {
                 case new TypeError().name:
                     return error.message;
                 case new Error().name:
+                case 'SolanaJSONRPCError':
                     const e = error
                         .toString()
                         .split(': ')
