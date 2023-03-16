@@ -1,7 +1,8 @@
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { CircularProgress } from '@mui/material';
-import { CSSProperties, FC, MouseEventHandler } from 'react';
+import { useRouter } from 'next/router';
+import { CSSProperties, FC, MouseEventHandler, useCallback, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
 import css from './StandardButton.module.css';
@@ -12,20 +13,41 @@ enum Icon {
 }
 
 export interface StandardButtonProps {
-    messageId: string;
-    onClick: MouseEventHandler<HTMLButtonElement> | undefined;
+    messageId?: string;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
     disabled?: boolean;
+    setDisabled?: (disabled: boolean) => void;
     loading?: boolean;
     hasTheme?: boolean;
     icon?: Icon;
     style?: CSSProperties;
 }
 
-export const BackButton: FC<StandardButtonProps> = ({ messageId, onClick, disabled, loading, style }) => {
+export const BackButton: FC<StandardButtonProps> = ({
+    messageId = 'back',
+    onClick,
+    disabled,
+    setDisabled,
+    loading,
+    style,
+}) => {
+    const router = useRouter();
+    const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+        (event) => {
+            setDisabled ? setDisabled(true) : null;
+            if (onClick) {
+                onClick(event);
+            } else {
+                router.back();
+            }
+        },
+        [router, onClick, setDisabled]
+    );
+
     return (
         <StandardButton
             messageId={messageId}
-            onClick={onClick}
+            onClick={handleClick}
             disabled={disabled}
             loading={loading}
             hasTheme={false}
@@ -35,11 +57,31 @@ export const BackButton: FC<StandardButtonProps> = ({ messageId, onClick, disabl
     );
 };
 
-export const NextButton: FC<StandardButtonProps> = ({ messageId, onClick, disabled, loading, style }) => {
+export const NextButton: FC<StandardButtonProps> = ({
+    messageId = 'next',
+    onClick,
+    disabled,
+    setDisabled,
+    loading,
+    style,
+}) => {
+    const router = useRouter();
+    const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+        (event) => {
+            setDisabled ? setDisabled(true) : null;
+            if (onClick) {
+                onClick(event);
+            } else {
+                router.forward();
+            }
+        },
+        [router, onClick, setDisabled]
+    );
+
     return (
         <StandardButton
             messageId={messageId}
-            onClick={onClick}
+            onClick={handleClick}
             disabled={disabled}
             loading={loading}
             hasTheme={false}
