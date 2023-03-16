@@ -151,10 +151,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const hasSufficientBalance = useMemo(
         () =>
             paymentStatus !== PaymentStatus.Error &&
-            (!IS_CUSTOMER_POS ||
+            (paymentStatus !== PaymentStatus.New ||
+                !IS_CUSTOMER_POS ||
                 balance === undefined ||
                 balance.lt(0) ||
-                (balance.gt(0) && amount !== undefined && balance.gte(amount))),
+                balance.gt(amount || 0)),
         [balance, amount, paymentStatus]
     );
     const isPaidStatus = useMemo(
