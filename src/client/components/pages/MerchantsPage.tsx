@@ -46,7 +46,6 @@ const MerchantsPage: NextPage = () => {
 
     return SHOW_MERCHANT_LIST && merchants && Object.keys(merchants).length > 0 ? (
         <div className={css.root}>
-            <Header />
             <div className={css.top}>
                 <FormattedMessage id="merchants" />
             </div>
@@ -66,7 +65,6 @@ const MerchantsPage: NextPage = () => {
         </div>
     ) : merchantInfoList ? (
         <div className={css.root}>
-            <Header />
             <div className={css.logo}>
                 {APP_TITLE === SOLANA_PAY ? (
                     <SolanaPayLogo width={240} height={88} />
