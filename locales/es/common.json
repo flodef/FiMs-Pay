@@ -99,6 +99,9 @@
     "scanQRCode": "Escanear código QR",
     "QRCodeNotFound": "¡No se encontró ningún código QR!",
     "openQRFile": "Abrir archivo QR",
+    "paymentRequest": "Solicitud de pago",
+    "unknown": "Desconocido",
+
     "WalletNotConnectedError": "Billetera no conectado!",
     "WalletSignTransactionError": "¡Rechazaste la transacción!",
     "WalletSendTransactionError": "¡Tardó demasiado en aprobar la transacción!",

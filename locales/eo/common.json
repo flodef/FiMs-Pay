@@ -99,6 +99,9 @@
     "scanQRCode": "Skanu QR-kodon",
     "QRCodeNotFound": "QR-kodo ne troveblas",
     "openQRFile": "Malfermu QR-dosieron",
+    "paymentRequest": "Paga peto",
+    "unknown": "Nekonata",
+
     "WalletNotConnectedError": "Monujo Ne Konektita!",
     "WalletSignTransactionError": "Vi malakceptis la transakcion!",
     "WalletSendTransactionError": "Vi daŭris tro longe por aprobi la transakcion!",

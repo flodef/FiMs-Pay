@@ -99,6 +99,9 @@
     "scanQRCode": "QRコードをスキャン",
     "QRCodeNotFound": "QRコードが見つかりませんでした",
     "openQRFile": "QRファイルを開く",
+    "paymentRequest": "支払い依頼",
+    "unknown": "不明",
+
     "WalletNotConnectedError": "ウォレットが接続されていません!",
     "WalletSignTransactionError": "取引を拒否しました!",
     "WalletSendTransactionError": "トランザクションの承認に時間がかかりすぎました!",

@@ -99,6 +99,9 @@
     "scanQRCode": "Scan a QR Code",
     "QRCodeNotFound": "QR Code not found",
     "openQRFile": "Open QR Code file",
+    "paymentRequest": "Payment Request",
+    "unknown": "Unknown",
+
     "WalletNotConnectedError": "Wallet Not Connected!",
     "WalletSignTransactionError": "You declined the transaction!",
     "WalletSendTransactionError": "You took too long to approve the transaction!",
