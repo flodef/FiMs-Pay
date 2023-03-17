@@ -1,21 +1,18 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { SOLANA_PAY } from '../../utils/constants';
 import { ABOUT_LINK, APP_TITLE, SHOW_MERCHANT_LIST } from '../../utils/env';
 import { LoadMerchantData } from '../../utils/merchant';
 import { SolanaPayLogo } from '../images/SolanaPayLogo';
 import { MerchantCarousel } from '../sections/Carousel';
-import { Header } from '../sections/Header';
 import { MerchantInfo } from '../sections/Merchant';
 import { MerchantInfoMenu } from '../sections/MerchantInfoMenu';
 import { TextAnimation } from '../sections/TextAnimation';
 import css from './MerchantsPage.module.css';
 
 const MerchantsPage: NextPage = () => {
-    const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
-    const merchantLogo = useTranslate('merchantLogo');
     const [merchantInfoList, setMerchantInfoList] = useState<MerchantInfo[]>();
     const { query } = useRouter();
     const { id } = query;
@@ -53,7 +50,7 @@ const MerchantsPage: NextPage = () => {
                 {Object.entries(merchants).map(([location, merchant]) => (
                     <div key={location}>
                         <div className={css.location}>{location}</div>
-                        <MerchantCarousel merchants={merchant} id={Number(id)} alt={merchantLogo} />
+                        <MerchantCarousel merchants={merchant} id={Number(id)} />
                     </div>
                 ))}
             </div>

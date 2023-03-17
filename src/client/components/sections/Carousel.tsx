@@ -11,7 +11,7 @@ import { Merchant, MerchantInfo } from './Merchant';
 export interface MerchantsProps {
     merchants: MerchantInfo[];
     id?: number;
-    alt: string;
+    alt?: string;
 }
 
 export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => {
