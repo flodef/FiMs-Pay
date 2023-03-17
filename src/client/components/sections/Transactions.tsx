@@ -1,14 +1,12 @@
-import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import { useLiveQuery } from 'dexie-react-hooks';
 import React, { FC, useMemo } from 'react';
-import { FormattedMessage, FormattedRelativeTime } from 'react-intl';
+import { FormattedMessage, FormattedNumber, FormattedRelativeTime } from 'react-intl';
 import { useConfig } from '../../hooks/useConfig';
 import { Transaction, useTransactions } from '../../hooks/useTransactions';
 import { CURRENCY_LIST, DEVNET_DUMMY_MINT } from '../../utils/constants';
 import { db } from '../../utils/db';
 import { APP_TITLE, FAUCET_ADDRESS } from '../../utils/env';
-import { Amount } from './Amount';
 import css from './Transactions.module.css';
 
 interface AddressIndex {
@@ -51,12 +49,13 @@ const Transaction: FC<{ transaction: Transaction; addressIndexList: AddressIndex
                   Object.values(CURRENCY_LIST).find((x) => x.splToken?.toString() === transaction.mint)?.icon || ''
               );
     }, [defaultIcon, transaction.mint]);
-    const amount = useMemo(() => new BigNumber(transaction.amount), [transaction.amount]);
     const label = useMemo(
         () =>
-            addressIndexList?.find((x) => x.address === transaction.destination)?.label ||
-            transaction.destination.slice(0, 4) + '....' + transaction.destination.slice(-4),
-        [addressIndexList, transaction.destination]
+            addressIndexList?.find(
+                (x) => x.address === (Number(transaction.amount) > 0 ? transaction.destination : transaction.source)
+            )?.label,
+        // transaction.destination.slice(0, 4) + '....' + transaction.destination.slice(-4),
+        [addressIndexList, transaction.destination, transaction.source, transaction.amount]
     );
 
     return (
@@ -64,9 +63,9 @@ const Transaction: FC<{ transaction: Transaction; addressIndexList: AddressIndex
             <div className={css.icon}>{icon}</div>
             <div className={css.left}>
                 <div className={css.amount}>
-                    <Amount value={amount} showZero />
+                    <FormattedNumber value={Number(transaction.amount)} />
                 </div>
-                <div className={css.signature}>{label}</div>
+                <div className={label ? css.label : css.unknown}>{label || 'unknown'}</div>
             </div>
             <div className={css.right}>
                 <div className={css.time}>

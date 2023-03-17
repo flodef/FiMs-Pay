@@ -34,8 +34,12 @@
     line-height: 32px;
 }
 
-.signature {
+.label,
+.unknown {
     line-height: 24px;
+}
+.unknown {
+    font-style: italic;
 }
 
 .right {
