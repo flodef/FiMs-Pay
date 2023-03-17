@@ -258,7 +258,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         return () => document.documentElement.classList.remove(mode);
     }, [mode]);
 
-    const theme = React.useMemo(
+    const theme = useMemo(
         () =>
             createTheme({
                 palette: {

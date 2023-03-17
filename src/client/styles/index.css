@@ -56,3 +56,8 @@ button {
 #app {
     min-height: 100vh;
 }
+
+#videoContainer .scan-region-highlight-svg,
+#videoContainer .code-outline-highlight {
+    stroke: var(--theme-color-primary) !important;
+}
