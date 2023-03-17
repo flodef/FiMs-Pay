@@ -30,24 +30,68 @@
     }
 }
 
-.title {
+.title,
+.text {
     text-align: center;
     font-size: 24px;
     padding: 24px;
     font-weight: 600;
+}
+.text {
+    padding-top: 16px;
+    padding-bottom: 0px;
 }
 
 .flash {
     position: absolute;
     top: 0;
     right: 0;
-    padding: 30px;
+    padding: 24px;
     z-index: 1;
     cursor: pointer;
 }
+.flash svg {
+    width: 48px;
+    height: 48px;
+}
 
 .video {
-    width: 90%;
-    height: 100%;
+    width: 100%;
+    text-align: center;
+    min-height: 300px;
+    max-height: 500px;
+    border-radius: 16px;
+    overflow: hidden;
     object-fit: cover;
+}
+
+.icon {
+    text-align: center;
+    float: left;
+    width: 64px;
+    height: 64px;
+}
+
+.value {
+    text-align: center;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 32px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    min-width: 350px;
+}
+
+.currency {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 32px;
+}
+
+.location {
+    text-align: top;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 32px;
 }

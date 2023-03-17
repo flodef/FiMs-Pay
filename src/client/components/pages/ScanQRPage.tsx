@@ -1,22 +1,58 @@
+import FlashOffIcon from '@mui/icons-material/FlashOff';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+import { TransferRequestURLFields } from '@solana/pay';
+import { PublicKey } from '@solana/web3.js';
+import BigNumber from 'bignumber.js';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import QrScanner from 'qr-scanner';
-import { createRef, useCallback, useEffect, useRef, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { createRef, useCallback, useEffect, useRef, useState } from 'react';
+import { FormattedMessage, FormattedNumber } from 'react-intl';
+import { CURRENCY_LIST } from '../../utils/constants';
+import { db } from '../../utils/db';
 import { BackButton, StandardButton } from '../buttons/StandardButton';
+import { Merchant } from '../sections/Merchant';
 import { PoweredBy } from '../sections/PoweredBy';
-import FlashOnIcon from '@mui/icons-material/FlashOn';
-import FlashOffIcon from '@mui/icons-material/FlashOff';
 import css from './ScanQRPage.module.css';
+
+interface Props {
+    result?: string;
+}
 
 const ScanQRPage: NextPage = () => {
     const router = useRouter();
     const video = createRef<HTMLVideoElement>();
     const fileInput = createRef<HTMLInputElement>();
 
+    // Get the parameter from the URL
+    const getParam = (info: string[], param: string, separator = '=') =>
+        info
+            .find((x) => x.startsWith(param))
+            ?.split(separator)[1]
+            .replaceAll('+', ' ') || '';
+
+    const [paymentInfo, setPaymentInfo] = useState<TransferRequestURLFields>();
     const setResult = useCallback((result: { data: string }) => {
-        console.log(result.data);
-        alert(result.data);
+        const { data } = result;
+        if (data) {
+            scanner.current?.stop();
+            if (data.startsWith('solana:')) {
+                // This is a solana payment request : parse the quety to get all the Merchant information
+                const info = data.split(/[?,&]+/); // Split the query string with ? or & as separator
+                setPaymentInfo({
+                    recipient: new PublicKey(getParam(info, 'solana', ':')),
+                    amount: BigNumber(getParam(info, 'amount')),
+                    splToken: getParam(info, 'currency') ? new PublicKey(getParam(info, 'currency')) : undefined,
+                    reference: new PublicKey(getParam(info, 'reference')),
+                    label: getParam(info, 'label'),
+                    message: getParam(info, 'message'),
+                    memo: getParam(info, 'memo'),
+                } as TransferRequestURLFields);
+            } else {
+                // TODO: This is a solana address
+            }
+        }
     }, []);
 
     const [hasCamera, setHasCamera] = useState(false);
@@ -27,7 +63,7 @@ const ScanQRPage: NextPage = () => {
 
     const scanner = useRef<QrScanner>();
     useEffect(() => {
-        if (hasCamera && video.current) {
+        if (hasCamera && video.current && !scanner.current) {
             scanner.current = new QrScanner(video.current, setResult, {
                 onDecodeError: (error) => {
                     console.error(error);
@@ -38,92 +74,20 @@ const ScanQRPage: NextPage = () => {
             scanner.current.start().then(() => {
                 if (scanner.current) {
                     scanner.current.hasFlash().then(setHasFlash);
-                    // setFlashOn(scanner.current.isFlashOn());
+                    setFlashOn(scanner.current.isFlashOn());
                 }
             });
         }
     }, [hasCamera, setResult, video]);
 
-    // const updateFlashAvailability = useCallback(() => {
-    //     scanner.current?.hasFlash().then((hasFlash) => {
-    //         console.log(hasFlash);
-    //         // camHasFlash.textContent = hasFlash;
-    //         // flashToggle.style.display = hasFlash ? 'inline-block' : 'none';
-    //     });
-    // }, []);
-
-    // scanner.current?.start().then(() => {
-    //     updateFlashAvailability();
-    //     // List cameras after the scanner started to avoid listCamera's stream and the scanner's stream being requested
-    //     // at the same time which can result in listCamera's unconstrained stream also being offered to the scanner.
-    //     // Note that we can also start the scanner after listCameras, we just have it this way around in the demo to
-    //     // start the scanner earlier.
-    //     QrScanner.listCameras(true).then((cameras) => {
-    //         console.log(cameras);
-    //         cameras.forEach((camera) => {
-    //             // const option = document.createElement('option');
-    //             // option.value = camera.id;
-    //             // option.text = camera.label;
-    //             // camList.add(option);
-    //         });
-    //     });
-    // });
-
-    // // Create a component with three buttons : one is for printing, one is for downloading and one is for sharing the QR code.
-
-    // // Create a printing button
-    // const printingButton = () => {
-    //     return (
-    //         <StandardButton
-    //             messageId={'print'}
-    //             onClick={() => {
-    //                 // Print the QR code
-    //             }}
-    //         />
-    //     );
-    // };
-    // // Create a print function
-    // const print = useCallback(() => {
-    //     // Print the QR code
-    // }, []);
-
-    // // Create a downloading button
-    // const downloadingButton = () => {
-    //     return <StandardButton messageId={'download'} onClick={() => {}} />;
-    // };
-
-    // // Create a sharing button
-    // const sharingButton = () => {
-    //     return <StandardButton messageId={'share'} onClick={() => {}} />;
-    // };
-
-    fileInput.current?.addEventListener('change', (event) => {
+    const onFileInputChange = useCallback(() => {
         const file = fileInput.current?.files?.[0];
-        if (!file) return;
-        QrScanner.scanImage(file, { returnDetailedScanResult: true })
-            .then(setResult)
-            .catch((e) => setResult({ data: e || 'QRCodeNotFound' }));
-    });
-
-    const toggleFlash = useCallback(async () => {
-        alert(scanner.current);
-        if (scanner.current) {
-            alert(flashOn);
-            if (flashOn) {
-                await scanner.current.turnFlashOff().then(() => {
-                    alert('flash off');
-                    setFlashOn(false);
-                });
-            } else {
-                await scanner.current.turnFlashOn().then(() => {
-                    alert('flash on');
-                    setFlashOn(true);
-                });
-            }
-            // scanner.current.turnFlashOff();
-            // setFlashOn(!flashOn);
+        if (file) {
+            QrScanner.scanImage(file, { returnDetailedScanResult: true })
+                .then(setResult)
+                .catch((e) => setResult({ data: e || 'QRCodeNotFound' }));
         }
-    }, [flashOn]);
+    }, [fileInput, setResult]);
 
     const destroyScanner = useCallback(() => {
         scanner.current?.destroy();
@@ -132,43 +96,96 @@ const ScanQRPage: NextPage = () => {
     }, [router]);
 
     const [disabled, setDisabled] = useState(false);
+
+    const getMerchant = useCallback(
+        (address: string | undefined) =>
+            address
+                ? db.merchants
+                      .where('address')
+                      .equals(address)
+                      .first()
+                      .then((x) => x)
+                : undefined,
+        []
+    );
+    const merchantList = useLiveQuery(() => getMerchant(paymentInfo?.recipient.toString()), [paymentInfo]);
+
     return (
         <div className={css.root}>
             <div className={css.header}>
                 <BackButton messageId="back" onClick={destroyScanner} disabled={disabled} setDisabled={setDisabled} />
-                {hasFlash && !disabled && (
+                {hasFlash && !disabled && !paymentInfo && (
                     <button
                         className={css.flash}
-                        onClick={async () =>
-                            // await toggleFlash()
-                            await scanner.current?.toggleFlash().then(() => setFlashOn(!flashOn))
+                        onClick={() =>
+                            scanner.current?.toggleFlash().then(() => setFlashOn(scanner.current?.isFlashOn() === true))
                         }
                     >
-                        {flashOn ? <FlashOffIcon fontSize="large" /> : <FlashOnIcon fontSize="large" />}
+                        {flashOn ? <FlashOffIcon /> : <FlashOnIcon />}
                     </button>
                 )}
             </div>
-            {!disabled && (
-                <>
+            {!disabled &&
+                (!paymentInfo ? (
                     <div className={css.main}>
                         <div className={css.title}>
                             <FormattedMessage id="scanQRCode" />
                         </div>
 
-                        <video className={css.video} ref={video} />
+                        <div id="videoContainer">
+                            <video className={css.video} ref={video} />
+                        </div>
                         {hasCamera && (
-                            <div className={css.title}>
+                            <div className={css.text}>
                                 <FormattedMessage id="or" />
                             </div>
                         )}
-                        <input type="file" ref={fileInput} style={{ display: 'none' }} />
+                        <input type="file" onChange={onFileInputChange} ref={fileInput} style={{ display: 'none' }} />
                         <StandardButton messageId={'openQRFile'} onClick={() => fileInput.current?.click()} />
                     </div>
-                    <PoweredBy />
-                </>
-            )}
+                ) : (
+                    <div className={css.main}>
+                        <div className={css.title}>
+                            <FormattedMessage id="paymentRequest" />
+                        </div>
+                        <div className={css.icon}>
+                            {paymentInfo
+                                ? React.createElement(
+                                      Object.values(CURRENCY_LIST).find((x) => x.splToken === paymentInfo?.splToken)
+                                          ?.icon || ''
+                                  )
+                                : undefined}
+                        </div>
+                        <div className={css.value}>
+                            <FormattedNumber value={paymentInfo.amount?.toNumber() || 0} />
+                        </div>
+                        <div className={css.currency}>
+                            {Object.keys(CURRENCY_LIST).find((x) => CURRENCY_LIST[x].splToken === paymentInfo.splToken)}
+                        </div>
+                        <div>
+                            <Merchant index={Number(merchantList?.index)} company={paymentInfo.label || ''} />
+                        </div>
+                        <div className={css.location}>{merchantList?.location}</div>
+                        <div className={css.message}>{paymentInfo.message}</div>
+                        <div className={css.memo}>{paymentInfo.memo}</div>
+
+                        <StandardButton
+                            messageId={'pay'}
+                            onClick={() => {
+                                //TODO
+                            }}
+                            style={{ marginBottom: 48 }}
+                        />
+                    </div>
+                ))}
+            {!disabled && <PoweredBy />}
         </div>
     );
 };
 
 export default ScanQRPage;
+
+// {/* reference: string;
+//                         address: string;
+//                         company: string;
+//                         location: string; */}
