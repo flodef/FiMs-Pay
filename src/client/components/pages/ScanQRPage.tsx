@@ -1,14 +1,13 @@
 import FlashOffIcon from '@mui/icons-material/FlashOff';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
-import { TransferRequestURLFields } from '@solana/pay';
-import { PublicKey } from '@solana/web3.js';
-import BigNumber from 'bignumber.js';
+import { parseURL, TransferRequestURL } from '@solana/pay';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import QrScanner from 'qr-scanner';
 import React, { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { SOLANA_PROTOCOL } from '../../../server/core/constants';
 import { CURRENCY_LIST } from '../../utils/constants';
 import { db } from '../../utils/db';
 import { APP_TITLE } from '../../utils/env';
@@ -27,34 +26,22 @@ const ScanQRPage: NextPage = () => {
     const video = createRef<HTMLVideoElement>();
     const fileInput = createRef<HTMLInputElement>();
 
-    // Get the parameter from the URL
-    const getParam = (info: string[], param: string, separator = '=') =>
-        info
-            .find((x) => x.startsWith(param))
-            ?.split(separator)[1]
-            .replaceAll('+', ' ') || '';
-
-    const [paymentInfo, setPaymentInfo] = useState<TransferRequestURLFields>();
+    const [paymentInfo, setPaymentInfo] = useState<TransferRequestURL>();
     const setResult = useCallback((result: { data: string }) => {
         const { data } = result;
         if (data) {
             scanner.current?.stop();
-            if (data.startsWith('solana:')) {
+            if (data.startsWith(SOLANA_PROTOCOL)) {
                 // This is a solana payment request : parse the quety to get all the Merchant information
-                const info = data.split(/[?,&]+/); // Split the query string with ? or & as separator
-                const splToken = getParam(info, 'spl-token');
-                const label = getParam(info, 'label');
-                setPaymentInfo({
-                    recipient: new PublicKey(getParam(info, 'solana', ':')),
-                    amount: BigNumber(getParam(info, 'amount')),
-                    splToken: splToken ? new PublicKey(splToken) : undefined,
-                    reference: new PublicKey(getParam(info, 'reference')),
-                    label: label !== APP_TITLE ? label : '',
-                    message: getParam(info, 'message'),
-                    memo: getParam(info, 'memo'),
-                } as TransferRequestURLFields);
+                const request = parseURL(data);
+                if (!('link' in request)) {
+                    setPaymentInfo(request);
+                } else {
+                    console.log('Transaction link not handled');
+                }
             } else {
                 // TODO: This is a solana address
+                console.log('Solana address not handled');
             }
         }
     }, []);
@@ -170,7 +157,10 @@ const ScanQRPage: NextPage = () => {
                             />
                         </div>
                         <div>
-                            <Merchant index={Number(merchantList?.index)} company={paymentInfo.label || ''} />
+                            <Merchant
+                                index={Number(merchantList?.index)}
+                                company={paymentInfo.label && paymentInfo.label !== APP_TITLE ? paymentInfo.label : ''}
+                            />
                         </div>
                         <div className={css.location}>{merchantList?.location}</div>
                         <div className={css.message}>{paymentInfo.message}</div>
