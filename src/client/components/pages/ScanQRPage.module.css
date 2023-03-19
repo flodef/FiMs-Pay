@@ -70,6 +70,7 @@
     float: left;
     width: 64px;
     height: 64px;
+    margin: 12px;
 }
 
 .value {
@@ -90,8 +91,5 @@
 }
 
 .location {
-    text-align: top;
     font-size: 16px;
-    font-weight: 700;
-    line-height: 32px;
 }

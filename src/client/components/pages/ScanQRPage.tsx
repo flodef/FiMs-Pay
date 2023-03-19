@@ -8,10 +8,11 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import QrScanner from 'qr-scanner';
 import React, { createRef, useCallback, useEffect, useRef, useState } from 'react';
-import { FormattedMessage, FormattedNumber } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { CURRENCY_LIST } from '../../utils/constants';
 import { db } from '../../utils/db';
 import { BackButton, StandardButton } from '../buttons/StandardButton';
+import { Amount } from '../sections/Amount';
 import { Merchant } from '../sections/Merchant';
 import { PoweredBy } from '../sections/PoweredBy';
 import css from './ScanQRPage.module.css';
@@ -40,11 +41,11 @@ const ScanQRPage: NextPage = () => {
             if (data.startsWith('solana:')) {
                 // This is a solana payment request : parse the quety to get all the Merchant information
                 const info = data.split(/[?,&]+/); // Split the query string with ? or & as separator
-                const currency = getParam(info, 'currency');
+                const currency = getParam(info, 'spl-token');
                 setPaymentInfo({
                     recipient: new PublicKey(getParam(info, 'solana', ':')),
                     amount: BigNumber(getParam(info, 'amount')),
-                    splToken: currency && CURRENCY_LIST[currency] ? new PublicKey(CURRENCY_LIST[currency]) : undefined,
+                    splToken: currency ? new PublicKey(currency) : undefined,
                     reference: new PublicKey(getParam(info, 'reference')),
                     label: getParam(info, 'label'),
                     message: getParam(info, 'message'),
@@ -152,16 +153,19 @@ const ScanQRPage: NextPage = () => {
                         <div className={css.icon}>
                             {paymentInfo
                                 ? React.createElement(
-                                      Object.values(CURRENCY_LIST).find((x) => x.splToken === paymentInfo?.splToken)
-                                          ?.icon || ''
+                                      Object.values(CURRENCY_LIST).find(
+                                          (x) => x.splToken?.toString() === paymentInfo?.splToken?.toString()
+                                      )?.icon || ''
                                   )
                                 : undefined}
                         </div>
                         <div className={css.value}>
-                            <FormattedNumber value={paymentInfo.amount?.toNumber() || 0} />
-                        </div>
-                        <div className={css.currency}>
-                            {Object.keys(CURRENCY_LIST).find((x) => CURRENCY_LIST[x].splToken === paymentInfo.splToken)}
+                            <Amount
+                                value={paymentInfo.amount?.toNumber()}
+                                currency={Object.keys(CURRENCY_LIST).find(
+                                    (x) => CURRENCY_LIST[x].splToken?.toString() === paymentInfo.splToken?.toString()
+                                )}
+                            />
                         </div>
                         <div>
                             <Merchant index={Number(merchantList?.index)} company={paymentInfo.label || ''} />
