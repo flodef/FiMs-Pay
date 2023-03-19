@@ -11,6 +11,7 @@ import React, { createRef, useCallback, useEffect, useRef, useState } from 'reac
 import { FormattedMessage } from 'react-intl';
 import { CURRENCY_LIST } from '../../utils/constants';
 import { db } from '../../utils/db';
+import { APP_TITLE } from '../../utils/env';
 import { BackButton, StandardButton } from '../buttons/StandardButton';
 import { Amount } from '../sections/Amount';
 import { Merchant } from '../sections/Merchant';
@@ -41,13 +42,14 @@ const ScanQRPage: NextPage = () => {
             if (data.startsWith('solana:')) {
                 // This is a solana payment request : parse the quety to get all the Merchant information
                 const info = data.split(/[?,&]+/); // Split the query string with ? or & as separator
-                const currency = getParam(info, 'spl-token');
+                const splToken = getParam(info, 'spl-token');
+                const label = getParam(info, 'label');
                 setPaymentInfo({
                     recipient: new PublicKey(getParam(info, 'solana', ':')),
                     amount: BigNumber(getParam(info, 'amount')),
-                    splToken: currency ? new PublicKey(currency) : undefined,
+                    splToken: splToken ? new PublicKey(splToken) : undefined,
                     reference: new PublicKey(getParam(info, 'reference')),
-                    label: getParam(info, 'label'),
+                    label: label !== APP_TITLE ? label : '',
                     message: getParam(info, 'message'),
                     memo: getParam(info, 'memo'),
                 } as TransferRequestURLFields);
