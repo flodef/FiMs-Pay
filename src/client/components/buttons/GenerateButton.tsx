@@ -111,12 +111,12 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     hasTheme={action !== State.Connecting}
                     style={{ cursor: action === State.Connecting ? 'default' : 'pointer' }}
                     disabled={
-                        (isRecipient && isInvalidAmount) ||
-                        (!isRecipient &&
-                            publicKey !== null &&
-                            !connecting &&
-                            hasSufficientBalance &&
-                            (isInvalidAmount || paymentStatus !== PaymentStatus.New))
+                        publicKey !== null &&
+                        !connecting &&
+                        ((isRecipient && isInvalidAmount) ||
+                            (!isRecipient &&
+                                hasSufficientBalance &&
+                                (isInvalidAmount || paymentStatus !== PaymentStatus.New)))
                     }
                 />
             ),
