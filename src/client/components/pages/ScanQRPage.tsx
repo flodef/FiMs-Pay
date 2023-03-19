@@ -40,10 +40,11 @@ const ScanQRPage: NextPage = () => {
             if (data.startsWith('solana:')) {
                 // This is a solana payment request : parse the quety to get all the Merchant information
                 const info = data.split(/[?,&]+/); // Split the query string with ? or & as separator
+                const currency = getParam(info, 'currency');
                 setPaymentInfo({
                     recipient: new PublicKey(getParam(info, 'solana', ':')),
                     amount: BigNumber(getParam(info, 'amount')),
-                    splToken: getParam(info, 'currency') ? new PublicKey(getParam(info, 'currency')) : undefined,
+                    splToken: currency && CURRENCY_LIST[currency] ? new PublicKey(CURRENCY_LIST[currency]) : undefined,
                     reference: new PublicKey(getParam(info, 'reference')),
                     label: getParam(info, 'label'),
                     message: getParam(info, 'message'),
@@ -184,8 +185,3 @@ const ScanQRPage: NextPage = () => {
 };
 
 export default ScanQRPage;
-
-// {/* reference: string;
-//                         address: string;
-//                         company: string;
-//                         location: string; */}
