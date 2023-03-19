@@ -13,7 +13,6 @@ export interface ConfigProviderProps {
     label: string;
     message?: string;
     splToken?: PublicKey;
-    symbol: string;
     icon: ReactElement;
     decimals: Digits;
     minDecimals: Digits;
@@ -34,7 +33,6 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
     message,
     splToken,
     icon,
-    symbol,
     decimals,
     minDecimals = 0,
     maxDecimals = 2,
@@ -60,7 +58,6 @@ export const ConfigProvider: FC<ConfigProviderProps> = ({
                 label,
                 message,
                 splToken,
-                symbol,
                 icon,
                 decimals,
                 minDecimals,

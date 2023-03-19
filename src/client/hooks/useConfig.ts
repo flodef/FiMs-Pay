@@ -15,7 +15,6 @@ export interface ConfigContextState {
     label: string;
     message?: string;
     splToken: PublicKey | undefined;
-    symbol: string;
     icon: ReactElement;
     decimals: Digits;
     minDecimals: Digits;

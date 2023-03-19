@@ -21,7 +21,6 @@ import {
     DEFAULT_LANGUAGE,
     IS_DEV,
     MAX_VALUE,
-    SHOW_SYMBOL,
     USE_HTTP,
     USE_LINK,
     USE_WEB_WALLET,
@@ -34,7 +33,6 @@ import { ErrorProvider } from '../contexts/ErrorProvider';
 import { FullscreenProvider } from '../contexts/FullscreenProvider';
 import { MessageProvider } from '../contexts/MessageProvider';
 import { PaymentProvider } from '../contexts/PaymentProvider';
-// import { ThemeProvider } from '../contexts/ThemeProvider';
 import { TransactionsProvider } from '../contexts/TransactionsProvider';
 import { Header } from '../sections/Header';
 import { MerchantInfo } from '../sections/Merchant';
@@ -211,7 +209,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const endpoint = IS_DEV ? DEVNET_ENDPOINT : MAINNET_ENDPOINT;
     const keys = Object.keys(CURRENCY_LIST);
     const currencyName = keys.includes(currency) ? currency : keys.includes(CURRENCY) ? CURRENCY : 'SOL';
-    const { splToken: splToken, icon, decimals, minDecimals, symbol, multiplier } = CURRENCY_LIST[currencyName];
+    const { splToken, icon, decimals, minDecimals, multiplier } = CURRENCY_LIST[currencyName];
 
     const [maxDecimals, setMaxDecimals] = useState<Digits>(2);
     useEffect(() => {
@@ -222,30 +220,16 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
             const empty = onlyDecimal.replaceAll('0', '');
             const isCurrencyFirst = text[0] !== '1';
             const currencySpace = empty.length > 2 ? ' ' : '';
-            const decimal = !isCurrencyFirst ? empty[0] : empty[empty.length - 1];
+
             setMaxDecimals((onlyDecimal.length - empty.length) as Digits);
 
-            let displayCurrency;
-            if (SHOW_SYMBOL) {
-                try {
-                    displayCurrency = Number(0)
-                        .toLocaleString(language, { style: 'currency', currency: symbol })
-                        .replaceAll('0', '')
-                        .replaceAll(decimal, '')
-                        .trim();
-                } catch {
-                    displayCurrency = symbol;
-                }
-            } else {
-                displayCurrency = currency;
-            }
-            displayCurrency = '<span>' + displayCurrency + '</span>';
+            const displayCurrency = '<span>{currency}</span>';
 
             messages.currencyPattern = isCurrencyFirst
                 ? displayCurrency + currencySpace + basePattern
                 : basePattern + currencySpace + displayCurrency;
         }
-    }, [currency, symbol, language, messages]);
+    }, [currency, language, messages]);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const mode = prefersDarkMode ? 'dark' : 'light';
@@ -298,7 +282,6 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                                                 label={label}
                                                 message={message}
                                                 splToken={splToken}
-                                                symbol={symbol}
                                                 icon={React.createElement(icon)}
                                                 decimals={decimals}
                                                 minDecimals={minDecimals}
