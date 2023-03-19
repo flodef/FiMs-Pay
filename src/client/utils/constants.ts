@@ -41,9 +41,9 @@ export const CURRENCY_LIST: currencyType =
     process.env.NEXT_PUBLIC_IS_DEV === 'true'
         ? {
               SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
-              USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
-              EUR_Dev: { splToken: DEVNET_DUMMY_MINT, icon: EURIcon, decimals: 6, minDecimals: 2, symbol: 'EUR' },
               HEOL_Dev: { splToken: DEVNET_DUMMY_MINT, icon: HEOLIcon, decimals: 6, minDecimals: 2, symbol: 'Heol' },
+              EUR_Dev: { splToken: DEVNET_DUMMY_MINT, icon: EURIcon, decimals: 6, minDecimals: 2, symbol: 'EUR' },
+              USDC_Dev: { splToken: DEVNET_DUMMY_MINT, icon: USDCIcon, decimals: 6, minDecimals: 2, symbol: 'USD' },
           }
         : {
               SOL: { splToken: undefined, icon: SOLIcon, decimals: 9, minDecimals: 1, symbol: '◎' },
