@@ -5,9 +5,9 @@ import { Theme, useConfig } from '../../hooks/useConfig';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
 import { CURRENCY_LIST } from '../../utils/constants';
-import { IS_CUSTOMER_POS } from '../../utils/env';
+import { MAX_VALUE } from '../../utils/env';
 import { isFullscreen, requestFullscreen } from '../../utils/fullscreen';
-import { isMobileDevice, useIsMobileSize } from '../../utils/mobile';
+import { isMobileDevice } from '../../utils/mobile';
 import { getMultiplierInfo } from '../../utils/multiplier';
 import { BackspaceIcon } from '../images/BackspaceIcon';
 import { Amount } from './Amount';
@@ -46,12 +46,12 @@ const NumPadButton: FC<NumPadInputButton> = ({ input, onInput }) => {
 };
 
 export const NumPad: FC = () => {
-    const { maxDecimals, maxValue, multiplier, theme, currencyName } = useConfig();
-    const { balance, hasSufficientBalance, paymentStatus } = usePayment();
+    const { maxDecimals, maxValue: maxValueParam, multiplier, theme, currencyName } = useConfig();
+    const { balance, hasSufficientBalance, paymentStatus, isRecipient } = usePayment();
     const { publicKey } = useWallet();
-    const isPhone = useIsMobileSize();
 
     const regExp = useMemo(() => new RegExp('^\\d*([.,]\\d{0,' + maxDecimals + '})?$'), [maxDecimals]);
+    const maxValue = useMemo(() => (isRecipient ? MAX_VALUE : maxValueParam), [isRecipient, maxValueParam]);
 
     const [value, setValue] = useState('0');
     const onInput = useCallback(
@@ -79,7 +79,7 @@ export const NumPad: FC = () => {
 
     return (
         <div className={css.root}>
-            {(isPhone || IS_CUSTOMER_POS) && publicKey && paymentStatus !== PaymentStatus.Error && (
+            {publicKey && paymentStatus !== PaymentStatus.Error && (
                 <div className={hasSufficientBalance ? css.bold : css.red}>
                     {balance !== undefined ? (
                         balance.gt(0) ? (
@@ -97,7 +97,7 @@ export const NumPad: FC = () => {
                     ) : null}
                 </div>
             )}
-            {(!IS_CUSTOMER_POS || publicKey) && paymentStatus !== PaymentStatus.Error && (
+            {publicKey && paymentStatus !== PaymentStatus.Error && (
                 <div>
                     <div className={css.icon}>
                         <SelectImage
@@ -105,6 +105,7 @@ export const NumPad: FC = () => {
                             value={currency}
                             size={48}
                             onValueChange={setCurrency}
+                            // options={isRecipient ? Object.keys(CURRENCY_LIST) : [currencyName]}
                             options={[currencyName]}
                             getImage={getCurrencyImage}
                             imageOnly

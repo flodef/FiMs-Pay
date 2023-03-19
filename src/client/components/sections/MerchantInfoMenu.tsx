@@ -6,7 +6,6 @@ import React, { FC, MouseEvent, useCallback, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { usePayment } from '../../hooks/usePayment';
 import { CURRENCY_LIST } from '../../utils/constants';
-import { IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { useNavigateToMerchant } from '../../utils/merchant';
 import { merchantImageSrc, MerchantInfo } from './Merchant';
 import css from './MerchantInfoMenu.module.css';
@@ -128,21 +127,19 @@ export const MerchantInfoMenu: FC<MerchantInfoMenuProps> = ({ merchantInfoList }
                                     pattern=".{0,50}"
                                 />
                             </fieldset>
-                            {(IS_CUSTOMER_POS || !POS_USE_WALLET) && (
-                                <fieldset className={css.Fieldset}>
-                                    <label className={css.Label} htmlFor="recipient">
-                                        <FormattedMessage id="address" />
-                                    </label>
-                                    <input
-                                        className={css.Input}
-                                        id="recipient"
-                                        value={recipient}
-                                        onInput={(x) => setRecipient(x.currentTarget.value)}
-                                        placeholder={myShopWalletAddress}
-                                        pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$"
-                                    />
-                                </fieldset>
-                            )}
+                            <fieldset className={css.Fieldset}>
+                                <label className={css.Label} htmlFor="recipient">
+                                    <FormattedMessage id="address" />
+                                </label>
+                                <input
+                                    className={css.Input}
+                                    id="recipient"
+                                    value={recipient}
+                                    onInput={(x) => setRecipient(x.currentTarget.value)}
+                                    placeholder={myShopWalletAddress}
+                                    pattern="^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+                                />
+                            </fieldset>
                             <fieldset className={css.Fieldset}>
                                 <label className={css.Label} htmlFor="currency">
                                     <FormattedMessage id="currency" />

@@ -23,7 +23,7 @@ const MerchantsPage: NextPage = () => {
             isLoaded.current = true;
             LoadMerchantData().then(setMerchantInfoList);
         }
-    }, [merchantInfoList]);
+    }, []);
 
     const merchants = useMemo(
         () =>

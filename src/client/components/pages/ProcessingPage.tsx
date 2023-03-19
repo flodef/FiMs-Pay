@@ -1,8 +1,6 @@
 import { NextPage } from 'next';
 import { useMemo } from 'react';
-import { FormattedMessage } from 'react-intl';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { IS_CUSTOMER_POS } from '../../utils/env';
 import { BackButton, StandardButton } from '../buttons/StandardButton';
 import { ErrorMessage } from '../sections/ErrorMessage';
 import { PoweredBy } from '../sections/PoweredBy';
@@ -12,7 +10,7 @@ import { TransactionInfo } from '../sections/TransactionInfo';
 import css from './ProcessingPage.module.css';
 
 const ProcessingPage: NextPage = () => {
-    const { reset, generate, paymentStatus, confirmationProgress, isPaidStatus } = usePayment();
+    const { reset, generate, paymentStatus, confirmationProgress, isPaidStatus, isRecipient } = usePayment();
 
     const [value, text] = useMemo(() => {
         const count = 6;
@@ -43,20 +41,14 @@ const ProcessingPage: NextPage = () => {
     return (
         <div className={css.root}>
             <div className={css.header}>
-                <BackButton messageId="newPayment" onClick={reset} disabled={!isPaidStatus} />
+                <BackButton messageId="newPayment" onClick={reset} disabled={!isPaidStatus && !isRecipient} />
             </div>
             <div className={css.main}>
                 <TransactionInfo />
-                {!IS_CUSTOMER_POS && !isPaidStatus && !isConfirmedStatus && !isNewStatus ? (
+                {isRecipient && !isPaidStatus && !isConfirmedStatus && !isNewStatus ? (
                     <div>
                         <div className={css.code}>
                             <QRCode />
-                        </div>
-                        <div className={css.scan}>
-                            <FormattedMessage id="scanCode" />
-                        </div>
-                        <div className={css.confirm}>
-                            <FormattedMessage id="approveTransaction" />
                         </div>
                     </div>
                 ) : (

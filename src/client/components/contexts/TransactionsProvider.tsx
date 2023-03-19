@@ -12,12 +12,11 @@ import BigNumber from 'bignumber.js';
 import { FC, ReactNode, useEffect, useState } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { useError } from '../../hooks/useError';
-import { PaymentStatus } from '../../hooks/usePayment';
+import { PaymentStatus, usePayment } from '../../hooks/usePayment';
 import { Transaction, TransactionsContext } from '../../hooks/useTransactions';
 import { Confirmations } from '../../types';
 import { arraysEqual } from '../../utils/arraysEqual';
 import { MAX_CONFIRMATIONS } from '../../utils/constants';
-import { IS_CUSTOMER_POS } from '../../utils/env';
 
 export interface TransactionsProviderProps {
     children: ReactNode;
@@ -32,23 +31,20 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
     const { connection } = useConnection();
     const { recipient, splToken } = useConfig();
     const { publicKey } = useWallet();
+    const { isRecipient } = usePayment();
     const [associatedToken, setAssociatedToken] = useState<PublicKey>();
     const [signatures, setSignatures] = useState<TransactionSignature[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(false);
-    const [owner, setOwner] = useState<PublicKey>();
 
     // Get the ATA for the recipient and token
     useEffect(() => {
-        const owner = IS_CUSTOMER_POS ? publicKey : recipient;
-        if (!splToken || !owner) return;
-
-        setOwner(IS_CUSTOMER_POS ? owner : recipient);
+        if (!splToken || !publicKey) return;
 
         let changed = false;
 
         (async () => {
-            const associatedToken = await getAssociatedTokenAddress(splToken, owner);
+            const associatedToken = await getAssociatedTokenAddress(splToken, publicKey);
             if (changed) return;
 
             setAssociatedToken(associatedToken);
@@ -62,7 +58,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
 
     // Poll for signatures referencing the associated token account
     useEffect(() => {
-        if (!owner) return;
+        if (!publicKey) return;
         let changed = false;
 
         const run = async () => {
@@ -70,7 +66,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                 setLoading(true);
 
                 const confirmedSignatureInfos = await connection.getSignaturesForAddress(
-                    associatedToken || owner,
+                    associatedToken || publicKey,
                     { limit: 1000 },
                     PaymentStatus.Confirmed
                 );
@@ -95,11 +91,11 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
             clearInterval(interval);
             setSignatures([]);
         };
-    }, [connection, associatedToken, owner, processError]);
+    }, [connection, associatedToken, publicKey, processError]);
 
     // When the signatures change, poll and update the transactions
     useEffect(() => {
-        if (!signatures.length || !owner) return;
+        if (!signatures.length || !publicKey) return;
         let changed = false;
 
         const run = async () => {
@@ -146,15 +142,15 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                             // Include only SystemProgram.transfer instructions
                             if (!(program === 'system' && type === 'transfer')) return;
 
-                            if (!IS_CUSTOMER_POS) {
+                            if (isRecipient) {
                                 // Include only transfers to the recipient
-                                if (info?.destination !== owner.toBase58()) return;
+                                if (info?.destination !== publicKey.toBase58()) return;
 
                                 // Exclude self-transfers
-                                if (info.source === owner.toBase58()) return;
+                                if (info.source === publicKey.toBase58()) return;
                             }
 
-                            const accountIndex = accountKeys.findIndex(({ pubkey }) => pubkey.equals(owner));
+                            const accountIndex = accountKeys.findIndex(({ pubkey }) => pubkey.equals(publicKey));
                             if (accountIndex === -1) return;
 
                             const preBalance = parsedTransaction.meta.preBalances[accountIndex];
@@ -167,7 +163,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                             if (!(program === 'spl-token' && (type === 'transfer' || type === 'transferChecked')))
                                 return;
 
-                            if (!IS_CUSTOMER_POS) {
+                            if (isRecipient) {
                                 // Include only transfers to the recipient ATA
                                 if (info?.destination !== associatedToken.toBase58()) return;
 
@@ -193,7 +189,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
                         }
 
                         // Exclude negative amounts
-                        if (!IS_CUSTOMER_POS && postAmount.lt(preAmount)) return;
+                        if (isRecipient && postAmount.lt(preAmount)) return;
 
                         const source =
                             parsedTransaction.meta.preTokenBalances?.at(0)?.owner || accountKeys[0].pubkey.toString();
@@ -229,7 +225,7 @@ export const TransactionsProvider: FC<TransactionsProviderProps> = ({ children, 
             changed = true;
             clearInterval(interval);
         };
-    }, [signatures, connection, associatedToken, owner, pollInterval, processError]);
+    }, [signatures, connection, associatedToken, publicKey, isRecipient, pollInterval, processError]);
 
     return <TransactionsContext.Provider value={{ transactions, loading }}>{children}</TransactionsContext.Provider>;
 };

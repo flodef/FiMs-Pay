@@ -42,12 +42,11 @@ import {
     DEFAULT_WALLET,
     FAUCET_ENCODED_KEY,
     FAUCET_LINK,
-    IS_CUSTOMER_POS,
     IS_DEV,
-    POS_USE_WALLET,
     USE_CUSTOM_CRYPTO,
 } from '../../utils/env';
 import { LoadKey } from '../../utils/key';
+import { useIsMobileSize } from '../../utils/mobile';
 
 export class PaymentError extends Error {
     name = 'PaymentError';
@@ -72,6 +71,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { publicKey, sendTransaction, connect, disconnect, select, wallet } = useWallet();
     const { setVisible } = useWalletModal();
     const { processError, compareErrorType } = useError();
+    const isPhone = useIsMobileSize();
 
     const [balance, setBalance] = useState<BigNumber>();
     const [amount, setAmount] = useState<BigNumber>();
@@ -82,6 +82,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [airdropStatus, setAirdropStatus] = useState<AirdropStatus>();
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
     const [needRefresh, setNeedRefresh] = useState(false);
+    const [isRecipient, setIsRecipient] = useState(!isPhone);
 
     const navigate = useNavigate();
     const confirmationProgress = useMemo(
@@ -89,8 +90,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         [confirmations, requiredConfirmations]
     );
     const recipient = useMemo(
-        () => (IS_CUSTOMER_POS || !POS_USE_WALLET || !publicKey ? recipientParam : publicKey),
-        [recipientParam, publicKey]
+        () => (isRecipient && publicKey ? publicKey : recipientParam),
+        [recipientParam, publicKey, isRecipient]
     );
 
     const sendError = useCallback(
@@ -152,11 +153,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         () =>
             paymentStatus !== PaymentStatus.Error &&
             (paymentStatus !== PaymentStatus.New ||
-                !IS_CUSTOMER_POS ||
+                isRecipient ||
                 balance === undefined ||
                 balance.lt(0) ||
                 balance.gt(amount || 0)),
-        [balance, amount, paymentStatus]
+        [balance, amount, paymentStatus, isRecipient]
     );
     const isPaidStatus = useMemo(
         () =>
@@ -216,10 +217,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         if (!(connection && publicKey && balance === undefined)) return;
 
         try {
-            if (recipient.toString() === publicKey.toString()) {
-                connectWallet(); // Disconnect wallet
-                throw new PaymentError('sender is also recipient');
-            }
+            setIsRecipient(recipient.toString() === publicKey.toString());
 
             setPaymentStatus(PaymentStatus.New); // Remove error if any
             setBalance(BigNumber(-1)); // Set balance status to loading
@@ -242,7 +240,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 setBalance(undefined);
             }
         }
-    }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareErrorType, connectWallet]);
+    }, [connection, publicKey, splToken, decimals, recipient, balance, sendError, compareErrorType]);
 
     const updateBalance = useCallback(async () => {
         setBalance(undefined);
@@ -315,7 +313,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // If there's a connected wallet, use it to sign and send the transaction
     useEffect(() => {
-        if (!(IS_CUSTOMER_POS && paymentStatus === PaymentStatus.Pending && connection && publicKey)) return;
+        if (!(!isRecipient && paymentStatus === PaymentStatus.Pending && connection && publicKey)) return;
         let changed = false;
 
         const run = async () => {
@@ -350,7 +348,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             } catch (error: any) {
                 // If the transaction is declined or fails, try again
                 sendError(error);
-                if (!IS_CUSTOMER_POS) {
+                if (isRecipient) {
                     timeout = setTimeout(run, 5000);
                 }
             }
@@ -361,14 +359,14 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearTimeout(timeout);
         };
-    }, [paymentStatus, publicKey, url, connection, sendTransaction, setPaymentStatus, sendError]);
+    }, [paymentStatus, publicKey, url, connection, isRecipient, sendTransaction, setPaymentStatus, sendError]);
 
     // When the status is pending, poll for the transaction using the reference key
     useEffect(() => {
         if (
             !(
-                ((!IS_CUSTOMER_POS && paymentStatus === PaymentStatus.Pending) ||
-                    (IS_CUSTOMER_POS && paymentStatus === PaymentStatus.Sent)) &&
+                ((isRecipient && paymentStatus === PaymentStatus.Pending) ||
+                    (!isRecipient && paymentStatus === PaymentStatus.Sent)) &&
                 reference &&
                 !signature
             )
@@ -398,7 +396,17 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             changed = true;
             clearInterval(interval);
         };
-    }, [paymentStatus, reference, signature, connection, navigate, setPaymentStatus, sendError, compareErrorType]);
+    }, [
+        paymentStatus,
+        reference,
+        signature,
+        connection,
+        isRecipient,
+        navigate,
+        setPaymentStatus,
+        sendError,
+        compareErrorType,
+    ]);
 
     // When the status is confirmed, validate the transaction against the provided params
     useEffect(() => {
@@ -498,6 +506,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 hasSufficientBalance,
                 isPaidStatus,
                 needRefresh,
+                isRecipient,
+                setIsRecipient,
                 reset,
                 generate,
                 supply,

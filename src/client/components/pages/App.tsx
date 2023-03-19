@@ -19,10 +19,8 @@ import {
     APP_TITLE,
     CURRENCY,
     DEFAULT_LANGUAGE,
-    IS_CUSTOMER_POS,
     IS_DEV,
     MAX_VALUE,
-    POS_USE_WALLET,
     SHOW_SYMBOL,
     USE_HTTP,
     USE_LINK,
@@ -133,7 +131,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
         location: locationParam,
     } = query;
     useEffect(() => {
-        if (recipientParam || !(IS_CUSTOMER_POS || !POS_USE_WALLET)) {
+        if (recipientParam) {
             setInfo({
                 address: recipientParam,
                 company: labelParam,

@@ -1,5 +1,6 @@
 import AddCardIcon from '@mui/icons-material/AddCard';
 import AppShortcutIcon from '@mui/icons-material/AppShortcut';
+import CallMadeIcon from '@mui/icons-material/CallMade';
 import CallReceivedIcon from '@mui/icons-material/CallReceived';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -22,6 +23,8 @@ import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useRouter } from 'next/router';
 import * as React from 'react';
 import { FC, MouseEventHandler, ReactNode, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -31,22 +34,18 @@ import { useMessage } from '../../hooks/useMessage';
 import { useNavigate } from '../../hooks/useNavigate';
 import { usePayment } from '../../hooks/usePayment';
 import { encrypt } from '../../utils/aes';
-import {
-    CRYPTO_SECRET,
-    DEFAULT_WALLET,
-    HELP_LINK,
-    IS_CUSTOMER_POS,
-    POS_USE_WALLET,
-    USE_CUSTOM_CRYPTO,
-} from '../../utils/env';
+import { db } from '../../utils/db';
+import { CRYPTO_SECRET, CURRENCY, DEFAULT_WALLET, HELP_LINK, MAX_VALUE, USE_CUSTOM_CRYPTO } from '../../utils/env';
 import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
 import { LoadKey } from '../../utils/key';
+import { useNavigateToMerchant } from '../../utils/merchant';
 import { useIsMobileSize } from '../../utils/mobile';
 import { ConnectIcon } from '../images/ConnectIcon';
 import { DisconnectIcon } from '../images/DisconnectIcon';
 import { MaximizeIcon } from '../images/MaximizeIcon';
 import { MinimizeIcon } from '../images/MinimizeIcon';
 import css from './ActionMenu.module.css';
+import { MerchantInfo } from './Merchant';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 type Direction = 'up' | 'down' | 'left' | 'right';
@@ -87,8 +86,8 @@ const ActionListItem: FC<ActionListItemProps> = ({ icon, messageId, onClick, dis
 export const ActionMenu: FC = () => {
     const { connected, connecting, publicKey } = useWallet();
     const { fullscreen, toggleFullscreen } = useFullscreen();
-    const { connectWallet, supply } = usePayment();
-    const { changeTheme } = useConfig();
+    const { connectWallet, supply, isRecipient, setIsRecipient } = usePayment();
+    const { changeTheme, label } = useConfig();
     const navigate = useNavigate();
     const { displayMessage } = useMessage();
 
@@ -120,10 +119,37 @@ export const ActionMenu: FC = () => {
         setState({ ...state, [anchor]: open });
     };
 
+    const { query } = useRouter();
+    const { id } = query;
+    const merchantList = useLiveQuery(async () => await db.merchants.toArray());
+    const changeMerchant = useNavigateToMerchant(() => displayMessage(isRecipient ? 'sendPayment' : 'receivePayment'));
     const actions = [
         { icon: <QrCodeScannerIcon />, name: 'scan', onClick: () => navigate('/scanQR') },
         { icon: <SearchIcon />, name: 'search', onClick: () => navigate('/merchants') },
-        { icon: <CallReceivedIcon />, name: 'receive' },
+        {
+            icon: isRecipient ? <CallMadeIcon /> : <CallReceivedIcon />,
+            name: isRecipient ? 'send' : 'receive',
+            onClick: () => {
+                setIsRecipient(!isRecipient);
+                // handleClose();
+                // displayMessage(isRecipient ? 'sendPayment' : 'receivePayment');
+                const merchant = (
+                    !isRecipient
+                        ? {
+                              index: Number(id),
+                              address: publicKey?.toBase58() || '',
+                              company: '',
+                              currency: CURRENCY,
+                              maxValue: MAX_VALUE,
+                              location: '',
+                          }
+                        : merchantList?.find((m) => m.index === Number(id))
+                ) as MerchantInfo | undefined;
+                if (merchant) {
+                    changeMerchant(merchant);
+                }
+            },
+        },
         { icon: <AddCardIcon />, name: 'supply', onClick: () => supply() },
         { icon: <MoreHorizIcon />, name: 'more', onClick: toggleDrawer(anchor, true) },
     ];
@@ -136,25 +162,24 @@ export const ActionMenu: FC = () => {
             onKeyDown={toggleDrawer(anchor, false)}
         >
             <List>
-                {(!POS_USE_WALLET && !IS_CUSTOMER_POS) ||
-                    (publicKey && (
-                        <>
-                            <ActionListItem
-                                icon={<ReceiptLongIcon />}
-                                messageId="recentTransactions"
-                                onClick={() => navigate('/transactions')}
-                            />
-                            {/* <ActionListItem icon={<AddCardIcon />} messageId="supply" onClick={supply} /> */}
-                            <ActionListItem
-                                icon={<ContentCopyIcon />}
-                                messageId="shareAddress"
-                                onClick={async () => {
-                                    await navigator.clipboard.writeText(publicKey.toString());
-                                    displayMessage('walletAddressCopied');
-                                }}
-                            />
-                        </>
-                    ))}
+                {publicKey && (
+                    <>
+                        <ActionListItem
+                            icon={<ReceiptLongIcon />}
+                            messageId="recentTransactions"
+                            onClick={() => navigate('/transactions')}
+                        />
+                        {/* <ActionListItem icon={<AddCardIcon />} messageId="supply" onClick={supply} /> */}
+                        <ActionListItem
+                            icon={<ContentCopyIcon />}
+                            messageId="shareAddress"
+                            onClick={async () => {
+                                await navigator.clipboard.writeText(publicKey.toString());
+                                displayMessage('walletAddressCopied');
+                            }}
+                        />
+                    </>
+                )}
                 <ActionListItem
                     icon={
                         connecting ? null : !connected ? (
@@ -264,6 +289,7 @@ export const ActionMenu: FC = () => {
             >
                 {list(anchor)}
             </SwipeableDrawer>
+            {(!open || !isPhone) && publicKey && <div className={css.title}>{isRecipient ? '' : label}</div>}
         </Box>
     );
 };

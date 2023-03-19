@@ -5,7 +5,7 @@ import { Amount } from './Amount';
 import css from './TransactionInfo.module.css';
 
 export const TransactionInfo: FC = () => {
-    const { paymentStatus } = usePayment();
+    const { paymentStatus, isRecipient } = usePayment();
     const { label } = useConfig();
     const { amount, isPaidStatus } = usePayment();
     const date = useMemo(
@@ -25,7 +25,7 @@ export const TransactionInfo: FC = () => {
     return (
         <div className={css.root}>
             <div className={isPaidStatus ? css.date : css.dateHidden}>{date}</div>
-            <div className={!isNewStatus ? css.symbol : css.symbolHidden}>{label}</div>
+            <div className={!isNewStatus ? css.symbol : css.symbolHidden}>{isRecipient ? '' : label}</div>
             <div className={!isNewStatus ? css.amount : css.amountHidden}>
                 <Amount value={amount} />
             </div>

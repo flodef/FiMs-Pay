@@ -2,7 +2,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { FC, useCallback, useMemo } from 'react';
 import { useError } from '../../hooks/useError';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { IS_CUSTOMER_POS, POS_USE_WALLET } from '../../utils/env';
 import { AlertDialogPopup } from '../sections/AlertDialogPopup';
 import { StandardButton } from './StandardButton';
 
@@ -24,6 +23,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         paymentStatus,
         hasSufficientBalance,
         needRefresh,
+        isRecipient,
         generate,
         supply,
         updateBalance,
@@ -35,13 +35,17 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
     const isInvalidAmount = useMemo(() => !amount || amount.isLessThanOrEqualTo(0), [amount]);
     const action = useMemo(
         () =>
-            !publicKey || !(POS_USE_WALLET || IS_CUSTOMER_POS)
+            !publicKey
                 ? connecting || autoConnect
                     ? State.Connecting
                     : State.Connect
                 : needRefresh || (error && error.message.toLowerCase().includes('failed to fetch'))
                 ? State.Reload
-                : balance?.gt(0) && amount !== undefined && balance.gte(amount) && paymentStatus !== PaymentStatus.Error
+                : (balance?.gt(0) &&
+                      amount !== undefined &&
+                      balance.gte(amount) &&
+                      paymentStatus !== PaymentStatus.Error) ||
+                  isRecipient
                 ? id
                 : !hasSufficientBalance
                 ? State.Supply
@@ -57,6 +61,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             autoConnect,
             paymentStatus,
             hasSufficientBalance,
+            isRecipient,
         ]
     );
 
@@ -106,8 +111,8 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     hasTheme={action !== State.Connecting}
                     style={{ cursor: action === State.Connecting ? 'default' : 'pointer' }}
                     disabled={
-                        (!IS_CUSTOMER_POS && isInvalidAmount) ||
-                        (IS_CUSTOMER_POS &&
+                        (isRecipient && isInvalidAmount) ||
+                        (!isRecipient &&
                             publicKey !== null &&
                             !connecting &&
                             hasSufficientBalance &&
@@ -115,7 +120,17 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                     }
                 />
             ),
-        [action, connecting, handleClick, hasSufficientBalance, isInvalidAmount, publicKey, paymentStatus, alert]
+        [
+            action,
+            connecting,
+            handleClick,
+            hasSufficientBalance,
+            isInvalidAmount,
+            publicKey,
+            paymentStatus,
+            alert,
+            isRecipient,
+        ]
     );
 
     return <AlertDialogPopup button={button} onClick={handleClick} alert={alert} />;

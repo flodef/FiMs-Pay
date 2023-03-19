@@ -39,6 +39,8 @@ export interface PaymentContextState {
     hasSufficientBalance: boolean;
     isPaidStatus: boolean;
     needRefresh: boolean;
+    isRecipient: boolean;
+    setIsRecipient(isRecipient: boolean): void;
     reset(): void;
     generate(): void;
     supply(): void;

@@ -4,3 +4,16 @@
 :global(html.dark) .backdrop {
     background-color: var(--theme-dark-background);
 }
+
+.title {
+    position: absolute;
+    top: 10px;
+    left: 70px;
+    width: -webkit-fill-available;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    line-height: 1;
+}

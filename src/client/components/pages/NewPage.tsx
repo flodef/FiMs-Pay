@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import { useEffect, useMemo } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { AirdropStatus, usePayment } from '../../hooks/usePayment';
-import { DEFAULT_WALLET, IS_CUSTOMER_POS } from '../../utils/env';
+import { DEFAULT_WALLET } from '../../utils/env';
 import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
 import { useIsMobileSize } from '../../utils/mobile';
 import { GenerateButton } from '../buttons/GenerateButton';
@@ -15,11 +15,11 @@ import { TopBar } from '../sections/TopBar';
 import css from './NewPage.module.css';
 
 const NewPage: NextPage = () => {
-    const { airdropStatus, connectWallet } = usePayment();
+    const { airdropStatus, isRecipient, connectWallet } = usePayment();
     const { currencyName } = useConfig();
     const { connected } = useWallet();
-    const isPhone = useIsMobileSize() || IS_CUSTOMER_POS;
-    const generateId = IS_CUSTOMER_POS ? 'pay' : 'generateCode';
+    const isPhone = useIsMobileSize();
+    const generateId = isRecipient ? 'generateCode' : 'pay';
 
     // Adding default wallet to localstorage if not already set by user ==> automatically connect to the wallet set in the settings
     useEffect(() => {
