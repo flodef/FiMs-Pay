@@ -2,9 +2,11 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
-import { CSSProperties, FC, MouseEventHandler, useCallback, useState } from 'react';
+import { CSSProperties, FC, MouseEventHandler, useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Theme, useConfig } from '../../hooks/useConfig';
+import { isFullscreen, requestFullscreen } from '../../utils/fullscreen';
+import { isMobileDevice } from '../../utils/mobile';
 import css from './StandardButton.module.css';
 
 enum Icon {
@@ -34,14 +36,13 @@ export const BackButton: FC<StandardButtonProps> = ({
     const router = useRouter();
     const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
         (event) => {
-            setDisabled ? setDisabled(true) : null;
             if (onClick) {
                 onClick(event);
             } else {
                 router.back();
             }
         },
-        [router, onClick, setDisabled]
+        [router, onClick]
     );
 
     return (
@@ -49,6 +50,7 @@ export const BackButton: FC<StandardButtonProps> = ({
             messageId={messageId}
             onClick={handleClick}
             disabled={disabled}
+            setDisabled={setDisabled}
             loading={loading}
             hasTheme={false}
             icon={Icon.Back}
@@ -68,14 +70,13 @@ export const NextButton: FC<StandardButtonProps> = ({
     const router = useRouter();
     const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
         (event) => {
-            setDisabled ? setDisabled(true) : null;
             if (onClick) {
                 onClick(event);
             } else {
                 router.forward();
             }
         },
-        [router, onClick, setDisabled]
+        [router, onClick]
     );
 
     return (
@@ -83,6 +84,7 @@ export const NextButton: FC<StandardButtonProps> = ({
             messageId={messageId}
             onClick={handleClick}
             disabled={disabled}
+            setDisabled={setDisabled}
             loading={loading}
             hasTheme={false}
             icon={Icon.Next}
@@ -95,12 +97,27 @@ export const StandardButton: FC<StandardButtonProps> = ({
     messageId,
     onClick,
     disabled,
-    hasTheme = true,
+    setDisabled,
     loading,
+    hasTheme = true,
     icon,
     style,
 }) => {
     const { theme } = useConfig();
+
+    const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+        (event) => {
+            setDisabled ? setDisabled(true) : null;
+            if (!isFullscreen() && isMobileDevice()) {
+                requestFullscreen();
+            }
+
+            if (onClick) {
+                onClick(event);
+            }
+        },
+        [onClick, setDisabled]
+    );
     return !loading ? (
         <button
             className={
