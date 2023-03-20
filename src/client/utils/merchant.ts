@@ -6,8 +6,17 @@ import { createURLWithParams, getBaseURL } from './createURLWithQuery';
 import { db } from './db';
 import { GOOGLE_API_KEY, GOOGLE_SPREADSHEET_ID } from './env';
 
-// TODO : translate error
+/**
+ * Load merchant data from Google Spreadsheet or local file
+ * @returns : MerchantInfo[]
+ * @throws : Error
+ * @example
+ * const merchantInfoList = await LoadMerchantData();
+ * @example
+ */
 export async function LoadMerchantData() {
+    // TODO : translate error
+    // TODO : add cache
     const dataURL =
         GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY
             ? `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SPREADSHEET_ID}/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=${GOOGLE_API_KEY}`
@@ -23,8 +32,24 @@ export async function LoadMerchantData() {
         .then(convertMerchantData);
 }
 
-// TODO : translate error
-export async function convertMerchantData(response: Response) {
+/**
+ *  Convert merchant data from Google Spreadsheet or local file to MerchantInfo
+ *  @param response : Response from Google Spreadsheet or local file
+ * @returns : MerchantInfo[]
+ * @throws : Error
+ * @example
+ * const merchantInfoList = await fetch(dataURL)
+ *     .catch((error) => {
+ *        throw new Error(
+ *           error +
+ *              '\nHave you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?'
+ *       );
+ *   })
+ *  .then(convertMerchantData);
+ * @example
+ */
+async function convertMerchantData(response: Response) {
+    // TODO : translate error
     const merchantInfoList = await response
         .json()
         .then((data: { values: (string | number)[][]; error: { message: string } }) => {
@@ -55,6 +80,11 @@ export async function convertMerchantData(response: Response) {
     return merchantInfoList;
 }
 
+/**
+ * Navigate to "new" page with merchant info
+ * @param postNav  callback after navigation
+ * @returns  callback
+ */
 export function useNavigateToMerchant(postNav: any) {
     const router = useRouter();
 
