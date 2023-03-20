@@ -1,3 +1,4 @@
+import { TransactionRequestURL, TransferRequestURL } from '@solana/pay';
 import { PublicKey, TransactionSignature } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import { createContext, useContext } from 'react';
@@ -42,7 +43,7 @@ export interface PaymentContextState {
     isRecipient: boolean;
     setIsRecipient(isRecipient: boolean): void;
     reset(): void;
-    generate(): void;
+    process(paymentRequest?: TransferRequestURL | TransactionRequestURL): void;
     supply(): void;
     updateBalance(): void;
     selectWallet(): void;

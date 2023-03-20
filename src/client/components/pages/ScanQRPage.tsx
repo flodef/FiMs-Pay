@@ -8,6 +8,7 @@ import QrScanner from 'qr-scanner';
 import React, { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { SOLANA_PROTOCOL } from '../../../server/core/constants';
+import { usePayment } from '../../hooks/usePayment';
 import { CURRENCY_LIST } from '../../utils/constants';
 import { db } from '../../utils/db';
 import { APP_TITLE } from '../../utils/env';
@@ -22,29 +23,39 @@ interface Props {
 }
 
 const ScanQRPage: NextPage = () => {
+    const { process } = usePayment();
+
     const router = useRouter();
     const video = createRef<HTMLVideoElement>();
     const fileInput = createRef<HTMLInputElement>();
 
-    const [paymentInfo, setPaymentInfo] = useState<TransferRequestURL>();
-    const setResult = useCallback((result: { data: string }) => {
-        const { data } = result;
-        if (data) {
-            scanner.current?.stop();
-            if (data.startsWith(SOLANA_PROTOCOL)) {
-                // This is a solana payment request : parse the quety to get all the Merchant information
-                const request = parseURL(data);
-                if (!('link' in request)) {
-                    setPaymentInfo(request);
-                } else {
-                    console.log('Transaction link not handled');
-                }
-            } else {
-                // TODO: This is a solana address
-                console.log('Solana address not handled');
-            }
-        }
+    const destroyScanner = useCallback(() => {
+        scanner.current?.destroy();
+        scanner.current = undefined;
     }, []);
+
+    const [paymentInfo, setPaymentInfo] = useState<TransferRequestURL>();
+    const setResult = useCallback(
+        (result: { data: string }) => {
+            const { data } = result;
+            if (data) {
+                destroyScanner();
+                if (data.startsWith(SOLANA_PROTOCOL)) {
+                    // This is a solana payment request : parse the quety to get all the Merchant information
+                    const request = parseURL(data);
+                    if (!('link' in request)) {
+                        setPaymentInfo(request);
+                    } else {
+                        console.log('Transaction link not handled');
+                    }
+                } else {
+                    // TODO: This is a solana address
+                    console.log('Solana address not handled');
+                }
+            }
+        },
+        [destroyScanner]
+    );
 
     const [hasCamera, setHasCamera] = useState(false);
     QrScanner.hasCamera().then(setHasCamera);
@@ -80,12 +91,6 @@ const ScanQRPage: NextPage = () => {
         }
     }, [fileInput, setResult]);
 
-    const destroyScanner = useCallback(() => {
-        scanner.current?.destroy();
-        scanner.current = undefined;
-        router.back();
-    }, [router]);
-
     const [disabled, setDisabled] = useState(false);
 
     const getMerchant = useCallback(
@@ -104,7 +109,15 @@ const ScanQRPage: NextPage = () => {
     return (
         <div className={css.root}>
             <div className={css.header}>
-                <BackButton messageId="back" onClick={destroyScanner} disabled={disabled} setDisabled={setDisabled} />
+                <BackButton
+                    messageId="back"
+                    onClick={() => {
+                        destroyScanner();
+                        router.back();
+                    }}
+                    disabled={disabled}
+                    setDisabled={setDisabled}
+                />
                 {hasFlash && !disabled && !paymentInfo && (
                     <button
                         className={css.flash}
@@ -168,10 +181,10 @@ const ScanQRPage: NextPage = () => {
 
                         <StandardButton
                             messageId={'pay'}
-                            onClick={() => {
-                                //TODO
-                            }}
+                            onClick={() => process(paymentInfo)}
                             style={{ marginBottom: 48 }}
+                            disabled={disabled}
+                            setDisabled={setDisabled}
                         />
                     </div>
                 ))}

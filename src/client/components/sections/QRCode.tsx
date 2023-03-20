@@ -1,6 +1,6 @@
 // import { createQROptions } from '@solana/pay';
 import QRCodeStyling from '@solana/qr-code-styling';
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { Theme, useConfig } from '../../hooks/useConfig';
 import { usePayment } from '../../hooks/usePayment';
 import { createQROptions } from '../../utils/createQR';
@@ -20,6 +20,7 @@ export const QRCode: FC = () => {
     const { theme } = useConfig();
     const isColor = theme === Theme.Color;
 
+    // TODO : add qr code for address
     const { url } = usePayment();
     const options = useMemo(
         () =>

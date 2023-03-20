@@ -15,16 +15,7 @@ import { useNavigate } from '../../hooks/useNavigate';
 import { Digits } from '../../types';
 import { CURRENCY_LIST, DEVNET_ENDPOINT, MAINNET_ENDPOINT } from '../../utils/constants';
 import { createURLWithParams } from '../../utils/createURLWithQuery';
-import {
-    APP_TITLE,
-    CURRENCY,
-    DEFAULT_LANGUAGE,
-    IS_DEV,
-    MAX_VALUE,
-    USE_HTTP,
-    USE_LINK,
-    USE_WEB_WALLET,
-} from '../../utils/env';
+import { CURRENCY, DEFAULT_LANGUAGE, IS_DEV, MAX_VALUE, USE_HTTP, USE_LINK, USE_WEB_WALLET } from '../../utils/env';
 import { FiMsWalletAdapter } from '../../utils/FiMsWalletAdapter';
 import { LoadMerchantData } from '../../utils/merchant';
 import { isMobileDevice } from '../../utils/mobile';
@@ -103,15 +94,15 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const link = useMemo(() => (USE_LINK ? new URL(`${baseURL}/api/`) : undefined), [baseURL]);
 
     const [label, setLabel] = useState('');
-    const [recipient, setRecipient] = useState(new PublicKey(0));
+    const [recipient, setRecipient] = useState<PublicKey>();
     const [currency, setCurrency] = useState('');
     const [maxValue, setMaxValue] = useState(0);
     const [location, setLocation] = useState('');
     const [id, setId] = useState(0);
 
     const setInfo = useCallback((merchant: MerchantInfo) => {
-        setRecipient(new PublicKey(merchant.address || 0));
-        setLabel(merchant.company || APP_TITLE);
+        setRecipient(merchant.address ? new PublicKey(merchant.address) : undefined);
+        setLabel(merchant.company);
         setCurrency(merchant.currency || CURRENCY);
         setMaxValue(Number(merchant.maxValue) || MAX_VALUE);
         setLocation(merchant.location);

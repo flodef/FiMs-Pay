@@ -24,7 +24,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         hasSufficientBalance,
         needRefresh,
         isRecipient,
-        generate,
+        process,
         supply,
         updateBalance,
         connectWallet,
@@ -88,7 +88,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         const a = () => {
             switch (action) {
                 case id:
-                    return () => generate();
+                    return () => process();
                 case 'connect':
                     return () => connectWallet();
                 case 'reload':
@@ -100,7 +100,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             }
         };
         a()();
-    }, [id, action, generate, connectWallet, updateBalance, supply]);
+    }, [id, action, process, connectWallet, updateBalance, supply]);
 
     const button = useMemo(
         () =>

@@ -26,7 +26,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import * as React from 'react';
-import { FC, MouseEventHandler, ReactNode, useState } from 'react';
+import { FC, MouseEventHandler, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useConfig } from '../../hooks/useConfig';
 import { useFullscreen } from '../../hooks/useFullscreen';
@@ -87,11 +87,11 @@ export const ActionMenu: FC = () => {
     const { connected, connecting, publicKey } = useWallet();
     const { fullscreen, toggleFullscreen } = useFullscreen();
     const { connectWallet, supply, isRecipient, setIsRecipient } = usePayment();
-    const { changeTheme, label } = useConfig();
+    const { changeTheme, label, recipient } = useConfig();
     const navigate = useNavigate();
     const { displayMessage } = useMessage();
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(!recipient || recipient.toBase58() === publicKey?.toBase58());
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
@@ -102,57 +102,77 @@ export const ActionMenu: FC = () => {
         right: false,
     });
 
+    useEffect(() => {
+        const isRecipient = !recipient || recipient.toBase58() === publicKey?.toBase58();
+        setOpen(isRecipient);
+        // setIsRecipient(isRecipient);
+    }, [recipient, publicKey, setIsRecipient]);
+
     const isPhone = useIsMobileSize();
     const direction = (isPhone ? 'right' : 'down') as Direction;
     const anchor = (isPhone ? 'right' : 'left') as Anchor;
     const tooltipPlacement = (isPhone ? 'bottom' : 'right') as Placement;
 
-    const toggleDrawer = (anchor: Anchor, open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-        if (
-            event &&
-            event.type === 'keydown' &&
-            ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-        ) {
-            return;
-        }
+    const toggleDrawer = useCallback(
+        (anchor: Anchor, open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+            if (
+                event &&
+                event.type === 'keydown' &&
+                ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+            ) {
+                return;
+            }
 
-        setState({ ...state, [anchor]: open });
-    };
+            setState({ ...state, [anchor]: open });
+        },
+        [state]
+    );
 
     const { query } = useRouter();
     const { id } = query;
     const merchantList = useLiveQuery(async () => await db.merchants.toArray());
     const changeMerchant = useNavigateToMerchant(() => displayMessage(isRecipient ? 'sendPayment' : 'receivePayment'));
-    const actions = [
-        { icon: <QrCodeScannerIcon />, name: 'scan', onClick: () => navigate('/scanQR') },
-        { icon: <SearchIcon />, name: 'search', onClick: () => navigate('/merchants') },
-        {
-            icon: isRecipient ? <CallMadeIcon /> : <CallReceivedIcon />,
-            name: isRecipient ? 'send' : 'receive',
-            onClick: () => {
-                setIsRecipient(!isRecipient);
-                // handleClose();
-                // displayMessage(isRecipient ? 'sendPayment' : 'receivePayment');
-                const merchant = (
-                    !isRecipient
-                        ? {
-                              index: Number(id),
-                              address: publicKey?.toBase58() || '',
-                              company: '',
-                              currency: CURRENCY,
-                              maxValue: MAX_VALUE,
-                              location: '',
-                          }
-                        : merchantList?.find((m) => m.index === Number(id))
-                ) as MerchantInfo | undefined;
-                if (merchant) {
-                    changeMerchant(merchant);
-                }
+
+    const switchRecipientState = useCallback(() => {
+        const merchant = (
+            !isRecipient
+                ? {
+                      index: id ? Number(id) : 0,
+                      address: publicKey?.toBase58() || '',
+                      company: '',
+                      currency: CURRENCY,
+                      maxValue: MAX_VALUE,
+                      location: '',
+                  }
+                : merchantList?.find((m) => m.index === Number(id))
+        ) as MerchantInfo | undefined;
+        if (merchant) {
+            setIsRecipient(!isRecipient);
+            changeMerchant(merchant);
+        }
+    }, [changeMerchant, id, isRecipient, merchantList, publicKey, setIsRecipient]);
+
+    const actions = useMemo(
+        () => [
+            { icon: <QrCodeScannerIcon />, name: 'scan', onClick: () => navigate('/scanQR') },
+            {
+                icon: <SearchIcon />,
+                name: 'search',
+                onClick: () => {
+                    navigate('/merchants');
+                    setIsRecipient(false);
+                },
             },
-        },
-        { icon: <AddCardIcon />, name: 'supply', onClick: () => supply() },
-        { icon: <MoreHorizIcon />, name: 'more', onClick: toggleDrawer(anchor, true) },
-    ];
+            {
+                icon: isRecipient ? <CallMadeIcon /> : <CallReceivedIcon />,
+                name: isRecipient ? 'send' : 'receive',
+                onClick: switchRecipientState,
+            },
+            { icon: <AddCardIcon />, name: 'supply', onClick: () => supply() },
+            { icon: <MoreHorizIcon />, name: 'more', onClick: toggleDrawer(anchor, true) },
+        ],
+        [anchor, isRecipient, navigate, supply, switchRecipientState, toggleDrawer, setIsRecipient]
+    );
 
     const list = (anchor: Anchor) => (
         <Box

@@ -4,6 +4,8 @@ import {
     findReference,
     FindReferenceError,
     parseURL,
+    TransactionRequestURL,
+    TransferRequestURL,
     ValidateTransferError,
 } from '@solana/pay';
 import {
@@ -82,7 +84,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [airdropStatus, setAirdropStatus] = useState<AirdropStatus>();
     const [confirmations, setConfirmations] = useState<Confirmations>(0);
     const [needRefresh, setNeedRefresh] = useState(false);
-    const [isRecipient, setIsRecipient] = useState(!isPhone);
+    const [isRecipient, setIsRecipient] = useState(!isPhone || !recipientParam);
 
     const navigate = useNavigate();
     const confirmationProgress = useMemo(
@@ -90,7 +92,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         [confirmations, requiredConfirmations]
     );
     const recipient = useMemo(
-        () => (isRecipient && publicKey ? publicKey : recipientParam),
+        () => (isRecipient && publicKey ? publicKey : recipientParam || new PublicKey(0)),
         [recipientParam, publicKey, isRecipient]
     );
 
@@ -105,49 +107,53 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         [setPaymentStatus, processError]
     );
 
-    const url = useMemo(() => {
-        if (link) {
-            const url = new URL(String(link));
+    const getUrl = useCallback(
+        (reference?: PublicKey) => {
+            if (link) {
+                const url = new URL(String(link));
 
-            url.searchParams.append('recipient', recipient.toBase58());
+                url.searchParams.append('recipient', recipient.toBase58());
 
-            if (amount) {
-                url.searchParams.append('amount', amount.toFixed(amount.decimalPlaces() ?? 0));
+                if (amount) {
+                    url.searchParams.append('amount', amount.toFixed(amount.decimalPlaces() ?? 0));
+                }
+
+                if (splToken) {
+                    url.searchParams.append('spl-token', splToken.toBase58());
+                }
+
+                if (reference) {
+                    url.searchParams.append('reference', reference.toBase58());
+                }
+
+                if (memo) {
+                    url.searchParams.append('memo', memo);
+                }
+
+                if (label) {
+                    url.searchParams.append('label', label);
+                }
+
+                if (message) {
+                    url.searchParams.append('message', message);
+                }
+
+                return encodeURL({ link: url });
+            } else {
+                return encodeURL({
+                    recipient,
+                    amount,
+                    splToken,
+                    reference,
+                    label,
+                    message,
+                    memo,
+                });
             }
-
-            if (splToken) {
-                url.searchParams.append('spl-token', splToken.toBase58());
-            }
-
-            if (reference) {
-                url.searchParams.append('reference', reference.toBase58());
-            }
-
-            if (memo) {
-                url.searchParams.append('memo', memo);
-            }
-
-            if (label) {
-                url.searchParams.append('label', label);
-            }
-
-            if (message) {
-                url.searchParams.append('message', message);
-            }
-
-            return encodeURL({ link: url });
-        } else {
-            return encodeURL({
-                recipient,
-                amount,
-                splToken,
-                reference,
-                label,
-                message,
-                memo,
-            });
-        }
-    }, [link, recipient, amount, splToken, reference, label, message, memo]);
+        },
+        [label, link, amount, memo, message, recipient, splToken]
+    );
+    const [url, setUrl] = useState(getUrl());
 
     const hasSufficientBalance = useMemo(
         () =>
@@ -179,13 +185,32 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         setTimeout(() => navigate(PaymentStatus.New, true), isPaidStatus ? 1500 : 0);
     }, [navigate, setPaymentStatus, sendError, isPaidStatus]);
 
-    const generate = useCallback(() => {
-        if (!((paymentStatus === PaymentStatus.New || paymentStatus === PaymentStatus.Error) && !reference)) return;
+    const process = useCallback(
+        (paymentRequest?: TransferRequestURL | TransactionRequestURL) => {
+            if (
+                !(
+                    (paymentStatus === PaymentStatus.New || paymentStatus === PaymentStatus.Error) &&
+                    (!reference || paymentRequest)
+                )
+            )
+                return;
 
-        navigate(PaymentStatus.Processing);
-        setReference(Keypair.generate().publicKey);
-        setTimeout(() => setPaymentStatus(PaymentStatus.Pending), 800);
-    }, [paymentStatus, reference, navigate, setPaymentStatus]);
+            const ref =
+                paymentRequest && !('link' in paymentRequest) && paymentRequest?.reference?.at(0)
+                    ? paymentRequest?.reference[0]
+                    : Keypair.generate().publicKey;
+            setReference(ref);
+            if (paymentRequest) {
+                setUrl(encodeURL(paymentRequest));
+            } else {
+                setUrl(getUrl(ref));
+            }
+
+            setPaymentStatus(PaymentStatus.Pending);
+            navigate(PaymentStatus.Processing);
+        },
+        [paymentStatus, reference, navigate, setPaymentStatus, getUrl]
+    );
 
     const selectWallet = useCallback(() => {
         if (publicKey) return;
@@ -415,10 +440,35 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         const run = async () => {
             try {
+                const request = parseURL(url);
+
+                let recipientParam: PublicKey;
+                let amountParam: BigNumber;
+                let splTokenParam: PublicKey | undefined;
+                let referenceParam: PublicKey | PublicKey[] | undefined;
+
+                if ('link' in request) {
+                    recipientParam = recipient;
+                    amountParam = amount;
+                    splTokenParam = splToken;
+                    referenceParam = reference;
+                } else {
+                    const { recipient, amount, splToken, reference } = request;
+                    recipientParam = recipient;
+                    amountParam = amount || new BigNumber(0);
+                    splTokenParam = splToken;
+                    referenceParam = reference;
+                }
+
                 await validateTransfer(
                     connection,
                     signature,
-                    { recipient, amount, splToken, reference },
+                    {
+                        recipient: recipientParam,
+                        amount: amountParam,
+                        splToken: splTokenParam,
+                        reference: referenceParam,
+                    },
                     { maxSupportedTransactionVersion: 0 }
                 );
                 if (!changed) {
@@ -451,6 +501,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         connection,
         recipient,
         splToken,
+        url,
         reference,
         setPaymentStatus,
         sendError,
@@ -509,7 +560,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 isRecipient,
                 setIsRecipient,
                 reset,
-                generate,
+                process,
                 supply,
                 updateBalance,
                 selectWallet,

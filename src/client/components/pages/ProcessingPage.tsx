@@ -10,7 +10,7 @@ import { TransactionInfo } from '../sections/TransactionInfo';
 import css from './ProcessingPage.module.css';
 
 const ProcessingPage: NextPage = () => {
-    const { reset, generate, paymentStatus, confirmationProgress, isPaidStatus, isRecipient } = usePayment();
+    const { reset, process, paymentStatus, confirmationProgress, isPaidStatus, isRecipient } = usePayment();
 
     const [value, text] = useMemo(() => {
         const count = 6;
@@ -62,7 +62,7 @@ const ProcessingPage: NextPage = () => {
                         {isErrorStatus && (
                             <div className={css.error}>
                                 <ErrorMessage />
-                                <StandardButton messageId="retry" onClick={generate} />
+                                <StandardButton messageId="retry" onClick={() => process()} />
                             </div>
                         )}
                     </div>

@@ -9,7 +9,7 @@ import { Multiplier } from '../../utils/multiplier';
 export interface ConfigProviderProps {
     children: ReactNode;
     link?: URL;
-    recipient: PublicKey;
+    recipient?: PublicKey;
     label: string;
     message?: string;
     splToken?: PublicKey;

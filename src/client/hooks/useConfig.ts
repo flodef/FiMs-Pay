@@ -11,7 +11,7 @@ export enum Theme {
 
 export interface ConfigContextState {
     link: URL | undefined;
-    recipient: PublicKey;
+    recipient: PublicKey | undefined;
     label: string;
     message?: string;
     splToken: PublicKey | undefined;
