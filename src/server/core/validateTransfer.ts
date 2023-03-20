@@ -9,16 +9,18 @@ import {
     ConfirmedTransactionMeta,
     Connection,
     GetVersionedTransactionConfig,
-    Message,
+    LAMPORTS_PER_SOL,
     SIGNATURE_LENGTH_IN_BYTES,
+    SystemInstruction,
+    Transaction,
     TransactionInstruction,
     TransactionSignature,
+    VersionedMessage,
     VersionedTransactionResponse,
 } from '@solana/web3.js';
-import { LAMPORTS_PER_SOL, SystemInstruction, Transaction } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import { MEMO_PROGRAM_ID } from './constants';
 import bs58 from 'bs58';
+import { MEMO_PROGRAM_ID } from './constants';
 
 /**
  * Thrown when a transaction doesn't contain a valid Solana Pay transfer.
@@ -59,7 +61,7 @@ export async function validateTransfer(
     { recipient, amount, splToken, reference, memo }: ValidateTransferFields,
     options?: GetVersionedTransactionConfig
 ): Promise<VersionedTransactionResponse> {
-    const response = await connection.getTransaction(signature, options);
+    const response: VersionedTransactionResponse | null = await connection.getTransaction(signature, options);
     if (!response) throw new ValidateTransferError('not found');
 
     const { message, signatures } = response.transaction;
@@ -104,7 +106,7 @@ function validateMemo(instruction: TransactionInstruction, memo: string): void {
 
 async function validateSystemTransfer(
     instruction: TransactionInstruction,
-    message: Message,
+    message: VersionedMessage,
     meta: ConfirmedTransactionMeta,
     recipient: Recipient,
     references?: Reference[]
@@ -134,7 +136,7 @@ async function validateSystemTransfer(
 
 async function validateSPLTokenTransfer(
     instruction: TransactionInstruction,
-    message: Message,
+    message: VersionedMessage,
     meta: ConfirmedTransactionMeta,
     recipient: Recipient,
     splToken: SPLToken,
@@ -171,7 +173,7 @@ async function validateSPLTokenTransfer(
 
 const DEFAULT_SIGNATURE = Buffer.alloc(SIGNATURE_LENGTH_IN_BYTES).fill(0);
 
-function populate(message: Message, signatures: string[] = []) {
+function populate(message: VersionedMessage, signatures: string[] = []) {
     const transaction = new Transaction();
     transaction.recentBlockhash = message.recentBlockhash;
 
