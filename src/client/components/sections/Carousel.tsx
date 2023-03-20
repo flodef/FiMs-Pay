@@ -15,16 +15,17 @@ export interface MerchantsProps {
 }
 
 export const MerchantCarousel: FC<MerchantsProps> = ({ merchants, id, alt }) => {
-    const { updateBalance } = usePayment();
+    const { updateBalance, setIsRecipient } = usePayment();
     const navigate = useNavigateToMerchant(updateBalance);
     const handleClick = useCallback(
         (index: number) => {
             if (!isFullscreen() && isMobileDevice()) {
                 requestFullscreen();
             }
+            setIsRecipient(false);
             navigate(merchants[index]);
         },
-        [merchants, navigate]
+        [merchants, navigate, setIsRecipient]
     );
     const selectedItem = id && merchants.length > 0 ? parseInt(id.toString()) - merchants[0].index : 0;
 

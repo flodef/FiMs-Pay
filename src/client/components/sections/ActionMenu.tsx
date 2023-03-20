@@ -158,10 +158,7 @@ export const ActionMenu: FC = () => {
             {
                 icon: <SearchIcon />,
                 name: 'search',
-                onClick: () => {
-                    navigate('/merchants');
-                    setIsRecipient(false);
-                },
+                onClick: () => navigate('/merchants'),
             },
             {
                 icon: isRecipient ? <CallMadeIcon /> : <CallReceivedIcon />,
@@ -171,7 +168,7 @@ export const ActionMenu: FC = () => {
             { icon: <AddCardIcon />, name: 'supply', onClick: () => supply() },
             { icon: <MoreHorizIcon />, name: 'more', onClick: toggleDrawer(anchor, true) },
         ],
-        [anchor, isRecipient, navigate, supply, switchRecipientState, toggleDrawer, setIsRecipient]
+        [anchor, isRecipient, navigate, supply, switchRecipientState, toggleDrawer]
     );
 
     const list = (anchor: Anchor) => (
