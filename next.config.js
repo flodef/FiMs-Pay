@@ -35,7 +35,7 @@ const nextConfig = {
             },
             {
                 source: '/',
-                destination: '/merchants',
+                destination: '/new',
                 permanent: false,
             },
         ];
