@@ -2,7 +2,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { FC, useCallback, useMemo } from 'react';
 import { useError } from '../../hooks/useError';
 import { PaymentStatus, usePayment } from '../../hooks/usePayment';
-import { AlertDialogPopup } from '../sections/AlertDialogPopup';
 import { StandardButton } from './StandardButton';
 
 enum State {
@@ -12,11 +11,11 @@ enum State {
     Supply = 'supply',
 }
 
-export interface GenerateButtonProps {
+export interface ActionButtonProps {
     id: string;
 }
 
-export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
+export const ActionButton: FC<ActionButtonProps> = ({ id }) => {
     const {
         amount,
         balance,
@@ -49,7 +48,7 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
                 ? id
                 : !hasSufficientBalance
                 ? State.Supply
-                : null,
+                : undefined,
         [
             connecting,
             balance,
@@ -63,25 +62,6 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
             hasSufficientBalance,
             isRecipient,
         ]
-    );
-
-    // TODO Translate
-    const alert = useMemo(
-        () => undefined,
-        []
-        // action === State.Supply && IS_DEV
-        //     ? {
-        //           title: balanceIsEmpty,
-        //           description: [
-        //               `A new tab will open on a Solana Faucet where you can get some free SOL (for paying transaction fee) and some ${currencyName}:`,
-        //               `1. Paste your wallet address in the faucet recipient text box OR select a wallet`,
-        //               `2. Airdrop some SOL to your Solana wallet on the DEVNET network`,
-        //               `3. Airdrop some ${currencyName} (if possible)`,
-        //           ],
-        //           type: AlertType.Message,
-        //       }
-        //     : undefined,
-        // [action, currencyName, balanceIsEmpty]hasSufficientBalance
     );
 
     const handleClick = useCallback(() => {
@@ -102,36 +82,21 @@ export const GenerateButton: FC<GenerateButtonProps> = ({ id }) => {
         a()();
     }, [id, action, process, connectWallet, updateBalance, supply]);
 
-    const button = useMemo(
-        () =>
-            action && (
-                <StandardButton
-                    messageId={action}
-                    onClick={!alert ? handleClick : undefined}
-                    hasTheme={action !== State.Connecting}
-                    style={{ cursor: action === State.Connecting ? 'default' : 'pointer' }}
-                    disabled={
-                        publicKey !== null &&
-                        !connecting &&
-                        ((isRecipient && isInvalidAmount) ||
-                            (!isRecipient &&
-                                hasSufficientBalance &&
-                                (isInvalidAmount || paymentStatus !== PaymentStatus.New)))
-                    }
-                />
-            ),
-        [
-            action,
-            connecting,
-            handleClick,
-            hasSufficientBalance,
-            isInvalidAmount,
-            publicKey,
-            paymentStatus,
-            alert,
-            isRecipient,
-        ]
+    return (
+        <StandardButton
+            messageId={action}
+            onClick={handleClick}
+            hasTheme={action !== State.Connecting}
+            style={{ cursor: action === State.Connecting ? 'default' : 'pointer' }}
+            disabled={
+                action === null ||
+                (publicKey !== null &&
+                    !connecting &&
+                    ((isRecipient && isInvalidAmount) ||
+                        (!isRecipient &&
+                            hasSufficientBalance &&
+                            (isInvalidAmount || paymentStatus !== PaymentStatus.New))))
+            }
+        />
     );
-
-    return <AlertDialogPopup button={button} onClick={handleClick} alert={alert} />;
 };

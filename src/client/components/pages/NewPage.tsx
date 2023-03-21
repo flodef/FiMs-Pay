@@ -6,7 +6,7 @@ import { AirdropStatus, usePayment } from '../../hooks/usePayment';
 import { DEFAULT_WALLET } from '../../utils/env';
 import { FiMsWalletName } from '../../utils/FiMsWalletAdapter';
 import { useIsMobileSize } from '../../utils/mobile';
-import { GenerateButton } from '../buttons/GenerateButton';
+import { ActionButton } from '../buttons/ActionButton';
 import { NumPad } from '../sections/NumPad';
 import { PoweredBy } from '../sections/PoweredBy';
 import { Progress, ProgresShape } from '../sections/Progress';
@@ -69,7 +69,7 @@ const NewPage: NextPage = () => {
                 <TopBar />
                 <div className={css.body}>
                     <NumPad />
-                    <GenerateButton id={generateId} />
+                    <ActionButton id={generateId} />
                 </div>
                 <PoweredBy />
             </div>
@@ -86,7 +86,7 @@ const NewPage: NextPage = () => {
             <div className={css.side}>
                 <div className={css.summary}>
                     <Summary />
-                    <GenerateButton id={generateId} />
+                    <ActionButton id={generateId} />
                 </div>
             </div>
         </div>

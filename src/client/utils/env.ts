@@ -1,8 +1,6 @@
 export const CURRENCY = process.env.NEXT_PUBLIC_CURRENCY || 'SOL';
 export const MAX_VALUE = Number(process.env.NEXT_PUBLIC_MAX_VALUE) || 99999.99;
-export const POS_USE_WALLET = process.env.NEXT_PUBLIC_POS_USE_WALLET === 'true' || false;
 export const SHOW_SYMBOL = process.env.NEXT_PUBLIC_SHOW_SYMBOL === 'true' || false;
-export const SHOW_MERCHANT_LIST = process.env.NEXT_PUBLIC_SHOW_MERCHANT_LIST === 'true' || false;
 export const IS_DEV = process.env.NEXT_PUBLIC_IS_DEV === 'true' || false;
 export const USE_HTTP = process.env.NEXT_PUBLIC_USE_HTTP === 'true' || false;
 export const USE_LINK = process.env.NEXT_PUBLIC_USE_LINK === 'true' || false;

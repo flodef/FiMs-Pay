@@ -326,8 +326,6 @@ Here is the list of all availables settings with their explanation and default v
 -   IMAGE_DOMAIN=flodef.github.io : Domain Address where images are stored (used by Next.JS to cache and improve loading performances).
 -   NEXT_PUBLIC_CURRENCY=SOL : Default currency used (Possible value can be : EUR, agEUR, USDC, USDC_Dev, USDT, SOL, BONK).
 -   NEXT_PUBLIC_MAX_VALUE=99999.99 : Default maximum value a merchant can receive as a payment (for example, a bakery won't probably never be paid more than $1000).
--   NEXT_PUBLIC_POS_USE_WALLET=false : Whether the POS needs to connect a wallet to get it's address / balance, or simply uses an address to get payments to.
--   NEXT_PUBLIC_SHOW_MERCHANT_LIST=false : Whether a list of predefined merchants should be shown or a more advanced menu to enter one's own merchant infos
 -   NEXT_PUBLIC_SHOW_SYMBOL=false : Whether to show the currency's symbol or its name (for example, SOL currency's name is SOL and symbol's ◎, as well USDC's symbol would be $).
 -   NEXT_PUBLIC_IS_DEV=false : Whether the Solana Network used is Devnet or Mainnet .
 -   NEXT_PUBLIC_USE_HTTP=false : Whether the Web protocol used is HTTP or HTTPS (in dev, HTTPS needs a proxy to run in background while HTTP do not).
