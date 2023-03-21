@@ -23,7 +23,7 @@ interface Props {
 }
 
 const ScanQRPage: NextPage = () => {
-    const { process } = usePayment();
+    const { process, setIsRecipient } = usePayment();
 
     const router = useRouter();
     const video = createRef<HTMLVideoElement>();
@@ -181,7 +181,10 @@ const ScanQRPage: NextPage = () => {
 
                         <StandardButton
                             messageId={'pay'}
-                            onClick={() => process(paymentInfo)}
+                            onClick={() => {
+                                process(paymentInfo);
+                                setIsRecipient(false);
+                            }}
                             style={{ marginBottom: 48 }}
                             disabled={disabled}
                             setDisabled={setDisabled}
