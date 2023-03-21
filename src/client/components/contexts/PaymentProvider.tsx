@@ -187,14 +187,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     const process = useCallback(
         (paymentRequest?: TransferRequestURL | TransactionRequestURL) => {
-            if (
-                !(
-                    (paymentStatus === PaymentStatus.New || paymentStatus === PaymentStatus.Error) &&
-                    (!reference || paymentRequest)
-                )
-            )
-                return;
-
             const ref =
                 paymentRequest && !('link' in paymentRequest) && paymentRequest?.reference?.at(0)
                     ? paymentRequest?.reference[0]
@@ -209,7 +201,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             setPaymentStatus(PaymentStatus.Pending);
             navigate(PaymentStatus.Processing);
         },
-        [paymentStatus, reference, navigate, setPaymentStatus, getUrl]
+        [navigate, setPaymentStatus, getUrl]
     );
 
     const selectWallet = useCallback(() => {
@@ -371,11 +363,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     );
                 }
             } catch (error: any) {
-                // If the transaction is declined or fails, try again
                 sendError(error);
-                if (isRecipient) {
-                    timeout = setTimeout(run, 5000);
-                }
             }
         };
         let timeout = setTimeout(run, 0);
@@ -388,15 +376,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     // When the status is pending, poll for the transaction using the reference key
     useEffect(() => {
-        if (
-            !(
-                ((isRecipient && paymentStatus === PaymentStatus.Pending) ||
-                    (!isRecipient && paymentStatus === PaymentStatus.Sent)) &&
-                reference &&
-                !signature
-            )
-        )
-            return;
+        const hasCorrectStatus =
+            (isRecipient && paymentStatus === PaymentStatus.Pending) ||
+            (!isRecipient && paymentStatus === PaymentStatus.Sent);
+        if (!(hasCorrectStatus && reference && !signature)) return;
         let changed = false;
 
         const interval = setInterval(async () => {
@@ -410,10 +393,11 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     setPaymentStatus(PaymentStatus.Confirmed);
                 }
             } catch (error: any) {
+                // If status is no longer correct, stop polling
+                if (!hasCorrectStatus) clearInterval(interval);
+
                 // If the RPC node doesn't have the transaction signature yet, try again
-                if (!compareErrorType(error, new FindReferenceError())) {
-                    sendError(error);
-                }
+                if (!compareErrorType(error, new FindReferenceError())) sendError(error);
             }
         }, 250);
 
@@ -475,6 +459,9 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     setPaymentStatus(PaymentStatus.Valid);
                 }
             } catch (error: any) {
+                // If status is no longer correct, stop polling
+                if (paymentStatus !== PaymentStatus.Confirmed) return;
+
                 // If the RPC node doesn't have the transaction yet, try again
                 if (
                     compareErrorType(error, new ValidateTransferError()) &&
