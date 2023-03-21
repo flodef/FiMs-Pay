@@ -1,41 +1,37 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { db } from '../../utils/db';
 import { ABOUT_LINK } from '../../utils/env';
-import { LoadMerchantData } from '../../utils/merchant';
 import { MerchantCarousel } from '../sections/Carousel';
 import { MerchantInfo } from '../sections/Merchant';
 import css from './MerchantsPage.module.css';
 
 const MerchantsPage: NextPage = () => {
-    const [merchantInfoList, setMerchantInfoList] = useState<MerchantInfo[]>();
     const { query } = useRouter();
     const { id } = query;
 
     const isLoaded = useRef(false);
+    const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[] }>();
     useEffect(() => {
         if (!isLoaded.current) {
             isLoaded.current = true;
-            LoadMerchantData().then(setMerchantInfoList);
+            db.merchants.toArray().then((merchantInfoList) => {
+                setMerchants(
+                    merchantInfoList.reduce<{ [key: string]: MerchantInfo[] }>((resultArray, item) => {
+                        const location = item.location;
+                        if (!resultArray[location]) {
+                            resultArray[location] = [];
+                        }
+                        resultArray[location].push(item);
+
+                        return resultArray;
+                    }, {})
+                );
+            });
         }
-    }, []);
-
-    const merchants = useMemo(
-        () =>
-            merchantInfoList
-                ? merchantInfoList.reduce<{ [key: string]: MerchantInfo[] }>((resultArray, item) => {
-                      const location = item.location;
-                      if (!resultArray[location]) {
-                          resultArray[location] = [];
-                      }
-                      resultArray[location].push(item);
-
-                      return resultArray;
-                  }, {})
-                : undefined,
-        [merchantInfoList]
-    );
+    }, [merchants]);
 
     return merchants && Object.keys(merchants).length > 0 ? (
         <div className={css.root}>

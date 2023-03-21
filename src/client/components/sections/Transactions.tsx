@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useLiveQuery } from 'dexie-react-hooks';
-import React, { FC, useMemo } from 'react';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, FormattedNumber, FormattedRelativeTime } from 'react-intl';
 import { useConfig } from '../../hooks/useConfig';
 import { Transaction, useTransactions } from '../../hooks/useTransactions';
@@ -16,10 +16,21 @@ interface AddressIndex {
 
 export const Transactions: FC = () => {
     const { transactions } = useTransactions();
-    const addressIndexList = useLiveQuery(async () => await db.merchants.toArray())?.map((x) => {
-        return { address: x.address, label: x.company };
-    });
-    addressIndexList?.push({ address: FAUCET_ADDRESS ?? '', label: APP_TITLE });
+
+    const isLoaded = useRef(false);
+    const [addressIndexList, setAddressIndexList] = useState<{ address: string; label: string }[]>();
+    useEffect(() => {
+        if (!isLoaded.current) {
+            isLoaded.current = true;
+            db.merchants.toArray().then((x) => {
+                const addressIndexList = x.map((x) => {
+                    return { address: x.address, label: x.company };
+                });
+                addressIndexList.push({ address: FAUCET_ADDRESS ?? '', label: APP_TITLE });
+                setAddressIndexList(addressIndexList);
+            });
+        }
+    }, []);
 
     return (
         <div className={css.root}>
