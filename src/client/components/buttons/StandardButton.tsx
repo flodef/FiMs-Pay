@@ -131,13 +131,13 @@ export const StandardButton: FC<StandardButtonProps> = ({
             }
             style={style}
             type="button"
-            onClick={onClick}
+            onClick={handleClick}
             disabled={disabled}
         >
             {icon === Icon.Back && (
                 <NavigateBeforeIcon fontSize="large" className={theme === Theme.Color ? css.buttonColor : ''} />
             )}
-            <FormattedMessage id={messageId} />
+            {messageId ? <FormattedMessage id={messageId} /> : null}
             {icon === Icon.Next && (
                 <NavigateNextIcon fontSize="large" className={theme === Theme.Color ? css.buttonColor : ''} />
             )}
