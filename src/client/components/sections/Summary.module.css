@@ -2,10 +2,12 @@
     line-height: 24px;
     padding-bottom: 12px;
     margin-bottom: 12px;
+    text-align: left;
 }
 
 .balance {
     font-style: italic;
+    text-align: left;
 }
 
 .total {
@@ -28,6 +30,7 @@
 
 .totalLeft {
     height: 36px;
+    text-align: left;
 }
 
 .totalRight {
