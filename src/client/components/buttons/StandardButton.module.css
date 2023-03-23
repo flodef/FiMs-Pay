@@ -28,6 +28,7 @@
 .rootEmpty {
     padding: 0px;
     gap: 0px;
+    background-color: transparent;
 }
 
 .root[disabled],
@@ -74,12 +75,10 @@
 }
 
 :global(html.light) .rootEmpty {
-    background-color: var(--theme-light-background);
     color: var(--theme-light-color);
 }
 
 :global(html.dark) .rootEmpty {
-    background-color: var(--theme-dark-background);
     color: var(--theme-dark-color);
 }
 
