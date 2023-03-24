@@ -144,7 +144,6 @@ export default class FiMsWallet extends EventEmitter {
 
         return transactions;
     }
-    // TODO : translate
     async signMessage(data: Uint8Array, display?: 'hex' | 'utf8'): Promise<Uint8Array> {
         const message = Message.from(data);
         const transaction = Transaction.populate(message);

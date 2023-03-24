@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
+import { fetchDataError, googleAuthenticatorError } from '../components/pages/App';
 import { MerchantInfo } from '../components/sections/Merchant';
 import { PaymentStatus } from '../hooks/usePayment';
 import { createURLWithParams, getBaseURL } from './createURLWithQuery';
@@ -15,8 +16,7 @@ import { GOOGLE_API_KEY, GOOGLE_SPREADSHEET_ID } from './env';
  * @example
  */
 export async function LoadMerchantData() {
-    // TODO : translate error
-    // TODO : add cache
+    // TODO : add cache + image
     const dataURL =
         GOOGLE_SPREADSHEET_ID && GOOGLE_API_KEY
             ? `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SPREADSHEET_ID}/values/merchant!A%3AZ?valueRenderOption=UNFORMATTED_VALUE&key=${GOOGLE_API_KEY}`
@@ -24,12 +24,9 @@ export async function LoadMerchantData() {
 
     return await fetch(dataURL)
         .catch((error) => {
-            throw new Error(
-                error +
-                    '\nHave you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?'
-            );
+            throw new Error(error + '\n' + fetchDataError);
         })
-        .then(convertMerchantData);
+        .then(ConvertMerchantData);
 }
 
 /**
@@ -40,25 +37,17 @@ export async function LoadMerchantData() {
  * @example
  * const merchantInfoList = await fetch(dataURL)
  *     .catch((error) => {
- *        throw new Error(
- *           error +
- *              '\nHave you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?'
- *       );
- *   })
- *  .then(convertMerchantData);
+ *         throw new Error(error + '\n' + fetchDataError);
+ *     })
+ *  .then(ConvertMerchantData);
  * @example
  */
-async function convertMerchantData(response: Response) {
-    // TODO : translate error
+async function ConvertMerchantData(response: Response) {
     const merchantInfoList = await response
         .json()
         .then((data: { values: (string | number)[][]; error: { message: string } }) => {
             if (!data) throw new Error('data not fetched');
-            if (data.error && data.error.message)
-                throw new Error(
-                    data.error.message +
-                        '\nHave you try running with GOOGLE_SPREADSHEET_ID / GOOGLE_API_KEY with default value (see Environment settings, .env.local)?'
-                );
+            if (data.error && data.error.message) throw new Error(data.error.message + '\n' + googleAuthenticatorError);
             if (!data.values || data.values.length === 0) throw new Error('missing data pattern');
             const labels = data.values[0];
             return data.values

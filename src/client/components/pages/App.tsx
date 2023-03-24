@@ -52,6 +52,11 @@ declare module '@mui/material/Button' {
     }
 }
 
+export const fetchDataError =
+    'Have you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?';
+export const googleAuthenticatorError =
+    'Have you try running with GOOGLE_SPREADSHEET_ID / GOOGLE_API_KEY with default value (see Environment settings, .env.local)?';
+
 interface AppProps extends NextAppProps {
     host: string;
     query: {
@@ -175,7 +180,6 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
     const [messages, setMessages] = useState<Record<string, string>>({});
     const isLangInit = useRef(false);
 
-    // TODO : translate error
     useEffect(() => {
         if (navigator) {
             const newLang = navigator.language;
@@ -183,10 +187,7 @@ const App: FC<AppProps> & { getInitialProps(appContext: AppContext): Promise<App
                 isLangInit.current = true;
                 fetch(`${baseURL}/api/fetchMessages?locale=${newLang}`)
                     .catch((error) => {
-                        throw new Error(
-                            error +
-                                '\nHave you try running with HTTPS (USE_HTTP=false) and not using local proxy (see Environment settings, .env.local)?'
-                        );
+                        throw new Error(error + '\n' + fetchDataError);
                     })
                     .then((response) => response.json())
                     .then((data) => {
