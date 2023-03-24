@@ -45,14 +45,14 @@ export async function createTransfer(
     { commitment }: { commitment?: Commitment } = {}
 ): Promise<Transaction> {
     // Check that the sender is not the recipitent and that the sender accounts exist
-    if (sender === recipient) throw new CreateTransferError('sender is also recipient');
+    if (sender.toString() === recipient.toString()) throw new CreateTransferError('sender is also recipient');
     const senderInfo = await connection.getAccountInfo(sender);
     if (!senderInfo) throw new CreateTransferError('sender not found');
 
     // A native SOL or SPL token transfer instruction
     const instruction = splToken
         ? await createSPLTokenInstruction(recipient, amount, splToken, sender, connection)
-        : await createSystemInstruction(recipient, amount, senderInfo, connection);
+        : await createSystemInstruction(recipient, amount, sender, senderInfo, connection);
 
     // If reference accounts are provided, add them to the transfer instruction
     if (reference) {
@@ -97,6 +97,7 @@ export async function createTransfer(
 async function createSystemInstruction(
     recipient: PublicKey,
     amount: BigNumber,
+    sender: PublicKey,
     senderInfo: AccountInfo<Buffer>,
     connection: Connection
 ): Promise<TransactionInstruction> {
@@ -119,7 +120,7 @@ async function createSystemInstruction(
 
     // Create an instruction to transfer native SOL
     return SystemProgram.transfer({
-        fromPubkey: senderInfo.owner,
+        fromPubkey: sender,
         toPubkey: recipient,
         lamports,
     });
