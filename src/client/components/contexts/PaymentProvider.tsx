@@ -25,12 +25,13 @@ import {
     LAMPORTS_PER_SOL,
     PublicKey,
     sendAndConfirmTransaction,
+    SystemProgram,
     Transaction,
     TransactionConfirmationStrategy,
     TransactionSignature,
 } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createTransfer } from '../../../server/core/createTransfer';
 import { validateTransfer } from '../../../server/core/validateTransfer';
 import { useConfig } from '../../hooks/useConfig';
@@ -266,41 +267,58 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [loadBalance]);
 
     const requestAirdrop = useCallback(async () => {
-        // TODO : translate
         try {
             if (!(FAUCET_ENCODED_KEY && IS_DEV && publicKey)) return;
             if (connection.rpcEndpoint !== clusterApiUrl('devnet')) throw new Error('Airdrop available only on Devnet');
 
             setAirdropStatus(AirdropStatus.RetrievingRecipient);
             const recipientInfo = await connection.getAccountInfo(publicKey);
-            if (!recipientInfo || recipientInfo.lamports < 0.1 * LAMPORTS_PER_SOL) {
-                setAirdropStatus(AirdropStatus.TransferingSOL);
-                const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
-                setAirdropStatus(AirdropStatus.ConfirmingSOLTransfer);
-                await connection.confirmTransaction({
-                    signature,
-                } as TransactionConfirmationStrategy);
+            let needSol = !recipientInfo || recipientInfo.lamports < LAMPORTS_PER_SOL / 100;
+            if (needSol) {
+                try {
+                    setAirdropStatus(AirdropStatus.TransferingSOL);
+                    const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
+                    setAirdropStatus(AirdropStatus.ConfirmingSOLTransfer);
+                    await connection.confirmTransaction({
+                        signature,
+                    } as TransactionConfirmationStrategy);
+                    needSol = false;
+                } catch {}
             }
-            if (splToken) {
+            if (splToken || needSol) {
                 setAirdropStatus(AirdropStatus.DecryptingAccount);
                 const value = await decrypt(FAUCET_ENCODED_KEY, CRYPTO_SECRET, await LoadKey(-1), USE_CUSTOM_CRYPTO);
                 const list = value.split(',').map(Number);
                 const array = Uint8Array.from(list);
                 const keypair = Keypair.fromSecretKey(array);
-                setAirdropStatus(AirdropStatus.RetrievingTokenAccount);
-                const mint = await getMint(connection, splToken);
-                const tokenAccount = await getOrCreateAssociatedTokenAccount(connection, keypair, splToken, publicKey);
-                setAirdropStatus(AirdropStatus.TransferingToken);
-                const currentAmount = Number(tokenAccount.amount / BigInt(Math.pow(10, mint.decimals)));
-                const transaction = await createTransfer(connection, keypair.publicKey, {
-                    recipient: publicKey,
-                    amount: BigNumber((5.55 / Math.max(currentAmount, 1)).toFixed(2)),
-                    splToken: splToken,
-                });
-                setAirdropStatus(AirdropStatus.ConfirmingTokenTransfer);
-                await sendAndConfirmTransaction(connection, transaction, [keypair], {
-                    commitment: 'confirmed',
-                });
+                if (needSol) {
+                    setAirdropStatus(AirdropStatus.TransferingSOL);
+                    const transaction = await createTransfer(connection, keypair.publicKey, {
+                        recipient: publicKey,
+                        amount: BigNumber(0.1),
+                    });
+                    setAirdropStatus(AirdropStatus.ConfirmingSOLTransfer);
+                    await sendAndConfirmTransaction(connection, transaction, [keypair]);
+                }
+                if (splToken) {
+                    setAirdropStatus(AirdropStatus.RetrievingTokenAccount);
+                    const mint = await getMint(connection, splToken);
+                    const tokenAccount = await getOrCreateAssociatedTokenAccount(
+                        connection,
+                        keypair,
+                        splToken,
+                        publicKey
+                    );
+                    setAirdropStatus(AirdropStatus.TransferingToken);
+                    const currentAmount = Number(tokenAccount.amount / BigInt(Math.pow(10, mint.decimals)));
+                    const transaction = await createTransfer(connection, keypair.publicKey, {
+                        recipient: publicKey,
+                        amount: BigNumber((5.55 / Math.max(currentAmount, 1)).toFixed(2)),
+                        splToken: splToken,
+                    });
+                    setAirdropStatus(AirdropStatus.ConfirmingTokenTransfer);
+                    await sendAndConfirmTransaction(connection, transaction, [keypair]);
+                }
             }
             await updateBalance();
         } catch (error: any) {
@@ -375,6 +393,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     }, [paymentStatus, publicKey, url, connection, isRecipient, sendTransaction, setPaymentStatus, sendError]);
 
     // When the status is pending, poll for the transaction using the reference key
+    const watchDog = useRef(0);
     useEffect(() => {
         const hasCorrectStatus =
             (isRecipient && paymentStatus === PaymentStatus.Pending) ||
@@ -388,13 +407,20 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 signature = await findReference(connection, reference);
 
                 if (!changed) {
+                    watchDog.current = 0;
                     clearInterval(interval);
                     setSignature(signature.signature);
                     setPaymentStatus(PaymentStatus.Confirmed);
                 }
             } catch (error: any) {
-                // If status is no longer correct, stop polling
-                if (!hasCorrectStatus) clearInterval(interval);
+                const isTimeOut = watchDog.current++ > 120;
+
+                // If status is no longer correct or the watch dog has expired, stop polling
+                if (!hasCorrectStatus || isTimeOut) {
+                    watchDog.current = 0;
+                    clearInterval(interval);
+                    if (isTimeOut) sendError(new Error('Transaction timed out'));
+                }
 
                 // If the RPC node doesn't have the transaction signature yet, try again
                 if (!compareErrorType(error, new FindReferenceError())) sendError(error);
@@ -403,6 +429,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
         return () => {
             changed = true;
+            watchDog.current = 0;
             clearInterval(interval);
         };
     }, [
