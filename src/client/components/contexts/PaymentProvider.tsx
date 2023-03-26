@@ -14,6 +14,7 @@ import {
     getMint,
     getOrCreateAssociatedTokenAccount,
     TokenAccountNotFoundError,
+    TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
 import { WalletName } from '@solana/wallet-adapter-base';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -21,11 +22,11 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import {
     clusterApiUrl,
     ConfirmedSignatureInfo,
+    GetProgramAccountsFilter,
     Keypair,
     LAMPORTS_PER_SOL,
     PublicKey,
     sendAndConfirmTransaction,
-    SystemProgram,
     Transaction,
     TransactionConfirmationStrategy,
     TransactionSignature,
@@ -163,7 +164,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 isRecipient ||
                 balance === undefined ||
                 balance.lt(0) ||
-                balance.gt(amount || 0)),
+                balance.gte(Number(amount || 0) || 1 / LAMPORTS_PER_SOL)),
         [balance, amount, paymentStatus, isRecipient]
     );
     const isPaidStatus = useMemo(
@@ -302,7 +303,6 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 }
                 if (splToken) {
                     setAirdropStatus(AirdropStatus.RetrievingTokenAccount);
-                    const mint = await getMint(connection, splToken);
                     const tokenAccount = await getOrCreateAssociatedTokenAccount(
                         connection,
                         keypair,
@@ -310,6 +310,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                         publicKey
                     );
                     setAirdropStatus(AirdropStatus.TransferingToken);
+                    const mint = await getMint(connection, splToken);
                     const currentAmount = Number(tokenAccount.amount / BigInt(Math.pow(10, mint.decimals)));
                     const transaction = await createTransfer(connection, keypair.publicKey, {
                         recipient: publicKey,
