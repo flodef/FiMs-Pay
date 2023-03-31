@@ -103,6 +103,7 @@
     "QRCodeNotFound": "QRコードが見つかりませんでした",
     "openQRFile": "QRファイルを開く",
     "paymentRequest": "支払い依頼",
+    "closeAccount": "アカウントを閉じる",
     "unknown": "不明",
 
     "WalletNotConnectedError": "ウォレットが接続されていません!",

@@ -103,6 +103,7 @@
     "QRCodeNotFound": "QR-kodo ne troveblas",
     "openQRFile": "Malfermu QR-dosieron",
     "paymentRequest": "Paga peto",
+    "closeAccount": "Fermi konton",
     "unknown": "Nekonata",
 
     "WalletNotConnectedError": "Monujo Ne Konektita!",

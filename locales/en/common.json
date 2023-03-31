@@ -103,6 +103,7 @@
     "QRCodeNotFound": "QR Code not found",
     "openQRFile": "Open QR Code file",
     "paymentRequest": "Payment Request",
+    "closeAccount": "Close Account",
     "unknown": "Unknown",
 
     "WalletNotConnectedError": "Wallet Not Connected!",

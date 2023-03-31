@@ -88,7 +88,7 @@
     "saveWallet": "Sauvegarder son porte-monnaie",
     "aleadyHaveWallet": "J'ai déjà un porte-monnaie",
     "createWallet": "Je veux créer un porte-monnaie",
-    "enterRecoveryPhrase": "Afin de pouvoir récupérer votre porte-monnaie ultérieurement, il va d'abord vous falloir entrez une phrase d'au moins deux mots séparés par un espace (par exemple : un nom / prénom) :",
+    "enterRecoveryPhrase": "Afin de pouvoir récupérer votre porte-monnaie ultérieurement, il va d'abord vous falloir entrer une phrase d'au moins deux mots séparés par un espace (par exemple : un nom / prénom) :",
     "howToSavePhrase": "Vous devez à présent sauvegarder NUMERIQUEMENT votre phrase en la copiant / collant sur un support sécurisé (dans vos contacts, une note, un email, un message, un tweet,...)",
     "howToSaveDate": "Il est également important de conserver la date du jour ({date}) car elle vous sera demandée en cas de perte de votre porte-monnaie.",
     "verifyRecoveryPhrase": "Pour confirmer que vous avez bien sauvegardé votre phrase, veuillez la coller ci-dessous (appui-long puis 'Coller' sur mobile/tablette, click droit puis 'Coller' sur ordinateur) :",
@@ -103,6 +103,7 @@
     "QRCodeNotFound": "Aucun QR Code trouvé !",
     "openQRFile": "Ouvrir un fichier QR Code",
     "paymentRequest": "Demande de paiement",
+    "closeAccount": "Fermer le compte",
     "unknown": "Inconnu",
 
     "WalletNotConnectedError": "Porte-monnaie non connecté !",
