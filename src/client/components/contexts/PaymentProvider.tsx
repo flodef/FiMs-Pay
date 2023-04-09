@@ -280,10 +280,17 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                     setAirdropStatus(AirdropStatus.TransferingSOL);
                     const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
                     setAirdropStatus(AirdropStatus.ConfirmingSOLTransfer);
-                    await connection.confirmTransaction({
+                    const confirmTransactionPromise = new Promise(() => {
+                        connection.confirmTransaction({
                         signature,
                     } as TransactionConfirmationStrategy);
-                    needSol = false;
+                    });
+                    const timerPromise = new Promise((resolve, reject) => {
+                        setTimeout(resolve, 3 * 1000, 'TIMED_OUT');
+                    });
+                    await Promise.race([confirmTransactionPromise, timerPromise]).then(
+                        (value) => (needSol = value !== undefined)
+                    );
                 } catch {}
             }
             if (splToken || needSol) {
