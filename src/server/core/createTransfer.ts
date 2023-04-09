@@ -107,9 +107,12 @@ async function createSystemInstruction(
 
     // Check that the recipient is valid native accounts
     const recipientInfo = await connection.getAccountInfo(recipient);
-    if (!recipientInfo) throw new CreateTransferError('recipient not found');
-    if (!recipientInfo.owner.equals(SystemProgram.programId)) throw new CreateTransferError('recipient owner invalid');
-    if (recipientInfo.executable) throw new CreateTransferError('recipient executable');
+    // if (!recipientInfo) throw new CreateTransferError('recipient not found');
+    if (recipientInfo) {
+        if (!recipientInfo.owner.equals(SystemProgram.programId))
+            throw new CreateTransferError('recipient owner invalid');
+        if (recipientInfo.executable) throw new CreateTransferError('recipient executable');
+    }
 
     // Check that the amount provided doesn't have greater precision than SOL
     if ((amount.decimalPlaces() ?? 0) > SOL_DECIMALS) throw new CreateTransferError('amount decimals invalid');
