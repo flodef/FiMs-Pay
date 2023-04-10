@@ -106,6 +106,7 @@
     "closeAccount": "Cerrar cuenta",
     "unknown": "Desconocido",
 
+    "PrivateNavigationNotSupported": "¡La navegación privada no está soportada! \nPor favor, desactive la navegación privada o use un navegador diferente.",
     "WalletNotConnectedError": "Billetera no conectado!",
     "WalletSignTransactionError": "¡Rechazaste la transacción!",
     "WalletSendTransactionError": "¡Tardó demasiado en aprobar la transacción!",

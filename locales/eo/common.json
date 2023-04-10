@@ -106,6 +106,7 @@
     "closeAccount": "Fermi konton",
     "unknown": "Nekonata",
 
+    "PrivateNavigationNotSupported": "Privata navigado ne estas subtenata! \nBonvolu uzi publika navigado.",
     "WalletNotConnectedError": "Monujo Ne Konektita!",
     "WalletSignTransactionError": "Vi malakceptis la transakcion!",
     "WalletSendTransactionError": "Vi daŭris tro longe por aprobi la transakcion!",

@@ -106,6 +106,7 @@
     "closeAccount": "Fechar conta",
     "unknown": "Desconhecido",
 
+    "PrivateNavigationNotSupported": "Navegação privada não suportada! \nPor favor, desative o modo de navegação privada e tente novamente.",
     "WalletNotConnectedError": "Carteira não conectada!",
     "WalletSignTransactionError": "Você recusou a transação!",
     "WalletSendTransactionError": "Você demorou muito para aprovar a transação!",

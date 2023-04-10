@@ -106,6 +106,7 @@
     "closeAccount": "Close Account",
     "unknown": "Unknown",
 
+    "PrivateNavigationNotSupported": "Private Navigation is not supported. \nPlease use a normal browser window.",
     "WalletNotConnectedError": "Wallet Not Connected!",
     "WalletSignTransactionError": "You declined the transaction!",
     "WalletSendTransactionError": "You took too long to approve the transaction!",

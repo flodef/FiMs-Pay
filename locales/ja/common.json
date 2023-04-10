@@ -106,6 +106,7 @@
     "closeAccount": "アカウントを閉じる",
     "unknown": "不明",
 
+    "PrivateNavigationNotSupported": "プライベートウォレットはサポートされていません! \nプライベートウォレットを使用するには、ウォレットを公開ウォレットに変更してください。",
     "WalletNotConnectedError": "ウォレットが接続されていません!",
     "WalletSignTransactionError": "取引を拒否しました!",
     "WalletSendTransactionError": "トランザクションの承認に時間がかかりすぎました!",
