@@ -300,12 +300,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 const array = Uint8Array.from(list);
                 const keypair = Keypair.fromSecretKey(array);
                 if (needSol) {
-                    setAirdropStatus(AirdropStatus.TransferingSOL);
                     const transaction = await createTransfer(connection, keypair.publicKey, {
                         recipient: publicKey,
                         amount: BigNumber(0.1),
                     });
-                    setAirdropStatus(AirdropStatus.ConfirmingSOLTransfer);
                     await sendAndConfirmTransaction(connection, transaction, [keypair]);
                 }
                 if (splToken) {
