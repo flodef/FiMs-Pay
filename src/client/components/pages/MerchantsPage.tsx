@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { db } from '../../utils/db';
 import { ABOUT_LINK } from '../../utils/env';
 import { MerchantCarousel } from '../sections/Carousel';
@@ -12,26 +12,33 @@ const MerchantsPage: NextPage = () => {
     const { query } = useRouter();
     const { id } = query;
 
+    const useTranslate = (id: string) => useIntl().formatMessage({ id: id });
+    const privateNavigationNotSupported = useTranslate('PrivateNavigationNotSupported');
+
     const isLoaded = useRef(false);
     const [merchants, setMerchants] = useState<{ [key: string]: MerchantInfo[] }>();
     useEffect(() => {
         if (!isLoaded.current) {
             isLoaded.current = true;
-            db.merchants.toArray().then((merchantInfoList) => {
-                setMerchants(
-                    merchantInfoList.reduce<{ [key: string]: MerchantInfo[] }>((resultArray, item) => {
-                        const location = item.location;
-                        if (!resultArray[location]) {
-                            resultArray[location] = [];
-                        }
-                        resultArray[location].push(item);
+            if (db.isOpen()) {
+                db.merchants.toArray().then((merchantInfoList) => {
+                    setMerchants(
+                        merchantInfoList.reduce<{ [key: string]: MerchantInfo[] }>((resultArray, item) => {
+                            const location = item.location;
+                            if (!resultArray[location]) {
+                                resultArray[location] = [];
+                            }
+                            resultArray[location].push(item);
 
-                        return resultArray;
-                    }, {})
-                );
-            });
+                            return resultArray;
+                        }, {})
+                    );
+                });
+            } else {
+                alert(privateNavigationNotSupported);
+            }
         }
-    }, [merchants]);
+    }, [merchants, privateNavigationNotSupported]);
 
     return merchants && Object.keys(merchants).length > 0 ? (
         <div className={css.root}>

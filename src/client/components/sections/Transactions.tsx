@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { useLiveQuery } from 'dexie-react-hooks';
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, FormattedNumber, FormattedRelativeTime } from 'react-intl';
 import { useConfig } from '../../hooks/useConfig';

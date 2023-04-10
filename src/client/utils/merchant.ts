@@ -65,7 +65,10 @@ async function ConvertMerchantData(response: Response) {
                 });
         });
 
-    await db.merchants.bulkPut(merchantInfoList);
+    if (db.isOpen()) {
+        await db.merchants.bulkPut(merchantInfoList);
+    }
+
     return merchantInfoList;
 }
 
