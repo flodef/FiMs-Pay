@@ -20,7 +20,9 @@ const MerchantsPage: NextPage = () => {
     useEffect(() => {
         if (!isLoaded.current) {
             isLoaded.current = true;
-            if (db.isOpen()) {
+            const dbx = indexedDB.open('FiMsDb');
+            dbx.onerror = () => alert(privateNavigationNotSupported);
+            dbx.onsuccess = () => {
                 db.merchants.toArray().then((merchantInfoList) => {
                     setMerchants(
                         merchantInfoList.reduce<{ [key: string]: MerchantInfo[] }>((resultArray, item) => {
@@ -34,9 +36,7 @@ const MerchantsPage: NextPage = () => {
                         }, {})
                     );
                 });
-            } else {
-                alert(privateNavigationNotSupported);
-            }
+            };
         }
     }, [merchants, privateNavigationNotSupported]);
 

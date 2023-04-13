@@ -65,9 +65,8 @@ async function ConvertMerchantData(response: Response) {
                 });
         });
 
-    if (db.isOpen()) {
-        await db.merchants.bulkPut(merchantInfoList);
-    }
+    const dbx = indexedDB.open('FiMsDb');
+    dbx.onsuccess = async () => await db.merchants.bulkPut(merchantInfoList);
 
     return merchantInfoList;
 }
